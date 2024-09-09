@@ -5,11 +5,11 @@ export TransformUtils
 
 
 function elementWiseMult(
-    series::Array{Vector{Float64}},
+    series::Array{Vector{T}},
     n::Int
-)::Vector{Float64}
+)::Vector{T} where {T<:Real}
 
-    crossEspectrum::Vector{Float64} = ones(Float64, length(rfftfreq(n)) - 1)
+    crossEspectrum::Vector{T} = ones(T, length(rfftfreq(n)) - 1)
     for s in series
         dft = rfft(s)
         crossEspectrum = crossEspectrum .* abs.(dft[2:length(dft)])

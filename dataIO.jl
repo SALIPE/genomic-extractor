@@ -91,5 +91,21 @@ function sequence2NumericalSerie(
     return arrSeq
 end
 
+function sequence2NumericalSerie(
+    seqpar::AbstractString,
+    initIndex::Integer,
+    endIndex::Integer
+)::Vector{Float64}
+
+    dict = keys(EIIP_NUCLEOTIDE)
+    arrSeq = Float64[]
+    @inbounds for c in initIndex:endIndex
+        key = seqpar[c]
+        keyin = key ∈ dict
+        push!(arrSeq, keyin ? EIIP_NUCLEOTIDE[key] : zero(Float64))
+    end
+    return arrSeq
+end
+
 
 end

@@ -5,103 +5,80 @@ using AbstractFFTs, FASTX, Plots, LoopVectorization, Normalization
 using .DataIO, .TransformUtils
 
 
+function _extractFreqWindow(
+    numSeries::Array{Vector{T}},
+    seqLen::Int
+)::Vector{Int} where {T<:Real}
 
-function _separateSequences!(
-    series::Array{Vector{Float64}}
-)::Vector{Float64}
+    freqIndexes = Integer[]
+    crossEspectrum = TransformUtils.elementWiseMult(numSeries, seqLen)
+    N = MinMax(crossEspectrum)
+    norm = N(crossEspectrum)
 
-    minLength::Int = length(series[argmin(series)])
-
-    toCross::Array{Vector{Float64}} = []
-    toReprocess::Array{Vector{Float64}} = []
-    for numSeries in series
-        seqLen::Int = length(seq)
-        if seqLen == minLength
-            push!(toCross, numSeries)
+    @inbounds for ii in eachindex(norm)
+        if norm[ii] >= 0.1
+            push!(freqIndexes, ii)
         else
-            push!(crossParts, numSeries[1:minLength])
-            push!(toReprocess, numSeries[minLength:length(numSeries)])
+            crossEspectrum[ii] = zero(T)
         end
     end
 
-    if length(toReprocess) > 1
-        return _separateSequences!(toReprocess)
-    end
+    normal = irfft(crossEspectrum, seqLen - 1)
 
-    # cross = TransformUtils.elementWiseMult(toCross)
+    plt = plot([norm, normal], layout=(2, 1))
+    savefig(plt, "filter2.png")
+
+    if (freqIndexes[1] == freqIndexes[length(freqIndexes)])
+        return [1, freqIndexes[1]]
+    end
+    return [freqIndexes[1], freqIndexes[length(freqIndexes)]]
 
 end
-
-
-
 
 let
-    # filePath::String = "/home/salipe/Desktop/GitHub/datasets/gen_dron_car.fasta"
-    # sequences = open(FASTAReader, filePath)
+    filePath::String = "/home/salipe/Desktop/GitHub/datasets/gen_dron_car.fasta"
+    seqReader = open(FASTAReader, filePath)
+
 
     # minLength = DataIO.getShortestLength(filePath)
-    powder = 256
+    powder = 512
 
-    seq1::String = "GTATCCACAAAGTTAATTATCGCGAACGAGTCCTCCTTTCAACCGTGCCACGCGTGCCGCACTCGATGCGAGGAAGAAATTTCCGTTTTCAAAAGCCGTCTGTCTCTCCATTATCCGCTACCATCCTCTCGTACCACCATCTCTTTCTCGTGCCCCAAATCACCCC"
-    numSeries = DataIO.sequence2NumericalSerie(seq1)
-    dft::Vector{ComplexF64} = rfft(numSeries)
+    initI = 10000
+    endI = initI + powder
 
-    filtered = zeros(ComplexF64, length(dft))
-    ii = firstindex(dft)
-    @inbounds while ii <= 25
-        filtered[ii] = dft[ii]
-        ii += 1
+    toCross = Array{Vector{Float64}}(undef, 3)
+    for (seqno, record) in enumerate(seqReader)
+        toCross[seqno] = DataIO.sequence2NumericalSerie(sequence(record), initI, endI)
     end
-    normal = irfft(filtered, length(numSeries))
-    N = MinMax(normal)
-    cross = N(normal)
-    plt = plot([numSeries, abs.(dft[2:length(dft)]), abs.(filtered[2:length(dft)]), cross], layout=(4, 1))
-    savefig(plt, "filter.png")
 
-    idx_commom = Vector{Int}()
-    i = firstindex(numSeries)
-    @inbounds while i <= lastindex(numSeries)
-        rounded = round(normal[i], digits=4)
-        if numSeries[i] == rounded
-            push!(idx_commom, i)
-        end
-        i += 1
-    end
-    @show idx_commom
+    freqWindow = _extractFreqWindow(toCross, powder)
+    @show freqWindow
 
-    # toCross::Array{Vector{Float64}} = []
-    # toReprocess::Array{Vector{Float64}} = []
-    # for seq in sequences
-    #     seqLen::Int = seqsize(seq)
-    #     numSeries = DataIO.sequence2NumericalSerie(sequence(seq))
-    #     push!(toCross, numSeries[25000000:25000000+powder])
-    #     # if seqLen == minLength
-    #     #     push!(toCross, numSeries)
-    #     # else
-    #     #     push!(toCross, numSeries[1:minLength])
-    #     #     push!(toReprocess, numSeries[minLength:length(numSeries)])
-    #     # end
+    # numSeries = DataIO.sequence2NumericalSerie(seq1)
+    # dft::Vector{ComplexF64} = rfft(numSeries)
+
+    # filtered = zeros(ComplexF64, length(dft))
+    # ii = firstindex(dft)
+    # @inbounds while ii <= 25
+    #     filtered[ii] = dft[ii]
+    #     ii += 1
     # end
-    # cross = TransformUtils.elementWiseMult(toCross, powder)
-    # N = MinMax(cross)
-    # cross = N(cross)
-    # dftfreq = rfftfreq(minLength)
+    # normal = irfft(filtered, length(numSeries))
+    # N = MinMax(normal)
+    # cross = N(normal)
+    # plt = plot([numSeries, abs.(dft[2:length(dft)]), abs.(filtered[2:length(dft)]), cross], layout=(4, 1))
+    # savefig(plt, "filter.png")
 
-    # plt = plot(cross, xlabel="Frequency (Hz)", ylabel="Magnitude", title="FFT of the Signal")
-
-
-    # if length(toReprocess) > 1
-    #     return _separateSequences!(toReprocess)
+    # idx_commom = Vector{Int}()
+    # i = firstindex(numSeries)
+    # @inbounds while i <= lastindex(numSeries)
+    #     rounded = round(normal[i], digits=4)
+    #     if numSeries[i] == rounded
+    #         push!(idx_commom, i)
+    #     end
+    #     i += 1
     # end
-
+    # @show idx_commom
 
 end
-
-
-# seqLen = length(convsig)
-# less::Int8 = seqLen % 2 == 0 ? 1 : 2
-
-# dftfreq = rfftfreq(2000)
-# plt = plot(dftfreq, abs.(dftv[1000:2000]), xlabel="Frequency (Hz)", ylabel="Magnitude", title="FFT of the Signal")
-# savefig(plt, "myplotconv2.png")
 
