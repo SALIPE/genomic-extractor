@@ -8,7 +8,7 @@ using .DataIO, .TransformUtils
 function _extractFreqWindow(
     numSeries::Array{Vector{T}},
     seqLen::Int
-)::Vector{Int} where {T<:Real}
+)::Tuple{Int,Int} where {T<:Real}
 
     freqIndexes = Integer[]
     crossEspectrum = TransformUtils.elementWiseMult(numSeries, seqLen)
@@ -23,62 +23,128 @@ function _extractFreqWindow(
         end
     end
 
-    normal = irfft(crossEspectrum, seqLen - 1)
+    # normal = irfft(crossEspectrum, seqLen - 1)
 
-    plt = plot([norm, normal], layout=(2, 1))
-    savefig(plt, "filter2.png")
+    # plt = plot([norm, normal], layout=(2, 1))
+    # savefig(plt, "filter2.png")
 
-    if (freqIndexes[1] == freqIndexes[length(freqIndexes)])
-        return [1, freqIndexes[1]]
+    # Filtro passa faixa, ou retornando apenas a frequencia como impulso
+    if length(freqIndexes) > 0
+        if (freqIndexes[1] == freqIndexes[length(freqIndexes)])
+            return (1, freqIndexes[1])
+        end
+        return (freqIndexes[1], freqIndexes[length(freqIndexes)])
+    else
+        return (1, seqLen)
     end
-    return [freqIndexes[1], freqIndexes[length(freqIndexes)]]
+end
+
+function writeFASTA(
+    originalFilePath::String,
+    filename::String,
+    ranges::Vector{Tuple{Int,Int}}
+)
+    for record in open(FASTAReader, originalFilePath)
+        name = identifier(record)
+        total = length(ranges)
+        current = 0
+        println("\nExporting file: " * name * filename)
+        FASTAWriter(open(name * filename, "w")) do writer
+            for (initRng, endRng) in ranges
+                DataIO.progressBar!(current, total)
+                write(writer, FASTARecord(name * ":" * string(initRng) * "_" * string(endRng),
+                    sequence(record)[initRng:endRng]))
+                current += 1
+            end
+            DataIO.progressBar!(current, total)
+        end
+    end
 
 end
 
-let
-    filePath::String = "/home/salipe/Desktop/GitHub/datasets/gen_dron_car.fasta"
-    seqReader = open(FASTAReader, filePath)
+function filterSignal!(
+    points::Vector{Int},
+    wndw::Tuple{Int,Int},
+    wndwSize::Int,
+    sequence::Vector{Float64},
+    threshold::T
+) where {T<:Real}
 
+    fft = abs.(rfft(sequence))
+    for ii in eachindex(fft)
+        if (ii < wndw[1] || ii > wndw[2])
+            fft[ii] = zero(T)
+        end
+    end
+    normal = irfft(fft, length(sequence))
+    N = MinMax(normal)
+    norm = N(normal)
 
-    # minLength = DataIO.getShortestLength(filePath)
-    powder = 512
+    # plt = plot([sequence, fft, norm], layout=(3, 1))
+    # savefig(plt, "filter_current.png")
 
-    initI = 10000
-    endI = initI + powder
-
-    toCross = Array{Vector{Float64}}(undef, 3)
-    for (seqno, record) in enumerate(seqReader)
-        toCross[seqno] = DataIO.sequence2NumericalSerie(sequence(record), initI, endI)
+    for ii in eachindex(norm)
+        if norm[ii] >= threshold
+            push!(points, ii + wndwSize)
+        end
     end
 
-    freqWindow = _extractFreqWindow(toCross, powder)
-    @show freqWindow
+end
 
-    # numSeries = DataIO.sequence2NumericalSerie(seq1)
-    # dft::Vector{ComplexF64} = rfft(numSeries)
+function extractRanges(norm::Vector{Int}, tolerance::Int)::Vector{Tuple{Int,Int}}
+    ranges = Vector{Tuple{Int,Int}}()
+    n = length(norm)
+    if n == 0
+        return ranges
+    end
+    start_idx = 1
+    for i in 2:n
+        # Check if the current value is not within the tolerance to the previous one
+        if norm[i] > norm[i-1] + tolerance + 1
+            # Add the current range (start_idx to i-1)
+            push!(ranges, (norm[start_idx], norm[i-1]))
+            # Start a new range from the current index
+            start_idx = i
+        end
+    end
+    push!(ranges, (norm[start_idx], norm[n]))
+    return ranges
+end
 
-    # filtered = zeros(ComplexF64, length(dft))
-    # ii = firstindex(dft)
-    # @inbounds while ii <= 25
-    #     filtered[ii] = dft[ii]
-    #     ii += 1
-    # end
-    # normal = irfft(filtered, length(numSeries))
-    # N = MinMax(normal)
-    # cross = N(normal)
-    # plt = plot([numSeries, abs.(dft[2:length(dft)]), abs.(filtered[2:length(dft)]), cross], layout=(4, 1))
-    # savefig(plt, "filter.png")
 
-    # idx_commom = Vector{Int}()
-    # i = firstindex(numSeries)
-    # @inbounds while i <= lastindex(numSeries)
-    #     rounded = round(normal[i], digits=4)
-    #     if numSeries[i] == rounded
-    #         push!(idx_commom, i)
-    #     end
-    #     i += 1
-    # end
-    # @show idx_commom
+
+
+let
+    filePath::String = "/home/salipe/Desktop/GitHub/datasets/gen_dron_car.fasta"
+    seqStat = DataIO.getShortestLength(filePath)
+
+    minSize = seqStat[1]
+    slidWindw = 1024
+    initI = 1
+
+    discPoints = Int[]
+    println("Processing Regions")
+    toCross = Array{Vector{Float64}}(undef, seqStat[2])
+    @inbounds while (initI + slidWindw) <= minSize
+        endI = (initI + slidWindw) - 1
+        for (seqno, record) in enumerate(open(FASTAReader, filePath))
+            toCross[seqno] = DataIO.sequence2NumericalSerie(sequence(record), initI, endI)
+        end
+
+        freqWindow = _extractFreqWindow(toCross, slidWindw)
+        for serie in toCross
+            filterSignal!(discPoints, freqWindow, initI - 1, serie, 0.2)
+        end
+        DataIO.progressBar!(endI, minSize)
+        initI = endI + 1
+    end
+    DataIO.progressBar!(100, 100)
+
+    ranges = extractRanges(sort(unique(discPoints)), 100)
+    # @show ranges
+    writeFASTA(filePath, "_output.fasta", ranges)
+
+    println("")
 
 end
 

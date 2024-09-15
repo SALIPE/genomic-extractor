@@ -63,18 +63,20 @@ end
 
 function getShortestLength(
     filePath::String
-)::Int
-    sequenceLen::Int = zero(Int)
+)::Tuple{Int,Int}
+    seqAmount::Int = zero(Int)
+    seqLen::Int = zero(Int)
     for record in open(FASTAReader, filePath)
+        seqAmount += 1
         @show seqsize(record)
-        if (iszero(sequenceLen))
-            sequenceLen = seqsize(record)
-        elseif (seqsize(record) < sequenceLen)
-            sequenceLen = seqsize(record)
+        if (iszero(seqLen))
+            seqLen = seqsize(record)
+        elseif (seqsize(record) < seqLen)
+            seqLen = seqsize(record)
         end
 
     end
-    return sequenceLen
+    return (seqLen, seqAmount)
 end
 
 function sequence2NumericalSerie(
@@ -105,6 +107,19 @@ function sequence2NumericalSerie(
         push!(arrSeq, keyin ? EIIP_NUCLEOTIDE[key] : zero(Float64))
     end
     return arrSeq
+end
+
+function progressBar!(current::Int, total::Int; width::Int=50)
+    progress = current / total
+    complete_width = Int(round(progress * width))
+    incomplete_width = width - complete_width
+    bar = "[" * "="^complete_width * "-"^incomplete_width * "]"
+
+    percentage = Int(round(progress * 100))
+
+    print("\r", bar, " ", percentage, "%")
+
+    flush(stdout)
 end
 
 
