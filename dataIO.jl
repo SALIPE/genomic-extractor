@@ -122,5 +122,27 @@ function progressBar!(current::Int, total::Int; width::Int=50)
     flush(stdout)
 end
 
+function writeFASTA(
+    originalFilePath::String,
+    filename::String,
+    ranges::Vector{Tuple{Int,Int}}
+)
+    for record in open(FASTAReader, originalFilePath)
+        name = identifier(record)
+        total = length(ranges)
+        current = 0
+        println("\nExporting file: " * name * filename)
+        FASTAWriter(open(name * filename, "w")) do writer
+            for (initRng, endRng) in ranges
+                DataIO.progressBar!(current, total)
+                write(writer, FASTARecord(name * ":" * string(initRng) * "_" * string(endRng),
+                    sequence(record)[initRng:endRng]))
+                current += 1
+            end
+            DataIO.progressBar!(current, total)
+        end
+    end
+end
+
 
 end
