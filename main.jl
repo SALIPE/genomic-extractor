@@ -1,20 +1,19 @@
 
 using Distributed, Pkg
 
-
-
 Pkg.activate("/home/salipe/Desktop/GitHub/rrm-genomic-extractor")
 Pkg.instantiate()
 include("dataIO.jl")
 include("transformUtils.jl")
 
-addprocs(4)
+# addprocs(4)
 
-@everywhere begin
+# @everywhere
 
-    using AbstractFFTs, FASTX, Plots, LoopVectorization, Normalization, ArgParse
-    using .DataIO, .TransformUtils
+using AbstractFFTs, FASTX, Plots, LoopVectorization, Normalization, ArgParse
+using .DataIO, .TransformUtils
 
+begin
 
     function _extractFreqWindow(
         numSeries::Array{Vector{T}},
@@ -144,20 +143,23 @@ addprocs(4)
             "-w", "--window"
             help = "Slide window size to apply method in the chromossome. Values from [256, 512, 1024, 2048]"
             default = 2048
-            "-r", "--rangetolerance"
+            "-r", "--range-tolerance"
             help = "Tolarence range to create ranges ex. -t 2 => [(1-15), (18-20)] turns into [(1-20)]"
             default = 100
             "-t", "--threshold"
             help = "Threshold value for the filtered signal to select regions"
             default = 0.2
+            "-b", "--bed-file"
+            help = "BED file with regions to analyse"
         end
 
         parsed_args = parse_args(ARGS, setting)
         println(parsed_args)
 
         sldWindow::Int = parsed_args["window"]
-        tolerance::Int = parsed_args["rangetolerance"]
+        tolerance::Int = parsed_args["range-tolerance"]
         threshold::Float64 = parsed_args["threshold"]
+        regionsbedfile = parsed_args["bed-file"]
 
         valid_wndw = [256, 512, 1024, 2048]
         if !(sldWindow in valid_wndw)
@@ -171,7 +173,13 @@ addprocs(4)
 
         filePath::String = "/home/salipe/Desktop/GitHub/datasets/gen_dron_car.fasta"
 
-        _runMethodology!(filePath, sldWindow, tolerance, threshold)
+        if regionsbedfile === nothing
+            # _runMethodology!(filePath, sldWindow, tolerance, threshold)
+        else
+            # regions = DataIO.readRegionsFromBed(regionsbedfile)
+        end
+
+
     end
 
     main()

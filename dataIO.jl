@@ -144,5 +144,25 @@ function writeFASTA(
     end
 end
 
+function readRegionsFromBed(
+    bedFilePath::String
+)::Vector{Tuple{String,Int,Int}}
+
+    regioes = Vector{Tuple{String,Int,Int}}()
+    open(bedFilePath) do bed
+        for linha in readlines(bed)
+            if strip(linha) != ""  # Ignora linhas vazias
+                campos = split(linha)
+                cromossomo::String = campos[1]
+                inicio::String = campos[2] # Começo da região (0-indexed)
+                fim::String = campos[3]     # Fim da região (1-indexed)
+                push!(regioes, (cromossomo, parse(Int, inicio), parse(Int, fim)))
+            end
+        end
+
+    end
+    return regioes
+end
+
 
 end
