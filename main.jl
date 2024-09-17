@@ -100,6 +100,8 @@ begin
     end
 
 
+
+    #WARNING: tem que considerar os finais das sequencias nos indices que não completam
     function _runMethodology!(
         filePath::String,
         slidWindw::Int,
@@ -133,6 +135,54 @@ begin
         # @show ranges
         DataIO.writeFASTA(filePath, "_output.fasta", ranges)
         println("")
+
+    end
+
+    function _runMethodology!(
+        dirPath::String,
+        regions::Vector{Tuple{String,Int,Int}},
+        tolerance::Int,
+        signalThreshold::Float64
+    )
+        files::Vector{String} = readdir(dirPath)
+
+        extractRegionPoints = Dict{String,Vector{Tuple{Int,Int}}}()
+        println("Applying RRM at regions")
+        # Mudar no futuro para parelelizar so é possivel atualmente pq está linear
+        toCross = Array{Vector{Float64}}(undef, length(files))
+        for (i, (chr, initI, endI)) in enumerate(regions)
+            DataIO.progressBar!(i, length(regions))
+            discPoints = Int[]
+            # Each file is a genome from a organism
+            for (fileno, file) in enumerate(files)
+                reader = open(FASTAReader, dirPath * "/" * file)
+                for record in reader
+                    if (identifier(record) == chr)
+                        toCross[fileno] = DataIO.sequence2NumericalSerie(sequence(record), initI, endI)
+                    end
+                end
+
+                close(reader)
+            end
+
+            freqWindow = _extractFreqWindow(toCross, endI - initI)
+            for serie in toCross
+                filterSignal!(discPoints, freqWindow, initI - 1, serie, signalThreshold)
+            end
+            ranges = extractRanges(sort(unique(discPoints)), tolerance)
+
+            try
+                extractRegionPoints[chr] = vcat(extractRegionPoints[chr], ranges)
+            catch
+                extractRegionPoints[chr] = ranges
+            end
+        end
+        DataIO.progressBar!(1, 1)
+        println("")
+        @show extractRegionPoints
+
+
+
 
     end
 
@@ -172,11 +222,13 @@ begin
         println("Selected threshold value: $threshold")
 
         filePath::String = "/home/salipe/Desktop/GitHub/datasets/gen_dron_car.fasta"
+        dirPath::String = "/home/salipe/Desktop/GitHub/datasets/dron_iber_test"
 
         if regionsbedfile === nothing
             # _runMethodology!(filePath, sldWindow, tolerance, threshold)
         else
-            # regions = DataIO.readRegionsFromBed(regionsbedfile)
+            regions = DataIO.readRegionsFromBed(regionsbedfile)
+            _runMethodology!(dirPath, regions, tolerance, threshold)
         end
 
 
