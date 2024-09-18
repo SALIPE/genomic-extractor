@@ -133,7 +133,7 @@ begin
 
         ranges = extractRanges(sort(unique(discPoints)), tolerance)
         # @show ranges
-        DataIO.writeFASTA(filePath, "_output.fasta", ranges)
+        DataIO.writeFASTASingleChr!(filePath, "_output.fasta", ranges)
         println("")
 
     end
@@ -161,7 +161,6 @@ begin
                         toCross[fileno] = DataIO.sequence2NumericalSerie(sequence(record), initI, endI)
                     end
                 end
-
                 close(reader)
             end
 
@@ -179,10 +178,7 @@ begin
         end
         DataIO.progressBar!(1, 1)
         println("")
-        @show extractRegionPoints
-
-
-
+        DataIO.writeFASTAS!(dirPath, "_output.fasta", extractRegionPoints)
 
     end
 

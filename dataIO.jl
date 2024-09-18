@@ -122,7 +122,7 @@ function progressBar!(current::Int, total::Int; width::Int=50)
     flush(stdout)
 end
 
-function writeFASTA(
+function writeFASTASingleChr!(
     originalFilePath::String,
     filename::String,
     ranges::Vector{Tuple{Int,Int}}
@@ -130,18 +130,41 @@ function writeFASTA(
     for record in open(FASTAReader, originalFilePath)
         name = identifier(record)
         total = length(ranges)
-        current = 0
-        println("\nExporting file: " * name * filename)
+        println("\nExporting file: $name $filename")
         FASTAWriter(open(name * filename, "w")) do writer
-            for (initRng, endRng) in ranges
+            for (current, (initRng, endRng)) in enumerate(ranges)
                 DataIO.progressBar!(current, total)
                 write(writer, FASTARecord(name * ":" * string(initRng) * "_" * string(endRng),
                     sequence(record)[initRng:endRng]))
-                current += 1
             end
-            DataIO.progressBar!(current, total)
         end
     end
+end
+
+function writeFASTAS!(
+    originalDirPath::String,
+    filename::String,
+    ranges::Dict{String,Vector{Tuple{Int,Int}}}
+)
+
+    chrs = keys(ranges)
+    @show chrs
+    for file in readdir(originalDirPath)
+        println("\nExporting file: $file")
+        FASTAWriter(open(file * filename, "w")) do writer
+            for record in open(FASTAReader, originalDirPath * "/" * file)
+                chr = identifier(record)
+                @show chr
+                if (chr ∈ chrs)
+                    for (initRng, endRng) in ranges[chr]
+                        write(writer, FASTARecord(chr * ":" * string(initRng) * "_" * string(endRng),
+                            sequence(record)[initRng:endRng]))
+                    end
+                end
+            end
+        end
+    end
+
 end
 
 function readRegionsFromBed(
