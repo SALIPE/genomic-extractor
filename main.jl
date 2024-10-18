@@ -1,9 +1,8 @@
 
 using Distributed, Pkg
 
-Pkg.activate("/home/salipe/Desktop/GitHub/rrm-genomic-extractor")
-Pkg.instantiate()
 include("dataIO.jl")
+include("kmerUtils.jl")
 include("transformUtils.jl")
 
 # addprocs(4)
@@ -11,7 +10,7 @@ include("transformUtils.jl")
 # @everywhere
 
 using AbstractFFTs, FASTX, Plots, LoopVectorization, Normalization, ArgParse
-using .DataIO, .TransformUtils
+using .DataIO, .TransformUtils, .KmerUtils
 
 begin
 
@@ -226,11 +225,31 @@ begin
             regions = DataIO.readRegionsFromBed(regionsbedfile)
             _runMethodology!(dirPath, regions, tolerance, threshold)
         end
+    end
 
+    function runEntropy()
+        setting = ArgParseSettings()
+        @add_arg_table! setting begin
+            "-f", "--file"
+            help = "Fasta file"
+            required = true
+        end
+
+        parsed_args = parse_args(ARGS, setting)
+
+        fastaFile::String = parsed_args["file"]
+        sequences::Array{String} = []
+        for record in open(FASTAReader, fastaFile)
+            seq::String = sequence(String, record)
+            push!(sequences,seq)
+        end
+        kmers = KmerUtils.kmersFrequencies(sequences[1], 3, 1)
+        @show kmers
 
     end
 
-    main()
+
+    runEntropy()
 
 
 end
