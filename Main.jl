@@ -1,16 +1,23 @@
 
 using Distributed, Pkg
 
-include("dataIO.jl")
-include("kmerUtils.jl")
-include("transformUtils.jl")
+include("DataIO.jl")
+include("KmerUtils.jl")
+include("TransformUtils.jl")
 
 # addprocs(4)
 
 # @everywhere
 
-using AbstractFFTs, FASTX, Plots, LoopVectorization, Normalization, ArgParse
-using .DataIO, .TransformUtils, .KmerUtils
+using AbstractFFTs,
+    FASTX,
+    Plots,
+    LoopVectorization,
+    Normalization,
+    ArgParse,
+    .DataIO,
+    .KmerUtils,
+    .TransformUtils
 
 begin
 
@@ -241,7 +248,7 @@ begin
         sequences::Array{String} = []
         for record in open(FASTAReader, fastaFile)
             seq::String = sequence(String, record)
-            push!(sequences,seq)
+            push!(sequences, seq)
         end
         kmers = KmerUtils.kmersFrequencies(sequences[1], 3, 1)
         @show kmers
