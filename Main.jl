@@ -3,6 +3,7 @@ using Distributed, Pkg
 
 include("DataIO.jl")
 include("KmerUtils.jl")
+include("EntropyUtil.jl")
 include("TransformUtils.jl")
 
 # addprocs(4)
@@ -17,7 +18,8 @@ using AbstractFFTs,
     ArgParse,
     .DataIO,
     .KmerUtils,
-    .TransformUtils
+    .TransformUtils,
+    .EntropyUtil
 
 begin
 
@@ -250,8 +252,10 @@ begin
             seq::String = sequence(String, record)
             push!(sequences, seq)
         end
-        kmers = KmerUtils.kmersFrequencies(sequences[1], 3, 1)
+        kmers = KmerUtils.kmersFrequencies(sequences[1], 6, 1)
         @show kmers
+        frequency = EntropyUtil.maxEntropy(kmers)
+        @show frequency
 
     end
 

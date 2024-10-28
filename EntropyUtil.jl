@@ -4,7 +4,7 @@ module EntropyUtil
 
 export EntropyUtil
 
-function entropy(x::Vector{Float64})::Vector{Float64}
+function _entropy(probs::Vector{Float64})::Float64
     """
     Calculates the entropy of a array.
 
@@ -12,17 +12,15 @@ function entropy(x::Vector{Float64})::Vector{Float64}
         x: The probabilities p0 and p1.
 
     Returns:
-        entropy_values: The calculated entropy.
+        entropy_value: The calculated entropy.
 
     """
-    # non_zero_indices:Tuple[np.int64] = np.nonzero(x)
-    # return -(x[non_zero_indices] * np.log2(x[non_zero_indices]))
-    return -(x[x!=0] * np.log2(x[x!=0]))
+    return sum(-p * log2(p) for p in probs if p > 0.0)
 end
 
 function maxEntropy(
     kmers::Dict{String,Int}
-)::Tuple{Float64,Int,Int,Vector{Float64}}
+)::Int
 
     """
     Kapur's threshold method.
@@ -37,31 +35,35 @@ function maxEntropy(
         kmers: frequency of occurrence for each kmers.
 
     Returns:
-        maxEntropy: the maximum entropy value.
-        threshold: the threshold value.
         frequency: the frequency at which the threshold occurs in the histogram.
-        entropyCurve: all calculated entropies.
-
     """
-
     data::Vector{Int} = collect(values(kmers))
+    total = sum(data)
+    sort!(data, rev=true)
+    normalized_data::Vector{Float64} = [x / total for x in data]
 
-    totalPixel::Int = sum(data)
+    # Calculate the entropy curve
+    entropy_curve = [
+        let
+            # Region A: probs[1:s]
+            p_a = sum(normalized_data[1:s])
+            h_a = p_a > 0.0 ?
+                  _entropy([x / p_a for x in normalized_data[1:s]]) : 0.0
 
-    descendingData::Vector{Int} = sort(data, rev=true)
-    probs::Vector{Float64} = descendingData / totalPixel
+            # Region B: probs[s+1:end]
+            p_b = sum(normalized_data[s+1:end])
+            h_b = p_b > 0.0 ?
+                  _entropy([x / p_b for x in normalized_data[s+1:end]]) : 0.0
 
-    p0::Vector{Float64} = cumsum(probs)
-    p1::Vector{Float64} = reverse(cumsum(probs))
+            h_a + h_b
+        end for s in 1:(length(normalized_data)-1)
+    ]
 
-    h0::Vector{Float64} = entropy(p0)
-    h1::Vector{Float64} = entropy(p1)
-    entropyCurve::Vector{Float64} = [h0_i + h1_i for (h0_i, h1_i) in zip(h0, h1)]
+    # Find the index of the maximum entropy and the corresponding frequency
+    # that index will represent the treshold value
+    max_entropy_idx::Int = argmax(entropy_curve)
+    frequency::Int = data[max_entropy_idx]
 
-    maxEntropy::Float64 = maximum(entropyCurve)
-    threshold::Int = argmax(entropyCurve)
-    frequency::Int = descendingData[threshold-1]
-
-    return (maxEntropy, threshold, frequency, entropyCurve)
+    return frequency
 end
 end
