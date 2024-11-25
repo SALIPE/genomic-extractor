@@ -1,5 +1,6 @@
 
 using Distributed, Pkg
+Pkg.instantiate()
 Pkg.activate(".")
 
 include("DataIO.jl")
@@ -290,10 +291,8 @@ begin
     function tstmain()
         dataset::String = "../datasets/tutorial_data/VOCs"
 
-        for fastaFile in readdir(dataset)
-            @show fastaFile
+        Threads.@threads for fastaFile in readdir(dataset)
             sequences::Array{String} = []
-
             for record in open(FASTAReader, "$dataset/$fastaFile")
                 seq::String = sequence(String, record)
                 push!(sequences, seq)
