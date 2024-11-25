@@ -288,26 +288,29 @@ begin
 
 
     function tstmain()
-        fastaFile::String = "/home/salipe/Desktop/GitHub/datasets/tutorial_data/VOCs/Alpha.fasta"
-        sequences::Array{String} = []
+        dataset::String = "../datasets/tutorial_data/VOCs"
 
-        for record in open(FASTAReader, fastaFile)
-            seq::String = sequence(String, record)
-            push!(sequences, seq)
+        for fastaFile in readdir(dataset)
+            @show fastaFile
+            sequences::Array{String} = []
+
+            for record in open(FASTAReader, "$dataset/$fastaFile")
+                seq::String = sequence(String, record)
+                push!(sequences, seq)
+            end
+            totalprogress = length(sequences)
+            wndwStep::Int8 = 1
+            plt = plot(title="Entropy for $fastaFile", xlims=[0, Inf])
+
+            for (s, seqs) in enumerate(sequences)
+                slideWndw::Int32 = ceil(Int32, length(seqs) * 0.1)
+                y = mountEntropyByWndw(slideWndw, wndwStep, seqs, s, totalprogress)
+
+                plot!(plt, range(1, length(y)), y, label="org $s")
+            end
+
+            png(plt, fastaFile)
         end
-        totalprogress = length(sequences)
-        wndwStep::Int8 = 1
-        plt = plot(title="Entropy", xlims=[0, Inf])
-
-        for (s, seqs) in enumerate(sequences)
-            slideWndw::Int32 = ceil(Int32, length(seqs) * 0.1)
-            y = mountEntropyByWndw(slideWndw, wndwStep, seqs, s, totalprogress)
-
-            plot!(plt, range(1, length(y)), y, label="org $s")
-        end
-
-        display(plt)
-
     end
 
     tstmain()
