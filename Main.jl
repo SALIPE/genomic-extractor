@@ -1,5 +1,6 @@
 
 using Distributed, Pkg
+Pkg.activate(".")
 
 include("DataIO.jl")
 include("KmerUtils.jl")
@@ -259,8 +260,57 @@ begin
 
     end
 
+    function mountEntropyByWndw(
+        wndwSize::Int32,
+        step::Int8,
+        sequence::String,
+        currprogress::Int,
+        totalprogress::Int)::Vector{Float64}
 
-    runEntropy()
+        DataIO.progressBar!(currprogress, totalprogress)
+        index = 1
+
+        seqlen = length(sequence)
+        pos::Int16 = 1
+        entropyX::Vector{Float64} = zeros(Float64, seqlen - wndwSize + 1)
+
+        while (index + wndwSize - 1) <= seqlen
+            windown = sequence[index:index+wndwSize-1]
+            kmers::Dict{String,Int} = KmerUtils.cCountKmers(windown)
+            entropyValue = EntropyUtil.shannonEntropy(kmers)
+            entropyX[pos] = entropyValue
+            pos += 1
+            index += step
+        end
+
+        return entropyX
+    end
+
+
+    function tstmain()
+        fastaFile::String = "/home/salipe/Desktop/GitHub/datasets/tutorial_data/VOCs/Alpha.fasta"
+        sequences::Array{String} = []
+
+        for record in open(FASTAReader, fastaFile)
+            seq::String = sequence(String, record)
+            push!(sequences, seq)
+        end
+        totalprogress = length(sequences)
+        wndwStep::Int8 = 1
+        plt = plot(title="Entropy", xlims=[0, Inf])
+
+        for (s, seqs) in enumerate(sequences)
+            slideWndw::Int32 = ceil(Int32, length(seqs) * 0.1)
+            y = mountEntropyByWndw(slideWndw, wndwStep, seqs, s, totalprogress)
+
+            plot!(plt, range(1, length(y)), y, label="org $s")
+        end
+
+        display(plt)
+
+    end
+
+    tstmain()
 
 
 end

@@ -6,21 +6,26 @@ export EntropyUtil
 
 function _entropy(probs::Vector{Float64})::Float64
     """
-    Calculates the entropy of a array.
+    Calculates the Shannon entropy of a array.
+    https://www.sciencedirect.com/topics/engineering/shannon-entropy 
 
-    Parameters:
-        x: The probabilities p0 and p1.
 
-    Returns:
-        entropy_value: The calculated entropy.
 
     """
-    return sum(-p * log2(p) for p in probs if p > 0.0)
+    return sum([-p * log2(p) for p in probs if p > 0.0])
+end
+
+function shannonEntropy(kmers::Dict{String,Int})::Float64
+    data::Vector{Int} = collect(values(kmers))
+    total = sum(data)
+    probs::Vector{Float64} = [x / total for x in data]
+
+    return _entropy(probs)
 end
 
 function maxEntropy(
     kmers::Dict{String,Int}
-)::Int
+)::Float64
 
     """
     Kapur's threshold method.
@@ -64,6 +69,6 @@ function maxEntropy(
     max_entropy_idx::Int = argmax(entropy_curve)
     frequency::Int = data[max_entropy_idx]
 
-    return frequency
+    return entropy_curve[max_entropy_idx]
 end
 end

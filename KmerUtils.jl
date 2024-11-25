@@ -1,7 +1,6 @@
 module KmerUtils
 include("DataIO.jl")
 
-
 using StatsBase,
     .DataIO
 
@@ -9,6 +8,7 @@ export KmerUtils
 
 kmer_lock = ReentrantLock()
 
+# For parallel execution - need improve to reuse the code below
 function _countKmers!(
     kmerDict::Dict{String,Int},
     sequence::Vector{Int},
@@ -18,46 +18,62 @@ function _countKmers!(
     index = 1
     seqlen = length(sequence)
 
-    while (index + word - 1) <= seqlen
-        # DataIO.progressBar!(index + word - 1, seqlen)
-        # Extracting numeric substring (can be vectorized)
+    @inbounds while (index + word - 1) <= seqlen
         key_numeric = sequence[index:index+word-1]
         if all(x -> x in 0:3, key_numeric)
             # Convert numeric key back to string for dictionary lookup
             key = String([['A', 'T', 'C', 'G'][n+1] for n in key_numeric])
-
-            if haskey(kmerDict, key)
-                Threads.@lock kmer_lock kmerDict[key] += 1
-            else
-                Threads.@lock kmer_lock kmerDict[key] = 1
+            lock(kmer_lock) do
+                if haskey(kmerDict, key)
+                    kmerDict[key] += 1
+                else
+                    kmerDict[key] = 1
+                end
             end
         end
+        index += step
+    end
+end
 
+function _countKmers(
+    sequence::Vector{Int},
+    word::Int,
+    step::Int)::Dict{String,Int}
+
+    kmerDict = Dict{String,Int}()
+    index = 1
+    seqlen = length(sequence)
+
+    @inbounds while (index + word - 1) <= seqlen
+        key_numeric = sequence[index:index+word-1]
+        if all(x -> x in 0:3, key_numeric)
+            key = String([['A', 'T', 'C', 'G', 'N'][n+1] for n in key_numeric])
+            if haskey(kmerDict, key)
+                kmerDict[key] += 1
+            else
+                kmerDict[key] = 1
+            end
+        end
         index += step
     end
 
+    return kmerDict
 end
 
 function kmersFrequencies(
-    sequence::String,
-    word::Int,
-    step::Int)::Dict{String,Int}
-    mapping = Dict('A' => 0, 'T' => 1, 'C' => 2, 'G' => 3,
-        'a' => 0, 't' => 1, 'c' => 2, 'g' => 3)
+    numeric_sequence::Vector{Int},
+    word::Int=3,
+    step::Int=1,
+    parallel::Bool=false,
+    numthreads::Int=1)::Dict{String,Int}
 
-    threadnum = Threads.nthreads()
-    println(threadnum)
-
-    kmers = Dict{String,Int}()
-    # Function to map characters to integers (A=0, T=1, C=2, G=3)
-
-    numeric_sequence::Vector{Int} = [get(mapping, char, 4) for char in sequence]
-    seqlen = length(numeric_sequence)
+    threadnum = parallel ? Threads.nthreads() : numthreads
 
     if threadnum == 1
-        _countKmers!(kmers, numeric_sequence, word, step)
+        return _countKmers(numeric_sequence, word, step)
     else
-
+        kmers = Dict{String,Int}()
+        seqlen = length(numeric_sequence)
         chunknum::Int = threadnum
         chunkSize::Int = div(seqlen, chunknum)
         tasks = Vector(undef, chunknum)
@@ -71,34 +87,44 @@ function kmersFrequencies(
                 tasks[i] = Threads.@spawn _countKmers!(kmers, numeric_sequence[(chunkSize*(i-1))+1-word+step:chunkSize*i], word, step)
             end
         end
-
         fetch.(tasks)
+        return kmers
     end
-    # count1 = Threads.@spawn _countKmers!(kmers, numeric_sequence[1:half], word, step)
-    # count2 = Threads.@spawn _countKmers!(kmers, numeric_sequence[half-word-step:seqlen], word, step)
 
-    # fetch(count1)
-    # fetch(count2)
+end
 
-    # while (index + word - 1) <= seqlen
-    #     # Extracting numeric substring (can be vectorized)
-    #     key_numeric = numeric_sequence[index:index+word-1]
+function cCountKmers(
+    sequence::String,
+    word::Int=3,
+    step::Int=1)::Dict{String,Int}
 
-    #     if all(x -> x in 0:3, key_numeric)
-    #         # Convert numeric key back to string for dictionary lookup
-    #         key = String([['A', 'T', 'C', 'G'][n+1] for n in key_numeric])
+    kmerDict = Dict{String,Int}()
+    index = 1
+    seqlen = length(sequence)
 
-    #         if haskey(kmers, key)
-    #             kmers[key] += 1
-    #         else
-    #             kmers[key] = 1
-    #         end
-    #     end
+    @inbounds while (index + word - 1) <= seqlen
+        key = sequence[index:index+word-1]
+        if haskey(kmerDict, key)
+            kmerDict[key] += 1
+        else
+            kmerDict[key] = 1
+        end
+        index += step
+    end
 
-    #     index += step
-    # end
+    return kmerDict
+end
 
-    return kmers
+function kmersFrequencies(
+    sequence::String,
+    word::Int,
+    step::Int)::Dict{String,Int}
+
+    mapping = Dict('A' => 0, 'T' => 1, 'C' => 2, 'G' => 3,
+        'a' => 0, 't' => 1, 'c' => 2, 'g' => 3)
+    # Function to map characters to integers (A=0, T=1, C=2, G=3)
+    numeric_sequence::Vector{Int} = [get(mapping, char, 4) for char in sequence]
+    return kmersFrequencies(numeric_sequence, word, step)
 end
 
 
