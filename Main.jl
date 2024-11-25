@@ -264,11 +264,8 @@ begin
     function mountEntropyByWndw(
         wndwSize::Int32,
         step::Int8,
-        sequence::String,
-        currprogress::Int,
-        totalprogress::Int)::Vector{Float64}
+        sequence::String)::Vector{Float64}
 
-        DataIO.progressBar!(currprogress, totalprogress)
         index = 1
 
         seqlen = length(sequence)
@@ -301,9 +298,9 @@ begin
             wndwStep::Int8 = 1
             plt = plot(title="Entropy for $fastaFile", xlims=[0, Inf])
 
-            for (s, seqs) in enumerate(sequences)
+            Threads.@threads for seqs in sequences
                 slideWndw::Int32 = ceil(Int32, length(seqs) * 0.1)
-                y = mountEntropyByWndw(slideWndw, wndwStep, seqs, s, totalprogress)
+                y = mountEntropyByWndw(slideWndw, wndwStep, seqs)
 
                 plot!(plt, range(1, length(y)), y, label="org $s")
             end
