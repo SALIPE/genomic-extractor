@@ -288,7 +288,8 @@ begin
     function tstmain()
         dataset::String = "../datasets/tutorial_data/VOCs"
 
-        Threads.@threads for fastaFile in readdir(dataset)
+        for fastaFile in readdir(dataset)
+            @show fastaFile
             sequences::Array{String} = []
             for record in open(FASTAReader, "$dataset/$fastaFile")
                 seq::String = sequence(String, record)
@@ -302,7 +303,7 @@ begin
                 slideWndw::Int32 = ceil(Int32, length(seqs) * 0.1)
                 y = mountEntropyByWndw(slideWndw, wndwStep, seqs)
 
-                plot!(plt, range(1, length(y)), y, label="org $s")
+                plot!(plt, range(1, length(y)), y)
             end
 
             png(plt, fastaFile)
