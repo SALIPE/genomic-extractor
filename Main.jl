@@ -262,7 +262,7 @@ begin
     end
 
     function mountEntropyByWndw(
-        wndwSize::Int32,
+        wndwSize::Int,
         step::Int8,
         sequence::String)::Vector{Float64}
 
@@ -284,30 +284,65 @@ begin
         return entropyX
     end
 
+    function findPosWndw(
+        positions::Vector{Int},
+        wndwSize::Int,
+        entropyX::Vector{Float64})::Vector{Float64}
+
+        regions = zeros(Float64, length(entropyX))
+
+        for pos in positions
+            initIdx::Int = pos + 1 - wndwSize
+            endIdx::Int = initIdx + wndwSize - 1  
+            endIdx = endIdx > length(entropyX) ? length(entropyX) : endIdx
+            regions[initIdx:endIdx] .= 1
+        end
+        # como cada ponto representa uma região e queremos ver as regiões que conteem aquela posição
+        # precisamos analisae da seguinte maneira: um ponto em X = pos->pos+wndwSize - 1
+        # portanto precisamos selecionar os indices que tem o ponto, do que terminam com aquele ponto
+        # ate os que começam naquele ponto, vulgo a intersecção das regiões que tem a posição
+        return regions
+    end
 
     function tstmain()
         dataset::String = "../datasets/tutorial_data/VOCs"
 
-        for fastaFile in readdir(dataset)
-            @show fastaFile
-            sequences::Array{String} = []
-            for record in open(FASTAReader, "$dataset/$fastaFile")
-                seq::String = sequence(String, record)
-                push!(sequences, seq)
-            end
-            totalprogress = length(sequences)
-            wndwStep::Int8 = 1
-            plt = plot(title="Entropy for $fastaFile", xlims=[0, Inf])
+        files::Vector{String} = readdir(dataset)
+        histograms = Vector{Vector{Float64}}()
 
-            Threads.@threads for seqs in sequences
-                slideWndw::Int32 = ceil(Int32, length(seqs) * 0.1)
-                y = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+        # para cada amostra da variante
+        # for (i, fastaFile) in enumerate(files)
+        # @show fastaFile
 
-                plot!(plt, range(1, length(y)), y)
-            end
+        gammaPositions = Vector{Int}([14408, 23403, 23525, 25088, 26149, 28512, 5648, 3037])
 
-            png(plt, fastaFile)
+        sequences::Array{String} = []
+        for record in open(FASTAReader, "$dataset/Gamma.fasta")
+            seq::String = sequence(String, record)
+            push!(sequences, seq)
         end
+        wndwStep::Int8 = 1
+        plt = plot(title="Regions", xlims=[0, Inf])
+
+        # Processo para encontrar valores de entropia por região do genoma
+        for seqs in sequences[1:1]
+            slideWndw::Int = ceil(Int, length(seqs) * 0.1)
+            y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+            N = MinMax(y)
+            norm = N(y)
+            # push!(histograms, N(y))
+
+            # histograms[i] = N(y)
+
+            plot!(plt, range(1, length(norm)), norm)
+            regions::Vector{Float64} = findPosWndw(gammaPositions, slideWndw, norm)
+            plot!(plt, range(1, length(norm)),regions) 
+        end
+         
+       
+
+        png(plt, "Teste")
+                # end
     end
 
     tstmain()
