@@ -344,7 +344,7 @@ begin
             push!(sequences, seq)
         end
         wndwStep::Int8 = 1
-        plt = plot(title="Regions - $(wnwPercent*100)%", xlims=[0, Inf])
+        plt = plot(title="Regions - $(wnwPercent*100)%")
 
         # Processo para encontrar valores de entropia por região do genoma
         for seqs in sequences[1:1]
@@ -356,14 +356,16 @@ begin
 
             # histograms[i] = N(y)
             x = range(1, length(norm))
+            lim = [0, length(norm)]
             regions::Vector{Int} = histogramPosWndw(positions, slideWndw, length(norm))
 
             plot!(twinx(), x, regions,
                 label="Frequency",
                 seriestype=:bar,
-                linecolor=nothing)
-            plot!(x, norm, label="Entropy-value")
-            plot!(x, findPosWndw(positions, slideWndw, norm), label="Pos-existence")
+                linecolor=nothing,
+                xlims=lim)
+            plot!(x, norm, label="Entropy-value", xlims=lim)
+            plot!(x, findPosWndw(positions, slideWndw, norm), label="Pos-existence", xlims=lim)
         end
 
         png(plt, testLbl)
@@ -444,7 +446,7 @@ begin
     gammaPositions_99 = Vector{Int}([14408, 23403, 23525, 25088, 26149, 28512, 5648, 3037])
 
     windows = Vector{Float16}([0.1, 0.15, 0.2, 0.25, 0.3])
-    Threads.@threads for w in windows
+    for w in windows[1:1]
         validateEntropyWindow(gammaPositions_90, w, "histogram90-wndn=$w")
         validateEntropyWindow(gammaPositions_99, w, "histogram99-wndn=$w")
     end
