@@ -293,7 +293,9 @@ begin
 
         for pos in positions
             initIdx::Int = pos + 1 - wndwSize
-            endIdx::Int = initIdx + wndwSize - 1  
+            initIdx = initIdx <= 0 ? 1 : initIdx
+
+            endIdx::Int = initIdx + wndwSize - 1
             endIdx = endIdx > length(entropyX) ? length(entropyX) : endIdx
             regions[initIdx:endIdx] .= 1
         end
@@ -304,7 +306,29 @@ begin
         return regions
     end
 
-    function tstmain()
+    function histogramPosWndw(
+        positions::Vector{Int},
+        wndwSize::Int,
+        signalLen::Int)::Vector{Int}
+
+        posHistogram = zeros(Int, signalLen)
+
+        for pos in positions
+            initIdx::Int = pos + 1 - wndwSize
+            initIdx = initIdx <= 0 ? 1 : initIdx
+
+            endIdx::Int = initIdx + wndwSize - 1
+            endIdx = endIdx > signalLen ? signalLen : endIdx
+            posHistogram[initIdx:endIdx] .+= 1
+        end
+        return posHistogram
+    end
+
+    function validateEntropyWindow(
+        positions::Vector{Int},
+        wnwPercent::Float16,
+        testLbl::String
+    )
         dataset::String = "../datasets/tutorial_data/VOCs"
 
         files::Vector{String} = readdir(dataset)
@@ -313,8 +337,6 @@ begin
         # para cada amostra da variante
         # for (i, fastaFile) in enumerate(files)
         # @show fastaFile
-
-        gammaPositions = Vector{Int}([14408, 23403, 23525, 25088, 26149, 28512, 5648, 3037])
 
         sequences::Array{String} = []
         for record in open(FASTAReader, "$dataset/Gamma.fasta")
@@ -326,26 +348,105 @@ begin
 
         # Processo para encontrar valores de entropia por região do genoma
         for seqs in sequences[1:1]
-            slideWndw::Int = ceil(Int, length(seqs) * 0.1)
+            slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
             y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
             N = MinMax(y)
             norm = N(y)
             # push!(histograms, N(y))
 
             # histograms[i] = N(y)
+            x = range(1, length(norm))
+            regions::Vector{Int} = histogramPosWndw(positions, slideWndw, length(norm))
 
-            plot!(plt, range(1, length(norm)), norm)
-            regions::Vector{Float64} = findPosWndw(gammaPositions, slideWndw, norm)
-            plot!(plt, range(1, length(norm)),regions) 
+            plot!(twinx(), x, regions,
+                label="Frequency",
+                seriestype=:bar,
+                linecolor=nothing)
+            plot!(x, norm, label="Entropy-value")
+            plot!(x, findPosWndw(positions, slideWndw, norm), label="Pos-existence")
         end
-         
-       
 
-        png(plt, "Teste")
-                # end
+        png(plt, testLbl)
+        # end
     end
 
-    tstmain()
+
+    gammaPositions_90 = Vector{Int}([14408,
+        18163,
+        10029,
+        23202,
+        23403,
+        23525,
+        23599,
+        23604,
+        23854,
+        23948,
+        24130,
+        241,
+        24424,
+        24469,
+        24503,
+        11537,
+        26270,
+        26577,
+        26709,
+        2832,
+        28881,
+        28883,
+        8393,
+        10449,
+        14408,
+        17259,
+        21614,
+        21621,
+        21638,
+        21974,
+        22132,
+        11287,
+        22812,
+        23012,
+        23063,
+        23403,
+        23525,
+        241,
+        24642,
+        25088,
+        26149,
+        28167,
+        28512,
+        28877,
+        28878,
+        28881,
+        28883,
+        5648,
+        2470,
+        3037,
+        5386,
+        13195,
+        15240,
+        25584,
+        27259,
+        28882,
+        733,
+        2749,
+        3037,
+        6319,
+        6613,
+        12778,
+        13860,
+        28882])
+
+
+
+
+
+
+    gammaPositions_99 = Vector{Int}([14408, 23403, 23525, 25088, 26149, 28512, 5648, 3037])
+
+    for w in [0.1, 0.15, 0.2, 0.25, 0.3]
+        validateEntropyWindow(gammaPositions_90, w, "histogram 90% - wndn=$w%")
+        validateEntropyWindow(gammaPositions_99, w, "histogram 99 - wndn=$w%")
+    end
 
 
 end
