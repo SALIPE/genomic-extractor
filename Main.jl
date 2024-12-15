@@ -327,19 +327,20 @@ begin
     function validateEntropyWindow(
         positions::Vector{Int},
         wnwPercent::Float16,
-        testLbl::String
+        testLbl::String,
+        variant::String
     )
-        dataset::String = "../datasets/tutorial_data/VOCs"
+        dataset::String = "../datasets/consensus"
 
-        files::Vector{String} = readdir(dataset)
-        histograms = Vector{Vector{Float64}}()
+        # files::Vector{String} = readdir(dataset)
+        # histograms = Vector{Vector{Float64}}()
 
         # para cada amostra da variante
         # for (i, fastaFile) in enumerate(files)
-        # @show fastaFile
+        @show variant
 
         sequences::Array{String} = []
-        for record in open(FASTAReader, "$dataset/Gamma.fasta")
+        for record in open(FASTAReader, "$dataset/$variant")
             seq::String = sequence(String, record)
             push!(sequences, seq)
         end
@@ -347,7 +348,7 @@ begin
         plt = plot(title="Regions - $(wnwPercent*100)%")
 
         # Processo para encontrar valores de entropia por região do genoma
-        for seqs in sequences[1:1]
+        for seqs in sequences
             slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
             y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
             N = MinMax(y)
@@ -372,83 +373,36 @@ begin
         # end
     end
 
+    # GAMMA VARIANT ANNOTATION ASSERT
+    gammaPositions_99 = Vector{Int}([3037, 5648, 14408, 23403, 23525, 25088, 26149, 28512])
 
-    gammaPositions_90 = Vector{Int}([14408,
-        18163,
-        10029,
-        23202,
-        23403,
-        23525,
-        23599,
-        23604,
-        23854,
-        23948,
-        24130,
-        241,
-        24424,
-        24469,
-        24503,
-        11537,
-        26270,
-        26577,
-        26709,
-        2832,
-        28881,
-        28883,
-        8393,
-        10449,
-        14408,
-        17259,
-        21614,
-        21621,
-        21638,
-        21974,
-        22132,
-        11287,
-        22812,
-        23012,
-        23063,
-        23403,
-        23525,
-        241,
-        24642,
-        25088,
-        26149,
-        28167,
-        28512,
-        28877,
-        28878,
-        28881,
-        28883,
-        5648,
-        2470,
+    # ALPHA VARIAN ASSERTION
+    alphaPositions_99 = Vector{Int}([10029, 23403, 3037])
+
+    # OMICRON VARIANT ANNOTATION
+    omicronPositions_99 = Vector{Int}([
+        2790,
         3037,
         5386,
+        8393,
+        10029,
+        12880,
         13195,
-        15240,
-        25584,
-        27259,
-        28882,
-        733,
-        2749,
-        3037,
-        6319,
-        6613,
-        12778,
-        13860,
-        28882])
-
-
-
-
-
-
-    gammaPositions_99 = Vector{Int}([14408, 23403, 23525, 25088, 26149, 28512, 5648, 3037])
+        14408,
+        15714,
+        17410,
+        23403,
+        23525,
+        24424,
+        24469,
+        26060])
 
     windows = Vector{Float16}([0.1, 0.15, 0.2, 0.25, 0.3])
-    for w in windows[1:1]
-        validateEntropyWindow(gammaPositions_90, w, "histogram90-wndn=$w")
-        validateEntropyWindow(gammaPositions_99, w, "histogram99-wndn=$w")
+
+    for w in windows
+        validateEntropyWindow(gammaPositions_99, w, "Gamma-histogram99-wndn=$w", "Gamma/Gamma_reference.fasta")
+        validateEntropyWindow(alphaPositions_99, w, "Alpha-histogram99-wndn=$w", "Alpha/Alpha_reference.fasta")
+        validateEntropyWindow(omicronPositions_99, w, "Omicron-histogram99-wndn=$w", "Omicron/Omicron_reference.fasta")
     end
 
 
