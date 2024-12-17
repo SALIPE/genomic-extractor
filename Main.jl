@@ -351,21 +351,21 @@ begin
         for seqs in sequences
             slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
             y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
-            N = MinMax(y)
-            norm = N(y)
+            # N = MinMax(y)
+            # norm = N(y)
             # push!(histograms, N(y))
 
             # histograms[i] = N(y)
             x = range(1, length(norm))
             lim = [0, length(norm)]
-            regions::Vector{Int} = histogramPosWndw(positions, slideWndw, length(norm))
+            regions::Vector{Int} = histogramPosWndw(positions, slideWndw, length(y))
 
             plot!(twinx(), x, regions,
                 label="Frequency",
                 seriestype=:bar,
                 linecolor=nothing,
                 xlims=lim)
-            plot!(x, norm, label="Entropy-value", xlims=lim)
+            plot!(x, y, label="Entropy-value", xlims=lim)
             # plot!(x, findPosWndw(positions, slideWndw, norm), label="Pos-existence", xlims=lim)
         end
 
@@ -533,17 +533,17 @@ begin
         24469,
         26060])
 
-    windows = Vector{Float16}([0.1, 0.15, 0.2, 0.25, 0.3])
+    windows = Vector{Float16}([0.01, 0.05])
 
     for w in windows
         validateEntropyWindow(gammaPositions_90, w, "Gamma-histogram90-wndn=$w", "Gamma/Gamma_reference.fasta")
         validateEntropyWindow(gammaPositions_99, w, "Gamma-histogram99-wndn=$w", "Gamma/Gamma_reference.fasta")
 
-        validateEntropyWindow(alphaPositions_90, w, "Alpha-histogram90-wndn=$w", "Alpha/Alpha_reference.fasta")
-        validateEntropyWindow(alphaPositions_99, w, "Alpha-histogram99-wndn=$w", "Alpha/Alpha_reference.fasta")
+        # validateEntropyWindow(alphaPositions_90, w, "Alpha-histogram90-wndn=$w", "Alpha/Alpha_reference.fasta")
+        # validateEntropyWindow(alphaPositions_99, w, "Alpha-histogram99-wndn=$w", "Alpha/Alpha_reference.fasta")
 
-        validateEntropyWindow(omicronPositions_90, w, "Omicron-histogram90-wndn=$w", "Omicron/Omicron_reference.fasta")
-        validateEntropyWindow(omicronPositions_99, w, "Omicron-histogram99-wndn=$w", "Omicron/Omicron_reference.fasta")
+        # validateEntropyWindow(omicronPositions_90, w, "Omicron-histogram90-wndn=$w", "Omicron/Omicron_reference.fasta")
+        # validateEntropyWindow(omicronPositions_99, w, "Omicron-histogram99-wndn=$w", "Omicron/Omicron_reference.fasta")
     end
 
 
