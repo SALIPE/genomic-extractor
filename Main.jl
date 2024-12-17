@@ -366,7 +366,7 @@ begin
                 linecolor=nothing,
                 xlims=lim)
             plot!(x, norm, label="Entropy-value", xlims=lim)
-            plot!(x, findPosWndw(positions, slideWndw, norm), label="Pos-existence", xlims=lim)
+            # plot!(x, findPosWndw(positions, slideWndw, norm), label="Pos-existence", xlims=lim)
         end
 
         png(plt, testLbl)
@@ -374,12 +374,148 @@ begin
     end
 
     # GAMMA VARIANT ANNOTATION ASSERT
+    gammaPositions_90 = Vector{Int}([241,
+        733,
+        2749,
+        3037,
+        5648,
+        6319,
+        6613,
+        11287,
+        12778,
+        13860,
+        14408,
+        17259,
+        21614,
+        21621,
+        21638,
+        21974,
+        22132,
+        22812,
+        23012,
+        23063,
+        23403,
+        23525,
+        24642,
+        25088,
+        26149,
+        28167,
+        28512,
+        28877,
+        28878,
+        28881,
+        28882,
+        28883])
     gammaPositions_99 = Vector{Int}([3037, 5648, 14408, 23403, 23525, 25088, 26149, 28512])
 
     # ALPHA VARIAN ASSERTION
+    alphaPositions_90 = Vector{Int}([241,
+        2470,
+        2832,
+        3037,
+        5386,
+        8393,
+        10029,
+        10449,
+        11537,
+        13195,
+        14408,
+        15240,
+        18163,
+        23202,
+        23403,
+        23525,
+        23599,
+        23604,
+        23854,
+        23948,
+        24130,
+        24424,
+        24469,
+        24503,
+        25584,
+        26270,
+        26577,
+        26709,
+        27259,
+        28881,
+        28882,
+        28883])
     alphaPositions_99 = Vector{Int}([10029, 23403, 3037])
 
     # OMICRON VARIANT ANNOTATION
+    omicronPositions_90 = Vector{Int}([241,
+        670,
+        2790,
+        2832,
+        3037,
+        4184,
+        4321,
+        5386,
+        6512,
+        8393,
+        9344,
+        9424,
+        9534,
+        9866,
+        10029,
+        10198,
+        10447,
+        10449,
+        11282,
+        11287,
+        11537,
+        12880,
+        13195,
+        14408,
+        15240,
+        15714,
+        17410,
+        18163,
+        19955,
+        20055,
+        21618,
+        21762,
+        21846,
+        21987,
+        22200,
+        22578,
+        22674,
+        22679,
+        22686,
+        22688,
+        23063,
+        23075,
+        23202,
+        23403,
+        23525,
+        23599,
+        23604,
+        23854,
+        23948,
+        24130,
+        24424,
+        24469,
+        24503,
+        25000,
+        25584,
+        26060,
+        26270,
+        26577,
+        26709,
+        26858,
+        27259,
+        27382,
+        27383,
+        27384,
+        27807,
+        28271,
+        28311,
+        28361,
+        28881,
+        28882,
+        28883,
+        29510])
     omicronPositions_99 = Vector{Int}([
         2790,
         3037,
@@ -400,8 +536,13 @@ begin
     windows = Vector{Float16}([0.1, 0.15, 0.2, 0.25, 0.3])
 
     for w in windows
+        validateEntropyWindow(gammaPositions_90, w, "Gamma-histogram90-wndn=$w", "Gamma/Gamma_reference.fasta")
         validateEntropyWindow(gammaPositions_99, w, "Gamma-histogram99-wndn=$w", "Gamma/Gamma_reference.fasta")
+
+        validateEntropyWindow(alphaPositions_90, w, "Alpha-histogram90-wndn=$w", "Alpha/Alpha_reference.fasta")
         validateEntropyWindow(alphaPositions_99, w, "Alpha-histogram99-wndn=$w", "Alpha/Alpha_reference.fasta")
+
+        validateEntropyWindow(omicronPositions_90, w, "Omicron-histogram90-wndn=$w", "Omicron/Omicron_reference.fasta")
         validateEntropyWindow(omicronPositions_99, w, "Omicron-histogram99-wndn=$w", "Omicron/Omicron_reference.fasta")
     end
 
