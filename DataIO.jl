@@ -187,5 +187,16 @@ function readRegionsFromBed(
     return regioes
 end
 
+function readVectorFromFile(file::String, T::Type)::Vector{T}
+
+    arr = Vector{T}()
+    open(file, "r") do fi
+        for linha in eachline(fi)
+            push!(arr, parse(T, linha))
+        end
+    end
+    return arr
+end
+
 
 end
