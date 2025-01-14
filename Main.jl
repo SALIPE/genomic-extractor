@@ -18,6 +18,7 @@ using AbstractFFTs,
     Plots,
     LoopVectorization,
     Normalization,
+    LinearAlgebra,
     ArgParse,
     .DataIO,
     .KmerUtils,
@@ -158,12 +159,37 @@ begin
         return posHistogram
     end
 
+
+    function calculate_euclidean_signal(signals::Vector{Vector{Float64}})
+        # Verificar se todos os sinais têm o mesmo comprimento
+        lengths = map(length, signals)
+        # if length(unique(lengths)) != 1
+        #     throw(ArgumentError("Todos os sinais devem ter o mesmo comprimento"))
+        # end
+
+        min_length = minimum(map(length, signals))
+        result_signal = Vector{Float64}(undef, min_length)  # Inicializar o vetor de saída
+
+        # Calcular a distância euclidiana para cada índice
+        for i in 1:min_length
+            values = [signal[i] for signal in signals]  # Valores do índice i de todos os sinais
+            result_signal[i] = norm(values)  # Distância euclidiana dos valores
+            # norm(values) calcula a norma Euclidiana de um vetor, que é exatamente a fórmula da distância Euclidiana 
+            # quando consideramos um vetor de diferenças entre os valores.
+        end
+
+        return result_signal
+    end
+
+
+    # Exec the window process for one FASTA file
     function validateEntropyWindow(
         positions::Vector{Int},
         wnwPercent::Float16,
         variantName::String,
         testLbl::String,
-        variantFilePath::String
+        variantFilePath::String,
+        validatePos::Bool=false
     )
 
         sequences::Array{String} = []
@@ -172,27 +198,68 @@ begin
             push!(sequences, seq)
         end
         wndwStep::Int8 = 1
-        plt = plot(title="$variantName Regions - $(wnwPercent*100)%")
+        plt = plot(title="$variantName Regions - $(wnwPercent*100)%", dpi=300)
 
+        entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
         # Processo para encontrar valores de entropia por região do genoma
-        for seqs in sequences
+        for (s, seqs) in enumerate(sequences)
             slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
             y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+            entropy_signals[s] = y
 
-            ylen = length(y)
-            x = range(1, ylen)
-            lim = [0, ylen]
-            regions::Vector{Int} = histogramPosWndw(positions, slideWndw, ylen)
+            # ylen = length(y)
+            # x = range(1, ylen)
+            # lim = [0, ylen]
 
-            plot!(twinx(), x, regions,
-                label="Frequency",
-                seriestype=:bar,
-                linecolor=nothing,
-                xlims=lim)
-            plot!(x, y, label="Entropy-value", xlims=lim)
+            if validatePos
+                regions::Vector{Int} = histogramPosWndw(positions, slideWndw, ylen)
+
+                plot!(twinx(), x, regions,
+                    label="Frequency",
+                    seriestype=:bar,
+                    linecolor=nothing,
+                    xlims=lim)
+            end
+            # plot!(x, y, label="Entropy-value", xlims=lim)
         end
-
+        distances = calculate_euclidean_signal(entropy_signals)
+        plot!(range(1, length(distances)), distances, label="Distance-value")
         png(plt, testLbl)
+    end
+
+    # Do a comparison betweeen variant class regions based on the euclidian distance
+    # the comparison should be a explanation to why use a consensus signal for class classfication evaluation
+    function compareVariantClassPerDistance(
+        wnwPercent::Float16,
+        output::String,
+        variantDirPath::String
+    )
+
+        files::Vector{String} = readdir(variantDirPath)
+
+        plt = plot(title="Varian Classes Comparison per window size - $(wnwPercent*100)%", dpi=300)
+        # para cada amostra da variante
+        for (i, fastaFile) in enumerate(files)
+            sequences::Array{String} = []
+
+            for record in open(FASTAReader, "$variantDirPath/$fastaFile")
+                seq::String = sequence(String, record)
+                push!(sequences, seq)
+            end
+
+            wndwStep::Int8 = 1
+            # Processo para encontrar valores de entropia por região do genoma
+            entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
+            # Processo para encontrar valores de entropia por região do genoma
+            for (s, seqs) in enumerate(sequences)
+                slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
+                y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+                entropy_signals[s] = y
+            end
+            distances = calculate_euclidean_signal(entropy_signals)
+            plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
+        end
+        png(plt, output)
     end
 
 
@@ -200,13 +267,12 @@ begin
         setting = ArgParseSettings()
         @add_arg_table! setting begin
             "-f", "--file"
-            help = "Variant Consensus Fasta file"
-            arg_type = String
-            required = true
+            help = "Single Fasta file"
+            "-d", "--files-directory"
+            help = "Variant directory with organisms Fasta file"
             "--variant-name"
             help = "Variant name"
             arg_type = String
-            required = true
             "-w", "--window"
             help = "Slide window percent size to apply"
             arg_type = Float16
@@ -215,7 +281,6 @@ begin
             "-p", "--val-positions-file"
             help = "Positions file for validation"
             arg_type = String
-            required = true
             "-o", "--output"
             help = "Output directory"
             arg_type = String
@@ -224,19 +289,33 @@ begin
 
         parsed_args = parse_args(ARGS, setting)
 
-        filePath::String = parsed_args["file"]
+        filePath = parsed_args["file"]
+        dirPath = parsed_args["files-directory"]
         windowSize::Float16 = parsed_args["window"]
-        positionsBedFile::String = parsed_args["val-positions-file"]
+        positionsBedFile = parsed_args["val-positions-file"]
         outputFile::String = parsed_args["output"]
-        varname::String = parsed_args["variant-name"]
+        varname = parsed_args["variant-name"]
 
         println("Parsed args:")
         for (arg, val) in parsed_args
             println("  $arg  =>  $val")
         end
 
-        positions::Vector{Int} = DataIO.readVectorFromFile(positionsBedFile, Int)
-        validateEntropyWindow(positions, windowSize, varname, outputFile, filePath)
+        if !isnothing(positionsBedFile)
+            positions::Vector{Int} = DataIO.readVectorFromFile(positionsBedFile, Int)
+
+            if !isnothing(filePath)
+                validateEntropyWindow(positions, windowSize, varname, outputFile, filePath)
+            else
+                println("Non mode selected")
+            end
+        else
+            if !isnothing(dirPath)
+                compareVariantClassPerDistance(windowSize, outputFile, dirPath)
+            else
+                println("Non mode selected")
+            end
+        end
     end
 
     validate_region_main()

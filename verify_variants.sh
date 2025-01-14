@@ -15,6 +15,7 @@ for arquivo in "$POSDIR"/*; do
         echo "Processando arquivo: $arquivo"
         nome_arquivo=$(basename "$arquivo")
         julia --project Main.jl -f $CONSENSUS_INPUT -w 0.01 -p $arquivo -o $OUTPUT/$nome_arquivo\_10% --variant-name $VARIANT
+        # julia --project Main.jl -d $CONSENSUS_INPUT -w 0.01 -p $arquivo -o $OUTPUT/$nome_arquivo\_10% --variant-name $VARIANT
 
     else
         echo "Ignorando: $arquivo (não é um arquivo regular)"
