@@ -8,6 +8,7 @@ include("KmerUtils.jl")
 include("EntropyUtil.jl")
 include("TransformUtils.jl")
 include("RRMUtils.jl")
+include("ConvergenceAnalysis.jl")
 
 # addprocs(4)
 
@@ -23,7 +24,8 @@ using AbstractFFTs,
     .DataIO,
     .KmerUtils,
     .TransformUtils,
-    .EntropyUtil
+    .EntropyUtil,
+    .ConvergenceAnalysis
 
 using .RRM: runRRMMethodology!
 begin
@@ -160,28 +162,6 @@ begin
     end
 
 
-    function calculate_euclidean_signal(signals::Vector{Vector{Float64}})
-        # Verificar se todos os sinais têm o mesmo comprimento
-        lengths = map(length, signals)
-        # if length(unique(lengths)) != 1
-        #     throw(ArgumentError("Todos os sinais devem ter o mesmo comprimento"))
-        # end
-
-        min_length = minimum(map(length, signals))
-        result_signal = Vector{Float64}(undef, min_length)  # Inicializar o vetor de saída
-
-        # Calcular a distância euclidiana para cada índice
-        for i in 1:min_length
-            values = [signal[i] for signal in signals]  # Valores do índice i de todos os sinais
-            result_signal[i] = norm(values)  # Distância euclidiana dos valores
-            # norm(values) calcula a norma Euclidiana de um vetor, que é exatamente a fórmula da distância Euclidiana 
-            # quando consideramos um vetor de diferenças entre os valores.
-        end
-
-        return result_signal
-    end
-
-
     # Exec the window process for one FASTA file
     function validateEntropyWindow(
         positions::Vector{Int},
@@ -256,10 +236,43 @@ begin
                 y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
                 entropy_signals[s] = y
             end
-            distances = calculate_euclidean_signal(entropy_signals)
+            distances = ConvergenceAnalysis.euclidean_distance(entropy_signals)
             plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
         end
         png(plt, output)
+    end
+
+    function convergenceAnalysis(
+        wnwPercent::Float16,
+        dirPath::String
+    )
+
+        files::Vector{String} = readdir(dirPath)
+
+        # para cada amostra da variante
+        for (i, fastaFile) in enumerate(files)
+            sequences::Array{String} = []
+
+            for record in open(FASTAReader, "$dirPath/$fastaFile")
+                seq::String = sequence(String, record)
+                push!(sequences, seq)
+            end
+
+            wndwStep::Int8 = 1
+            # Processo para encontrar valores de entropia por região do genoma
+            entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
+            # Processo para encontrar valores de entropia por região do genoma
+            for (s, seqs) in enumerate(sequences)
+                slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
+                y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+                entropy_signals[s] = y
+            end
+            mse = ConvergenceAnalysis.mse(entropy_signals)
+            correlation = ConvergenceAnalysis.correlation(entropy_signals)
+            println("\nAnálise de Convergencia - $fastaFile")
+            println("MSE: ", mse)
+            println("Correlação cruzada média: ", correlation)
+        end
     end
 
 
@@ -281,6 +294,9 @@ begin
             "-p", "--val-positions-file"
             help = "Positions file for validation"
             arg_type = String
+            "-a", "--convergence-analysis"
+            help = "Positions file for validation"
+            action = :store_true
             "-o", "--output"
             help = "Output directory"
             arg_type = String
@@ -295,10 +311,16 @@ begin
         positionsBedFile = parsed_args["val-positions-file"]
         outputFile::String = parsed_args["output"]
         varname = parsed_args["variant-name"]
+        execConvAnalysis = parsed_args["convergence-analysis"]
 
         println("Parsed args:")
         for (arg, val) in parsed_args
             println("  $arg  =>  $val")
+        end
+
+        if execConvAnalysis
+            convergenceAnalysis(windowSize, dirPath)
+            return 0
         end
 
         if !isnothing(positionsBedFile)
