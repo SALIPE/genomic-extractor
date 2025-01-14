@@ -246,9 +246,7 @@ begin
         wnwPercent::Float16,
         dirPath::String
     )
-
         files::Vector{String} = readdir(dirPath)
-
         # para cada amostra da variante
         for (i, fastaFile) in enumerate(files)
             sequences::Array{String} = []
@@ -257,9 +255,7 @@ begin
                 seq::String = sequence(String, record)
                 push!(sequences, seq)
             end
-
             wndwStep::Int8 = 1
-            # Processo para encontrar valores de entropia por região do genoma
             entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
             # Processo para encontrar valores de entropia por região do genoma
             for (s, seqs) in enumerate(sequences)
@@ -273,6 +269,36 @@ begin
             println("MSE: ", mse)
             println("Correlação cruzada média: ", correlation)
         end
+    end
+
+    function convergenceAnalysisClasses(
+        wnwPercent::Float16,
+        dirPath::String
+    )
+        files::Vector{String} = readdir(dirPath)
+        entropy_signals = Vector{Vector{Float64}}()
+
+        for (i, fastaFile) in enumerate(files)
+            sequences::Array{String} = []
+
+            for record in open(FASTAReader, "$dirPath/$fastaFile")
+                seq::String = sequence(String, record)
+                push!(sequences, seq)
+            end
+            wndwStep::Int8 = 1
+
+            for seqs in sequences
+                slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
+                y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+                push!(entropy_signals, y)
+            end
+
+        end
+        mse = ConvergenceAnalysis.mse(entropy_signals)
+        correlation = ConvergenceAnalysis.correlation(entropy_signals)
+        println("\nAnálise de Convergencia - $fastaFile")
+        println("MSE: ", mse)
+        println("Correlação cruzada média: ", correlation)
     end
 
 
@@ -319,7 +345,8 @@ begin
         end
 
         if execConvAnalysis
-            convergenceAnalysis(windowSize, dirPath)
+            # convergenceAnalysis(windowSize, dirPath)
+            convergenceAnalysisClasses(windowSize, dirPath)
             return 0
         end
 
