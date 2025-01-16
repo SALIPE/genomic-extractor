@@ -79,4 +79,54 @@ function sliding_window_convergence(signals::Vector{Vector{Float64}}, window_siz
     return convergence
 end
 
+function convergence_rate(signals::Vector{Vector{Float64}})
+    min_length = minimum(map(length, signals))
+
+    # Calcular as distâncias Euclidianas em cada índice
+    distances = [norm([signal[i] for signal in signals]) for i in 1:min_length]
+
+    # Ajustar uma curva exponencial: d(t) ≈ d₀ * exp(-λ * t)
+    times = 1:min_length
+    log_distances = log.(distances)
+    coeffs = polyfit(times, log_distances, 1)  # Ajusta uma reta: log(d) ≈ -λt + const
+    lambda = -coeffs[1]  # Coeficiente negativo indica a taxa de decaimento
+
+    return lambda
+end
+
+function correlation_convergence(signals::Vector{Vector{Float64}})
+    min_length = minimum(map(length, signals))
+
+    # Calcular as correlações médias em cada instante
+    correlations = zeros(min_length)
+    for t in 1:min_length
+        values = [signal[t] for signal in signals]
+        correlations[t] = cor(values, ones(length(values)))  # Correlação com vetor constante
+    end
+
+    # Ajustar uma curva exponencial: corr(t) ≈ 1 - exp(-λ * t)
+    times = 1:min_length
+    coeffs = polyfit(times, log.(1 .- correlations), 1)  # Ajuste exponencial
+    lambda = -coeffs[1]
+
+    return lambda
+end
+
+function variance_convergence(signals::Vector{Vector{Float64}})
+    min_length = minimum(map(length, signals))
+
+    # Calcular a variância em cada instante
+    variances = [var([signal[t] for signal in signals]) for t in 1:min_length]
+
+    # Ajustar uma curva exponencial: var(t) ≈ var₀ * exp(-λ * t)
+    times = 1:min_length
+    coeffs = polyfit(times, log.(variances), 1)  # Ajusta uma reta: log(var) ≈ -λt + const
+    lambda = -coeffs[1]
+
+    return lambda
+end
+
+
+
+
 end

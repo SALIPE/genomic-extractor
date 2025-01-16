@@ -296,9 +296,16 @@ begin
         end
         mse = ConvergenceAnalysis.mse(entropy_signals)
         correlation = ConvergenceAnalysis.correlation(entropy_signals)
+        varianceConvergence = ConvergenceAnalysis.variance_convergence(entropy_signals)
+        convergenceRate = ConvergenceAnalysis.convergence_rate(entropy_signals)
+        correlationConvergence = ConvergenceAnalysis.correlation_convergence(entropy_signals)
+
         println("\nAnálise de Convergencia - $fastaFile")
         println("MSE: ", mse)
         println("Correlação cruzada média: ", correlation)
+        println("Taxa de convergência por variância (λ): ", correlationConvergence)
+        println("Taxa de convergência por correlação (λ): ", varianceConvergence)
+        println("Taxa de convergência (λ): ", convergenceRate)
     end
 
 
