@@ -218,11 +218,7 @@ begin
                 y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
                 entropy_signals[s] = y
             end
-            # for (s, seqs) in enumerate(sequences)
-            #     slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
-            #     y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seqs)
-            #     entropy_signals[s] = y
-            # end
+
             distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
             plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
 
@@ -231,8 +227,6 @@ begin
         png(plt, output)
 
         matriz_media, picos = findPeaksBetweenClasses(consensusSignals)
-        println("Matriz Média: ", matriz_media)
-        println("Índices dos Picos: ", picos)
 
     end
 
@@ -259,14 +253,14 @@ begin
         matrixMeamDistances = mean(matrixDistances, dims=(2, 3))[:]
 
         # Mediana das médias pra definir picos
-        peakThreashold = median(matrixMeamDistances)
+        peakThreashold = maximum(matrixMeamDistances)
         # Identificar os picos de maior valor
-        peaksIdx = findall(x -> x >= peakThreashold, matrixMeamDistances)
+        peaksIdx = findall(x -> x == peakThreashold, matrixMeamDistances)
 
         open("resultados.txt", "w") do arquivo
-            write(arquivo, "Matriz Média:\n")
-            write(arquivo, join(matrixMeamDistances, ", ") * "\n")
-            write(arquivo, "Valor de threshold (mediana):\n")
+            # write(arquivo, "Matriz Média:\n")
+            # write(arquivo, join(matrixMeamDistances, ", ") * "\n")
+            write(arquivo, "Valor de threshold (media):\n")
             write(arquivo, join(peakThreashold, ", ") * "\n")
             write(arquivo, "\nÍndices dos Picos:\n")
             write(arquivo, join(peaksIdx, ", ") * "\n")
