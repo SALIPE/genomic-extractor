@@ -41,19 +41,19 @@ end
 
 # Distância Euclidiana
 # A distância Euclidiana é calculada como a norma da diferença ponto a ponto entre os sinais.
-function euclidean_distance(signals::Vector{Vector{Float64}})
+function euclidean_distance(signals::Vector{Vector{Float64}})::Vector{Float64}
     min_length = minimum(map(length, signals))
     #lengths = map(length, signals)
     # if length(unique(lengths)) != 1
     #     throw(ArgumentError("Todos os sinais devem ter o mesmo comprimento"))
     # end
-    distances = zeros(min_length)
+    distances = zeros(Float64, min_length)
 
     # Calcular a distância Euclidiana para cada índice
     for i in 1:min_length
         values = [signal[i] for signal in signals]
-        distances[i] = norm(values .- mean(values))
-        # distances[i] = norm(values)  # Distância euclidiana dos valores
+        # distances[i] = norm(values .- mean(values))
+        distances[i] = norm(values)  # Distância euclidiana dos valores
     end
     return distances
 end
@@ -146,6 +146,69 @@ function variance_convergence(signals::Vector{Vector{Float64}})
 end
 
 
+# -----------------EXECUTION SCRIPTS ----------------
 
+function convergenceAnalysis(
+    wnwPercent::Float16,
+    dirPath::String
+)
+    files::Vector{String} = readdir(dirPath)
+    # para cada amostra da variante
+    for (i, fastaFile) in enumerate(files)
+        sequences::Array{String} = []
+
+        for record in open(FASTAReader, "$dirPath/$fastaFile")
+            seq::String = sequence(String, record)
+            push!(sequences, seq)
+        end
+        wndwStep::Int8 = 1
+        entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
+        # Processo para encontrar valores de entropia por região do genoma
+        for (s, seqs) in enumerate(sequences)
+            slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
+            y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+            entropy_signals[s] = y
+        end
+
+        println("\nAnálise de Convergencia - $fastaFile")
+        println("MSE: ", mse(entropy_signals))
+        println("Correlação cruzada média: ", correlation(entropy_signals))
+        println("Taxa de convergência por variância (λ): ", variance_convergence(entropy_signals))
+        println("Taxa de convergência por correlação (λ): ", convergence_rate(entropy_signals))
+        println("Taxa de convergência (λ): ", correlation_convergence(entropy_signals))
+    end
+end
+
+function convergenceAnalysisClasses(
+    wnwPercent::Float16,
+    dirPath::String
+)
+    files::Vector{String} = readdir(dirPath)
+    entropy_signals = Vector{Vector{Float64}}()
+
+    for (i, fastaFile) in enumerate(files)
+        sequences::Array{String} = []
+
+        for record in open(FASTAReader, "$dirPath/$fastaFile")
+            seq::String = sequence(String, record)
+            push!(sequences, seq)
+        end
+        wndwStep::Int8 = 1
+
+        for seqs in sequences
+            slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
+            y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+            push!(entropy_signals, y)
+        end
+
+    end
+
+    println("\nAnálise de Convergencia")
+    println("MSE: ", mse(entropy_signals))
+    println("Correlação cruzada média: ", correlation(entropy_signals))
+    println("Taxa de convergência por variância (λ): ", variance_convergence(entropy_signals))
+    println("Taxa de convergência por correlação (λ): ", convergence_rate(entropy_signals))
+    println("Taxa de convergência (λ): ", correlation_convergence(entropy_signals))
+end
 
 end

@@ -1,7 +1,7 @@
 
 using Distributed, Pkg
-Pkg.instantiate()
-Pkg.activate(".")
+# Pkg.instantiate()
+# Pkg.activate(".")
 
 include("DataIO.jl")
 include("KmerUtils.jl")
@@ -20,6 +20,7 @@ using AbstractFFTs,
     LoopVectorization,
     Normalization,
     LinearAlgebra,
+    Statistics,
     ArgParse,
     .DataIO,
     .KmerUtils,
@@ -156,14 +157,13 @@ begin
             seq::String = sequence(String, record)
             push!(sequences, seq)
         end
-        wndwStep::Int8 = 1
         plt = plot(title="$variantName Regions - $(wnwPercent*100)%", dpi=300)
 
         entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
         # Processo para encontrar valores de entropia por região do genoma
         for (s, seqs) in enumerate(sequences)
             slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
-            y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+            y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seqs)
             entropy_signals[s] = y
 
             # plot!(x, y, label="Entropy-value", xlims=lim)
@@ -194,9 +194,12 @@ begin
 
         files::Vector{String} = readdir(variantDirPath)
 
+        consensusSignals = Vector{Vector{Float64}}(undef, length(files))
+
         plt = plot(title="Variant Classes Comparison per window size - $(wnwPercent*100)%", dpi=300)
         # para cada amostra da variante
         for (i, fastaFile) in enumerate(files)
+            println("Processing: $fastaFile")
             sequences::Array{String} = []
 
             for record in open(FASTAReader, "$variantDirPath/$fastaFile")
@@ -204,94 +207,76 @@ begin
                 push!(sequences, seq)
             end
 
-            wndwStep::Int8 = 1
+            num_sequences = length(sequences)
             # Processo para encontrar valores de entropia por região do genoma
-            entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
+            entropy_signals = Vector{Vector{Float64}}(undef, num_sequences)
             # Processo para encontrar valores de entropia por região do genoma
-            for (s, seqs) in enumerate(sequences)
-                slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
-                y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
+
+            Threads.@threads for s = 1:num_sequences
+                seq = sequences[s]
+                slideWndw::Int = ceil(Int, length(seq) * wnwPercent)
+                y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
                 entropy_signals[s] = y
             end
-            distances = ConvergenceAnalysis.euclidean_distance(entropy_signals)
+            # for (s, seqs) in enumerate(sequences)
+            #     slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
+            #     y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seqs)
+            #     entropy_signals[s] = y
+            # end
+            distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
             plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
+
+            consensusSignals[i] = distances
         end
         png(plt, output)
+
+        matriz_media, picos = findPeaksBetweenClasses(consensusSignals)
+        println("Matriz Média: ", matriz_media)
+        println("Índices dos Picos: ", picos)
+
     end
 
-    function convergenceAnalysis(
-        wnwPercent::Float16,
-        dirPath::String
-    )
-        files::Vector{String} = readdir(dirPath)
-        # para cada amostra da variante
-        for (i, fastaFile) in enumerate(files)
-            sequences::Array{String} = []
 
-            for record in open(FASTAReader, "$dirPath/$fastaFile")
-                seq::String = sequence(String, record)
-                push!(sequences, seq)
+    #Função para char quais são os picos de distancia entre as classes, a aprtir do consensus de distancia gerado 
+    function findPeaksBetweenClasses(signals::Vector{Vector{Float64}})
+        n_classes = length(signals)
+
+        # Tamanho de cada vetor
+        numPoints = minimum(map(length, signals))
+
+        # Matriz para armazenar distâncias ponto a ponto
+        matrixDistances = zeros(Float64, numPoints, n_classes, n_classes)
+
+        # Calcular distâncias ponto a ponto para todas as combinações de classes
+        for i in 1:n_classes, j in i+1:n_classes
+            for k in 1:numPoints
+                matrixDistances[k, i, j] = sqrt((signals[i][k] - signals[j][k])^2)
+                matrixDistances[k, j, i] = matrixDistances[k, i, j]  # Simetria
             end
-            wndwStep::Int8 = 1
-            entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
-            # Processo para encontrar valores de entropia por região do genoma
-            for (s, seqs) in enumerate(sequences)
-                slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
-                y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
-                entropy_signals[s] = y
-            end
-
-            mse = ConvergenceAnalysis.mse(entropy_signals)
-            correlation = ConvergenceAnalysis.correlation(entropy_signals)
-            varianceConvergence = ConvergenceAnalysis.variance_convergence(entropy_signals)
-            convergenceRate = ConvergenceAnalysis.convergence_rate(entropy_signals)
-            correlationConvergence = ConvergenceAnalysis.correlation_convergence(entropy_signals)
-
-            println("\nAnálise de Convergencia - $fastaFile")
-            println("MSE: ", mse)
-            println("Correlação cruzada média: ", correlation)
-            println("Taxa de convergência por variância (λ): ", varianceConvergence)
-            println("Taxa de convergência por correlação (λ): ", correlationConvergence)
-            println("Taxa de convergência (λ): ", convergenceRate)
         end
-    end
 
-    function convergenceAnalysisClasses(
-        wnwPercent::Float16,
-        dirPath::String
-    )
-        files::Vector{String} = readdir(dirPath)
-        entropy_signals = Vector{Vector{Float64}}()
+        # Matriz média de distâncias para cada ponto
+        matrixMeamDistances = mean(matrixDistances, dims=(2, 3))[:]
 
-        for (i, fastaFile) in enumerate(files)
-            sequences::Array{String} = []
+        # Mediana das médias pra definir picos
+        peakThreashold = median(matrixMeamDistances)
+        # Identificar os picos de maior valor
+        peaksIdx = findall(x -> x >= peakThreashold, matrixMeamDistances)
 
-            for record in open(FASTAReader, "$dirPath/$fastaFile")
-                seq::String = sequence(String, record)
-                push!(sequences, seq)
-            end
-            wndwStep::Int8 = 1
-
-            for seqs in sequences
-                slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
-                y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
-                push!(entropy_signals, y)
-            end
-
+        open("resultados.txt", "w") do arquivo
+            write(arquivo, "Matriz Média:\n")
+            write(arquivo, join(matrixMeamDistances, ", ") * "\n")
+            write(arquivo, "Valor de threshold (mediana):\n")
+            write(arquivo, join(peakThreashold, ", ") * "\n")
+            write(arquivo, "\nÍndices dos Picos:\n")
+            write(arquivo, join(peaksIdx, ", ") * "\n")
         end
-        mse = ConvergenceAnalysis.mse(entropy_signals)
-        correlation = ConvergenceAnalysis.correlation(entropy_signals)
-        varianceConvergence = ConvergenceAnalysis.variance_convergence(entropy_signals)
-        convergenceRate = ConvergenceAnalysis.convergence_rate(entropy_signals)
-        correlationConvergence = ConvergenceAnalysis.correlation_convergence(entropy_signals)
 
-        println("\nAnálise de Convergencia")
-        println("MSE: ", mse)
-        println("Correlação cruzada média: ", correlation)
-        println("Taxa de convergência por variância (λ): ", varianceConvergence)
-        println("Taxa de convergência por correlação (λ): ", correlationConvergence)
-        println("Taxa de convergência (λ): ", convergenceRate)
+        return (matrixMeamDistances, peaksIdx)
     end
+
+
+
 
 
     function validate_region_main()
@@ -337,8 +322,8 @@ begin
         end
 
         if execConvAnalysis
-            # convergenceAnalysis(windowSize, dirPath)
-            convergenceAnalysisClasses(windowSize, dirPath)
+            # ConvergenceAnalysis.convergenceAnalysis(windowSize, dirPath)
+            #ConvergenceAnalysis.convergenceAnalysisClasses(windowSize, dirPath)
             return 0
         end
 

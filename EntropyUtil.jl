@@ -75,22 +75,26 @@ end
 #Mount entropy sginal by window slide
 function mountEntropyByWndw(
     wndwSize::Int,
-    step::Int8,
     sequence::String)::Vector{Float64}
 
     index = 1
-
+    step::Int8 = 1
     seqlen = length(sequence)
-    pos::Int16 = 1
-    entropyX::Vector{Float64} = zeros(Float64, seqlen - wndwSize + 1)
+
+    entropy_points::Int = seqlen - wndwSize + 1
+    entropyX::Vector{Float64} = zeros(Float64, entropy_points)
+
+    seq_windows = Vector{String}()
 
     while (index + wndwSize - 1) <= seqlen
         windown = sequence[index:index+wndwSize-1]
-        kmers::Dict{String,Int} = KmerUtils.cCountKmers(windown)
-        entropyValue = shannonEntropy(kmers)
-        entropyX[pos] = entropyValue
-        pos += 1
+        push!(seq_windows, windown)
         index += step
+    end
+
+    for i = 1:entropy_points
+        kmers::Dict{String,Int} = KmerUtils.cCountKmers(seq_windows[i])
+        entropyX[i] = shannonEntropy(kmers)
     end
 
     return entropyX
