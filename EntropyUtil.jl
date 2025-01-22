@@ -1,6 +1,9 @@
 
 
 module EntropyUtil
+include("KmerUtils.jl")
+
+using .KmerUtils
 
 export EntropyUtil
 
@@ -8,9 +11,6 @@ function _entropy(probs::Vector{Float64})::Float64
     """
     Calculates the Shannon entropy of a array.
     https://www.sciencedirect.com/topics/engineering/shannon-entropy 
-
-
-
     """
     return sum([-p * log2(p) for p in probs if p > 0.0])
 end
@@ -70,5 +70,29 @@ function maxEntropy(
     frequency::Int = data[max_entropy_idx]
 
     return entropy_curve[max_entropy_idx]
+end
+
+#Mount entropy sginal by window slide
+function mountEntropyByWndw(
+    wndwSize::Int,
+    step::Int8,
+    sequence::String)::Vector{Float64}
+
+    index = 1
+
+    seqlen = length(sequence)
+    pos::Int16 = 1
+    entropyX::Vector{Float64} = zeros(Float64, seqlen - wndwSize + 1)
+
+    while (index + wndwSize - 1) <= seqlen
+        windown = sequence[index:index+wndwSize-1]
+        kmers::Dict{String,Int} = KmerUtils.cCountKmers(windown)
+        entropyValue = shannonEntropy(kmers)
+        entropyX[pos] = entropyValue
+        pos += 1
+        index += step
+    end
+
+    return entropyX
 end
 end

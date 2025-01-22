@@ -98,28 +98,7 @@ begin
 
     end
 
-    function mountEntropyByWndw(
-        wndwSize::Int,
-        step::Int8,
-        sequence::String)::Vector{Float64}
 
-        index = 1
-
-        seqlen = length(sequence)
-        pos::Int16 = 1
-        entropyX::Vector{Float64} = zeros(Float64, seqlen - wndwSize + 1)
-
-        while (index + wndwSize - 1) <= seqlen
-            windown = sequence[index:index+wndwSize-1]
-            kmers::Dict{String,Int} = KmerUtils.cCountKmers(windown)
-            entropyValue = EntropyUtil.shannonEntropy(kmers)
-            entropyX[pos] = entropyValue
-            pos += 1
-            index += step
-        end
-
-        return entropyX
-    end
 
     function findPosWndw(
         positions::Vector{Int},
@@ -167,9 +146,9 @@ begin
         positions::Vector{Int},
         wnwPercent::Float16,
         variantName::String,
-        testLbl::String,
+        output::String,
         variantFilePath::String,
-        validatePos::Bool=false
+        validatePos::Bool=true
     )
 
         sequences::Array{String} = []
@@ -187,24 +166,22 @@ begin
             y::Vector{Float64} = mountEntropyByWndw(slideWndw, wndwStep, seqs)
             entropy_signals[s] = y
 
-            # ylen = length(y)
-            # x = range(1, ylen)
-            # lim = [0, ylen]
-
-            if validatePos
-                regions::Vector{Int} = histogramPosWndw(positions, slideWndw, ylen)
-
-                plot!(twinx(), x, regions,
-                    label="Frequency",
-                    seriestype=:bar,
-                    linecolor=nothing,
-                    xlims=lim)
-            end
             # plot!(x, y, label="Entropy-value", xlims=lim)
         end
-        distances = calculate_euclidean_signal(entropy_signals)
-        plot!(range(1, length(distances)), distances, label="Distance-value")
-        png(plt, testLbl)
+        distances = ConvergenceAnalysis.euclidean_distance(entropy_signals)
+        ylen = length(distances)
+        x = range(1, ylen)
+        lim = [0, ylen]
+        if validatePos
+            regions::Vector{Int} = histogramPosWndw(positions, ceil(Int, ylen * wnwPercent), ylen)
+            plot!(twinx(), x, regions,
+                label="Frequency",
+                seriestype=:bar,
+                linecolor=nothing,
+                xlims=lim)
+        end
+        plot!(x, distances, label="Distance-value", xlims=lim)
+        png(plt, output)
     end
 
     # Do a comparison betweeen variant class regions based on the euclidian distance
@@ -217,7 +194,7 @@ begin
 
         files::Vector{String} = readdir(variantDirPath)
 
-        plt = plot(title="Varian Classes Comparison per window size - $(wnwPercent*100)%", dpi=300)
+        plt = plot(title="Variant Classes Comparison per window size - $(wnwPercent*100)%", dpi=300)
         # para cada amostra da variante
         for (i, fastaFile) in enumerate(files)
             sequences::Array{String} = []
@@ -273,8 +250,8 @@ begin
             println("\nAnálise de Convergencia - $fastaFile")
             println("MSE: ", mse)
             println("Correlação cruzada média: ", correlation)
-            println("Taxa de convergência por variância (λ): ", correlationConvergence)
-            println("Taxa de convergência por correlação (λ): ", varianceConvergence)
+            println("Taxa de convergência por variância (λ): ", varianceConvergence)
+            println("Taxa de convergência por correlação (λ): ", correlationConvergence)
             println("Taxa de convergência (λ): ", convergenceRate)
         end
     end
@@ -311,8 +288,8 @@ begin
         println("\nAnálise de Convergencia")
         println("MSE: ", mse)
         println("Correlação cruzada média: ", correlation)
-        println("Taxa de convergência por variância (λ): ", correlationConvergence)
-        println("Taxa de convergência por correlação (λ): ", varianceConvergence)
+        println("Taxa de convergência por variância (λ): ", varianceConvergence)
+        println("Taxa de convergência por correlação (λ): ", correlationConvergence)
         println("Taxa de convergência (λ): ", convergenceRate)
     end
 
@@ -369,12 +346,14 @@ begin
             positions::Vector{Int} = DataIO.readVectorFromFile(positionsBedFile, Int)
 
             if !isnothing(filePath)
+                # Recebe so o arquivo fasta de uma unic variant
                 validateEntropyWindow(positions, windowSize, varname, outputFile, filePath)
             else
                 println("Non mode selected")
             end
         else
             if !isnothing(dirPath)
+                # Rece um diretório como arquivos fastas dividido por classes, cada arquivo contem N organismos
                 compareVariantClassPerDistance(windowSize, outputFile, dirPath)
             else
                 println("Non mode selected")

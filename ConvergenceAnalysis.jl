@@ -1,5 +1,5 @@
 module ConvergenceAnalysis
-using LinearAlgebra, Statistics
+using LinearAlgebra, Statistics, Polynomials
 
 export ConvergenceAnalysis
 
@@ -88,8 +88,9 @@ function convergence_rate(signals::Vector{Vector{Float64}})
     # Ajustar uma curva exponencial: d(t) ≈ d₀ * exp(-λ * t)
     times = 1:min_length
     log_distances = log.(distances)
-    coeffs = polyfit(times, log_distances, 1)  # Ajusta uma reta: log(d) ≈ -λt + const
-    lambda = -coeffs[1]  # Coeficiente negativo indica a taxa de decaimento
+    coeffs = fit(times, log_distances, 1)  # Ajusta uma reta: log(d) ≈ -λt + const
+    @show coeffs
+    lambda = -coeffs.coeffs[1] # Coeficiente negativo indica a taxa de decaimento
 
     return lambda
 end
@@ -101,13 +102,24 @@ function correlation_convergence(signals::Vector{Vector{Float64}})
     correlations = zeros(min_length)
     for t in 1:min_length
         values = [signal[t] for signal in signals]
-        correlations[t] = cor(values, ones(length(values)))  # Correlação com vetor constante
+        # Verificar variação antes de calcular correlação
+        if std(values) > 1e-10
+            correlations[t] = cor(values, ones(length(values)))
+        else
+            correlations[t] = 0.0  # Correlação indefinida para valores constantes
+        end
+    end
+
+    # Filtrar correlações próximas de 0 ou 1
+    valid_correlations = filter!(c -> c > 0 && c < 1, correlations)
+    if isempty(valid_correlations)
+        return "Todas as correlações são inválidas (constantes ou extremas)."
     end
 
     # Ajustar uma curva exponencial: corr(t) ≈ 1 - exp(-λ * t)
-    times = 1:min_length
-    coeffs = polyfit(times, log.(1 .- correlations), 1)  # Ajuste exponencial
-    lambda = -coeffs[1]
+    valid_times = collect(1:length(valid_correlations))
+    coeffs = fit(valid_times, log.(1 .- valid_correlations), 1)  # Ajuste exponencial
+    lambda = -coeffs.coeffs[1]
 
     return lambda
 end
@@ -118,10 +130,17 @@ function variance_convergence(signals::Vector{Vector{Float64}})
     # Calcular a variância em cada instante
     variances = [var([signal[t] for signal in signals]) for t in 1:min_length]
 
+    # Evitar problemas com log(0): Remover valores zero ou próximos de zero
+    valid_variances = filter!(v -> v > 1e-10, variances)
+
+    if isempty(valid_variances)
+        return "Todas as variâncias são zero ou próximas de zero, impossível calcular a taxa de convergência."
+    end
+
     # Ajustar uma curva exponencial: var(t) ≈ var₀ * exp(-λ * t)
-    times = 1:min_length
-    coeffs = polyfit(times, log.(variances), 1)  # Ajusta uma reta: log(var) ≈ -λt + const
-    lambda = -coeffs[1]
+    valid_times = collect(1:length(valid_variances))
+    coeffs = fit(valid_times, log.(valid_variances), 1)  # Ajuste linear para log(var)
+    lambda = -coeffs.coeffs[1]
 
     return lambda
 end
