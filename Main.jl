@@ -228,17 +228,17 @@ begin
 
         consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, numFiles)
 
-
-
         @show numFiles
         @show Threads.nthreads()
 
         results = @floop ThreadedEx() for i = 1:numFiles
             file::String = files[i]
+            println("Processing $file on $(Threads.threadid())")
             entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
             distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
+            println("Finish Processing $file on $(Threads.threadid())")
             consensusSignals[i] = (file, distances)
-            "Processed: $file"  # Example task result
+
         end
         @show results
 
