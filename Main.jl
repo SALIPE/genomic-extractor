@@ -200,16 +200,22 @@ begin
         num_sequences = length(sequences)
         entropy_signals = Vector{Vector{Float64}}(undef, num_sequences)
 
-
-        Threads.@threads for s = 1:num_sequences
-            seq = sequences[s]
-            slideWndw::Int = ceil(Int, length(seq) * wnwPercent)
-            y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
-            entropy_signals[s] = y
+        if num_sequences > 1
+            @floop for s = 1:num_sequences
+                seq = sequences[s]
+                y = EntropyUtil.mountEntropyByWndw(
+                    ceil(Int, length(seq) * wnwPercent), seq)
+                @inbounds entropy_signals[s] = y
+            end
+            return entropy_signals
+        else
+            seq = sequences[1]
+            y = EntropyUtil.mountEntropyByWndw(
+                ceil(Int, length(seq) * wnwPercent), seq)
+            entropy_signals[1] = y
+            return entropy_signals
         end
 
-
-        return entropy_signals
     end
 
 
@@ -224,15 +230,12 @@ begin
     )
 
         files::Vector{String} = readdir(variantDirPath)
-        numFiles::Int16 = length(files)
 
-        consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, numFiles)
+        consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, length(files))
 
-        @show numFiles
         @show Threads.nthreads()
 
-        for i in 1:numFiles
-            file::String = files[i]
+        @floop ThreadedEx() for (i, file) in enumerate(files)
             println("Processing $file")
 
             entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
