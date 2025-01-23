@@ -84,19 +84,15 @@ function mountEntropyByWndw(
     entropy_points::Int = seqlen - wndwSize + 1
     entropyX::Vector{Float64} = zeros(Float64, entropy_points)
 
-    seq_windows = Vector{String}()
-
+    pos::Int = 1
     while (index + wndwSize - 1) <= seqlen
         windown = sequence[index:index+wndwSize-1]
-        push!(seq_windows, windown)
+        kmers::Dict{String,Int} = KmerUtils.cCountKmers(windown)
+        entropyX[pos] = shannonEntropy(kmers)
+
         index += step
+        pos += 1
     end
-
-    @floop for i = 1:entropy_points
-        kmers::Dict{String,Int} = KmerUtils.cCountKmers(seq_windows[i])
-        entropyX[i] = shannonEntropy(kmers)
-    end
-
     return entropyX
 end
 end
