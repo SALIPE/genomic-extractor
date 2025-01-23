@@ -3,7 +3,7 @@
 module EntropyUtil
 include("KmerUtils.jl")
 
-using .KmerUtils
+using .KmerUtils, FLoops
 
 export EntropyUtil
 
@@ -92,7 +92,7 @@ function mountEntropyByWndw(
         index += step
     end
 
-    for i = 1:entropy_points
+    @floop for i = 1:entropy_points
         kmers::Dict{String,Int} = KmerUtils.cCountKmers(seq_windows[i])
         entropyX[i] = shannonEntropy(kmers)
     end
