@@ -193,23 +193,25 @@ begin
         wnwPercent::Float16,
     )::Vector{Vector{Float64}}
 
-        slideWndw = zero(Int)
+        sequences::Array{String} = []
 
-        rdr = FASTAReader(open(filePath, "r"))
-        numRecords::Int = length(collect(rdr))
-        close(rdr)
-
-
-        entropy_signals = Vector{Vector{Float64}}(undef, numRecords)
-
-        s::Int = 1
         for record in open(FASTAReader, filePath)
             seq::String = sequence(String, record)
-            slideWndw = ceil(Int, length(seq) * wnwPercent)
-            y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
-            entropy_signals[s] = y
-            s += 1
+            push!(sequences, seq)
         end
+
+        # Processo para encontrar valores de entropia por região do genoma
+        entropy_signals_local = @floop ThreadedEx() for (s, seq) in enumerate(sequences)
+            slideWndw::Int = ceil(Int, length(seq) * wnwPercent)
+            y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
+            (s, y)  # Return results locally for aggregation
+        end
+
+        entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
+        for (s, y) in entropy_signals_local
+            entropy_signals[s] = y
+        end
+
 
         return entropy_signals
     end
@@ -231,16 +233,15 @@ begin
         @show numFiles
         @show Threads.nthreads()
 
-        results = @floop ThreadedEx() for i = 1:numFiles
+        for i in 1:numFiles
             file::String = files[i]
             println("Processing $file on $(Threads.threadid())")
             entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
             distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
             println("Finish Processing $file on $(Threads.threadid())")
-            consensusSignals[i] = (file, distances)
 
+            consensusSignals[i] = (file, distances)
         end
-        @show results
 
         plt = plot(title="Variant Classes Comparison per window size - $(wnwPercent*100)%", dpi=300)
 
