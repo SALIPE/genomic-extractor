@@ -2,7 +2,11 @@ module RRM
 include("DataIO.jl")
 include("TransformUtils.jl")
 
-using .DataIO, .TransformUtils
+using .DataIO,
+    .TransformUtils,
+    Normalization,
+    AbstractFFTs,
+    Plots
 
 export runRRMMethodology!
 
@@ -24,10 +28,6 @@ function _extractFreqWindow(
         end
     end
 
-    # normal = irfft(crossEspectrum, seqLen - 1)
-
-    # plt = plot([norm, normal], layout=(2, 1))
-    # savefig(plt, "filter2.png")
 
     # Filtro passa faixa, ou retornando apenas a frequencia como impulso
     if length(freqIndexes) > 0
@@ -92,6 +92,45 @@ end
 
 # ------------ RRM ---------------
 # Funções que rodam slide window para executar o RRM spectrum 
+
+
+function RRMEntropySignal(
+    consensusSignals::Vector{Tuple{String,Vector{Float64}}}
+)
+    signals = Vector{Tuple{String,Vector{Float64}}}(undef, length(consensusSignals))
+
+    plt = plot(title="Entropy Signals Norms.", dpi=300)
+    for (i, (class, signal)) in enumerate(consensusSignals)
+        N = MinMax(signal)
+        norm = N(signal)
+        plot!(norm, label=class)
+        signals[i] = (class, norm)
+    end
+    png(plt, "norm_signals")
+
+    min_length = minimum(map(x -> length(x[2]), signals))
+
+    freqWindow = _extractFreqWindow(map(x -> x[2], signals), min_length)
+    # plt = plot(title="Signals Filtered using RRM", dpi=300)
+
+
+    for (i, (class, sequence)) in enumerate(signals)
+        fft = abs.(rfft(sequence))
+        for ii in eachindex(fft)
+            if (ii < freqWindow[1] || ii > freqWindow[2])
+                fft[ii] = zero(fft[ii])
+            end
+        end
+        normal = irfft(fft, length(sequence))
+        signals[i] = (class, normal)
+        # plot!(normal)
+    end
+
+    # png(plt, "iffts")
+
+    return signals
+
+end
 
 #WARNING: tem que considerar os finais das sequencias nos indices que não completam
 function runRRMMethodology!(
