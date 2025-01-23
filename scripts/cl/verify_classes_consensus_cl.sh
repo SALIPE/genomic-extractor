@@ -5,7 +5,7 @@
 
 source /home/a61491/.bashrc
 
-export 
+export JULIA_NUM_THREADS=16
 
 PROJECTHOME=/home/a61491/rrm-genomic-extractor
 DIR_INPUT=/home/a61491/datasets/tutorial_data/VOCs
