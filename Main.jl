@@ -200,15 +200,13 @@ begin
             push!(sequences, seq)
         end
 
-        # Processo para encontrar valores de entropia por região do genoma
-        entropy_signals_local = @floop ThreadedEx() for (s, seq) in enumerate(sequences)
+        num_sequences = length(sequences)
+        entropy_signals = Vector{Vector{Float64}}(undef, num_sequences)
+
+        Threads.@threads for s = 1:num_sequences
+            seq = sequences[s]
             slideWndw::Int = ceil(Int, length(seq) * wnwPercent)
             y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
-            (s, y)  # Return results locally for aggregation
-        end
-
-        entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
-        for (s, y) in entropy_signals_local
             entropy_signals[s] = y
         end
 
@@ -235,10 +233,12 @@ begin
 
         for i in 1:numFiles
             file::String = files[i]
-            println("Processing $file on $(Threads.threadid())")
+            println("Processing $file")
+
             entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
+
             distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
-            println("Finish Processing $file on $(Threads.threadid())")
+            println("Finish Processing $file")
 
             consensusSignals[i] = (file, distances)
         end

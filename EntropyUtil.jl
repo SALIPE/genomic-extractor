@@ -3,7 +3,7 @@
 module EntropyUtil
 include("KmerUtils.jl")
 
-using .KmerUtils, FLoops
+using .KmerUtils
 
 export EntropyUtil
 
