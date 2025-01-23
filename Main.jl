@@ -17,11 +17,8 @@ include("ConvergenceAnalysis.jl")
 
 using
     FLoops,
-    AbstractFFTs,
     FASTX,
     Plots,
-    LoopVectorization,
-    Normalization,
     LinearAlgebra,
     Statistics,
     ArgParse,
@@ -203,15 +200,22 @@ begin
         num_sequences = length(sequences)
         entropy_signals = Vector{Vector{Float64}}(undef, num_sequences)
 
-        Threads.@threads for s = 1:num_sequences
-            seq = sequences[s]
-            slideWndw::Int = ceil(Int, length(seq) * wnwPercent)
-            y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
-            entropy_signals[s] = y
+        if num_sequences > 1
+            @floop for s = 1:num_sequences
+                seq = sequences[s]
+                y = EntropyUtil.mountEntropyByWndw(
+                    ceil(Int, length(seq) * wnwPercent), seq)
+                @inbounds entropy_signals[s] = y
+            end
+            return entropy_signals
+        else
+            seq = sequences[1]
+            y = EntropyUtil.mountEntropyByWndw(
+                ceil(Int, length(seq) * wnwPercent), seq)
+            entropy_signals[1] = y
+            return entropy_signals
         end
 
-
-        return entropy_signals
     end
 
 
@@ -220,27 +224,32 @@ begin
     function compareVariantClassPerDistance(
         wnwPercent::Float16,
         output::String,
-        variantDirPath::String
+        variantDirPath::String,
+        positions::Vector{Int}=[],
+        valPositions::Bool=false
     )
 
         files::Vector{String} = readdir(variantDirPath)
-        numFiles::Int16 = length(files)
 
-        consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, numFiles)
+        consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, length(files))
 
-        @show numFiles
         @show Threads.nthreads()
 
-        for i in 1:numFiles
-            file::String = files[i]
+        @floop ThreadedEx() for (i, file) in enumerate(files)
             println("Processing $file")
 
             entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
 
-            distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
+            # Signifca que é um arquivo consensus (pelo menos deveria ser)
+            if length(entropy_signals) == 1
+                consensusSignals[i] = (file, entropy_signals[1])
+            else
+                distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
+                consensusSignals[i] = (file, distances)
+            end
+
             println("Finish Processing $file")
 
-            consensusSignals[i] = (file, distances)
         end
 
         plt = plot(title="Variant Classes Comparison per window size - $(wnwPercent*100)%", dpi=300)
@@ -251,34 +260,28 @@ begin
 
         png(plt, output)
 
-        # para cada amostra da variante
-        # for (i, fastaFile) in enumerate(files)
-        #     println("Processing: $fastaFile")
-        #     # sequences::Array{String} = []
+        filteredEntropy = RRM.RRMEntropySignal(consensusSignals)
+        plt = plot(title="Signals Filtered using RRM", dpi=300)
 
-        #     # for record in open(FASTAReader, "$variantDirPath/$fastaFile")
-        #     #     seq::String = sequence(String, record)
-        #     #     push!(sequences, seq)
-        #     # end
+        ylen = length(filteredEntropy[1][2])
+        x = range(1, ylen)
+        lim = [0, ylen]
 
-        #     # Processo para encontrar valores de entropia por região do genoma
-        #     entropy_signals = computeEntropySignal("$variantDirPath/$fastaFile", wnwPercent)
-        #     # Processo para encontrar valores de entropia por região do genoma
+        for (class, f) in filteredEntropy
+            plot!(x, f, label=class, xlims=lim)
+        end
 
-        #     # Threads.@threads for s = 1:num_sequences
-        #     #     seq = sequences[s]
-        #     #     slideWndw::Int = ceil(Int, length(seq) * wnwPercent)
-        #     #     y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seq)
-        #     #     entropy_signals[s] = y
-        #     # end
+        if valPositions
 
-        #     distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
-        #     
+            regions::Vector{Int} = histogramPosWndw(positions, ceil(Int, ylen * wnwPercent), ylen)
+            plot!(twinx(), x, regions,
+                label="Frequency",
+                seriestype=:bar,
+                linecolor=nothing,
+                xlims=lim)
 
-        #     consensusSignals[i] = distances
-        # end
-        # png(plt, output)
-
+        end
+        png(plt, "iffts")
         # matriz_media, picos = findPeaksBetweenClasses(consensusSignals)
 
     end
@@ -321,9 +324,6 @@ begin
 
         return (matrixMeamDistances, peaksIdx)
     end
-
-
-
 
 
     function validate_region_main()
@@ -380,6 +380,9 @@ begin
             if !isnothing(filePath)
                 # Recebe so o arquivo fasta de uma unic variant
                 validateEntropyWindow(positions, windowSize, varname, outputFile, filePath)
+            elseif !isnothing(dirPath)
+                # Rece um diretório como arquivos fastas dividido por classes, cada arquivo contem N organismos
+                compareVariantClassPerDistance(windowSize, outputFile, dirPath, positions, true)
             else
                 println("Non mode selected")
             end

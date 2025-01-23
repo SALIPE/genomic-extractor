@@ -1,5 +1,10 @@
 module TransformUtils
-using DSP, AbstractFFTs, LinearAlgebra, LoopVectorization, Normalization
+using DSP,
+    AbstractFFTs,
+    LinearAlgebra,
+    LoopVectorization,
+    Normalization,
+    Plots
 
 export TransformUtils
 
@@ -12,9 +17,10 @@ function elementWiseMult(
     crossEspectrum::Vector{T} = ones(T, length(rfftfreq(n)) - 1)
     for s in series
         dft = rfft(s)
+        # plot!(dft)
         crossEspectrum = crossEspectrum .* abs.(dft[2:length(dft)])
     end
-
+    # png(plt, "ffts")
     return crossEspectrum
 end
 
