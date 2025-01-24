@@ -20,6 +20,7 @@ using
     FASTX,
     Plots,
     LinearAlgebra,
+    Normalization,
     Statistics,
     ArgParse,
     .DataIO,
@@ -225,7 +226,7 @@ begin
         wnwPercent::Float16,
         output::String,
         variantDirPath::String,
-        positions::Vector{Int}=[],
+        positions::Vector{Int}=Int[],
         valPositions::Bool=false
     )
 
@@ -263,12 +264,12 @@ begin
         filteredEntropy = RRM.RRMEntropySignal(consensusSignals)
         plt = plot(title="Signals Filtered using RRM", dpi=300)
 
-        ylen = length(filteredEntropy[1][2])
+        ylen = minimum(map(x -> length(x[2]), filteredEntropy))
         x = range(1, ylen)
         lim = [0, ylen]
 
         for (class, f) in filteredEntropy
-            plot!(x, f, label=class, xlims=lim)
+            plot!(x, f[1:ylen], label=class, xlims=lim)
         end
 
         if valPositions
@@ -282,7 +283,8 @@ begin
 
         end
         png(plt, "iffts")
-        # matriz_media, picos = findPeaksBetweenClasses(consensusSignals)
+
+        matriz_media, picos = findPeaksBetweenClasses(map(x -> x[2], consensusSignals))
 
     end
 
@@ -308,19 +310,27 @@ begin
         # Matriz média de distâncias para cada ponto
         matrixMeamDistances = mean(matrixDistances, dims=(2, 3))[:]
 
+        plt = plot(title="Signal distances between points classes", dpi=300)
+
+        N = MinMax(matrixMeamDistances)
+        norm = N(matrixMeamDistances)
+        plot!(norm)
+
+        png(plt, "distances")
+
         # Mediana das médias pra definir picos
         peakThreashold = maximum(matrixMeamDistances)
         # Identificar os picos de maior valor
         peaksIdx = findall(x -> x == peakThreashold, matrixMeamDistances)
 
-        open("resultados.txt", "w") do arquivo
-            # write(arquivo, "Matriz Média:\n")
-            # write(arquivo, join(matrixMeamDistances, ", ") * "\n")
-            write(arquivo, "Valor de threshold (media):\n")
-            write(arquivo, join(peakThreashold, ", ") * "\n")
-            write(arquivo, "\nÍndices dos Picos:\n")
-            write(arquivo, join(peaksIdx, ", ") * "\n")
-        end
+        # open("resultados.txt", "w") do arquivo
+        #     # write(arquivo, "Matriz Média:\n")
+        #     # write(arquivo, join(matrixMeamDistances, ", ") * "\n")
+        #     write(arquivo, "Valor de threshold (media):\n")
+        #     write(arquivo, join(peakThreashold, ", ") * "\n")
+        #     write(arquivo, "\nÍndices dos Picos:\n")
+        #     write(arquivo, join(peaksIdx, ", ") * "\n")
+        # end
 
         return (matrixMeamDistances, peaksIdx)
     end

@@ -7,7 +7,7 @@ OUTPUT=$PROJECTHOME/output_dist
 POSDIR=$PROJECTHOME/positions/omicron/omicron99
 
 
-cd $PROJECTHOME && julia --project Main.jl -d $DIR_INPUT -w $1 -p $POSDIR -o $OUTPUT/euclidian_consensus\_$1% 
+cd $PROJECTHOME && julia --project Main.jl -d $DIR_INPUT -w $1  -o $OUTPUT/euclidian_consensus\_$1% 
 
 
 
