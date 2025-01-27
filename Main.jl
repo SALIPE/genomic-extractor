@@ -369,7 +369,7 @@ begin
 
         filePath = parsed_args["file"]
         dirPath = parsed_args["files-directory"]
-        windowSize::Float16 = parsed_args["window"]
+        windowSize::Float32 = parsed_args["window"]
         positionsBedFile = parsed_args["val-positions-file"]
         outputDirectory::String = parsed_args["output-directory"]
         varname = parsed_args["variant-name"]
