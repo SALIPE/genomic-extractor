@@ -4,8 +4,8 @@
 #$ -e /home/a61491/.errs
 
 # source /home/a61491/.bashrc
-
 # export JULIA_NUM_THREADS=20
+
 
 PROJECTHOME=/home/a61491/rrm-genomic-extractor
 # DIR_INPUT=/home/a61491/datasets/tutorial_data/VOCs
