@@ -188,7 +188,7 @@ begin
 
     function computeEntropySignal(
         filePath::String,
-        wnwPercent::Float16,
+        wnwPercent::Float32,
     )::Vector{Vector{Float64}}
 
         sequences::Array{String} = []
@@ -223,7 +223,7 @@ begin
     # Do a comparison betweeen variant class regions based on the euclidian distance
     # the comparison should be a explanation to why use a consensus signal for class classfication evaluation
     function compareVariantClassPerDistance(
-        wnwPercent::Float16,
+        wnwPercent::Float32,
         output::String,
         variantDirPath::String,
         positions::Vector{Int16}=Int16[],
