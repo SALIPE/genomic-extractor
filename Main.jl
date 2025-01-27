@@ -235,7 +235,6 @@ begin
         consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, length(files))
 
         @show Threads.nthreads()
-        percentLabel = (wnwPercent * 100)
 
         @floop ThreadedEx() for (i, file) in enumerate(files)
             println("Processing $file")
@@ -254,7 +253,7 @@ begin
 
         end
 
-        plt = plot(title="Variant Classes Comparison per window size - $percentLabel%", dpi=300)
+        plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
 
         for (fastaFile, distances) in consensusSignals
             plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
@@ -263,7 +262,7 @@ begin
         png(plt, "$output/euclidian_consensus")
 
         filteredEntropy = RRM.RRMEntropySignal(consensusSignals)
-        plt = plot(title="Signals Filtered using RRM - $percentLabel%", dpi=300)
+        plt = plot(title="Signals Filtered using RRM - $wnwPercent", dpi=300)
 
         ylen::Int32 = minimum(map(x -> length(x[2]), filteredEntropy))
         x = range(1, ylen)
@@ -290,7 +289,7 @@ begin
         _, _, norm = findPeaksBetweenClasses(map(x -> x[2], consensusSignals))
 
 
-        plt = plot(title="Signal distances between points classes - $percentLabel%", dpi=300)
+        plt = plot(title="Signal distances between points classes - $wnwPercent", dpi=300)
         plot!(norm,
             linecolor=:red,
             xlims=lim)
