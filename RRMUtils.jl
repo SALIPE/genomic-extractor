@@ -99,20 +99,18 @@ function RRMEntropySignal(
 )
     signals = Vector{Tuple{String,Vector{Float64}}}(undef, length(consensusSignals))
 
-    plt = plot(title="Entropy Signals Norms.", dpi=300)
+    # plt = plot(title="Entropy Signals Norms.", dpi=300)
     for (i, (class, signal)) in enumerate(consensusSignals)
         N = MinMax(signal)
         norm = N(signal)
-        plot!(norm, label=class)
+        # plot!(norm, label=class)
         signals[i] = (class, norm)
     end
-    png(plt, "norm_signals")
+    # png(plt, "norm_signals")
 
     min_length = minimum(map(x -> length(x[2]), signals))
 
     freqWindow = _extractFreqWindow(map(x -> x[2], signals), min_length)
-    # plt = plot(title="Signals Filtered using RRM", dpi=300)
-
 
     for (i, (class, sequence)) in enumerate(signals)
         fft = abs.(rfft(sequence))
@@ -123,10 +121,7 @@ function RRMEntropySignal(
         end
         normal = irfft(fft, length(sequence))
         signals[i] = (class, normal)
-        # plot!(normal)
     end
-
-    # png(plt, "iffts")
 
     return signals
 

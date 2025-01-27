@@ -20,6 +20,7 @@ using
     FASTX,
     Plots,
     LinearAlgebra,
+    Normalization,
     Statistics,
     ArgParse,
     .DataIO,
@@ -124,18 +125,18 @@ begin
     end
 
     function histogramPosWndw(
-        positions::Vector{Int},
-        wndwSize::Int,
-        signalLen::Int)::Vector{Int}
+        positions::Vector{Int16},
+        wndwSize::Int16,
+        signalLen::Int32)::Vector{Int16}
 
-        posHistogram = zeros(Int, signalLen)
+        posHistogram = zeros(Int16, signalLen)
 
         for pos in positions
-            initIdx::Int = pos + 1 - wndwSize
+            initIdx::Int16 = pos + 1 - wndwSize
             initIdx = initIdx <= 0 ? 1 : initIdx
 
-            endIdx::Int = initIdx + wndwSize - 1
-            endIdx = endIdx > signalLen ? signalLen : endIdx
+            # endIdx::Int16 = initIdx + wndwSize - 1
+            endIdx::Int16 = pos > signalLen ? signalLen : pos
             posHistogram[initIdx:endIdx] .+= 1
         end
         return posHistogram
@@ -144,7 +145,7 @@ begin
 
     # Exec the window process for one FASTA file
     function validateEntropyWindow(
-        positions::Vector{Int},
+        positions::Vector{Int16},
         wnwPercent::Float16,
         variantName::String,
         output::String,
@@ -225,7 +226,7 @@ begin
         wnwPercent::Float16,
         output::String,
         variantDirPath::String,
-        positions::Vector{Int}=[],
+        positions::Vector{Int16}=Int16[],
         valPositions::Bool=false
     )
 
@@ -258,22 +259,24 @@ begin
             plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
         end
 
-        png(plt, output)
+        png(plt, "$output/euclidian_consensus")
 
         filteredEntropy = RRM.RRMEntropySignal(consensusSignals)
-        plt = plot(title="Signals Filtered using RRM", dpi=300)
+        plt = plot(title="Signals Filtered using RRM - $(wnwPercent*100)%", dpi=300)
 
-        ylen = length(filteredEntropy[1][2])
+        ylen::Int32 = minimum(map(x -> length(x[2]), filteredEntropy))
         x = range(1, ylen)
         lim = [0, ylen]
 
         for (class, f) in filteredEntropy
-            plot!(x, f, label=class, xlims=lim)
+            plot!(x, f[1:ylen], label=class, xlims=lim)
         end
+
+        regions::Vector{Int16} = Vector{Int16}()
 
         if valPositions
 
-            regions::Vector{Int} = histogramPosWndw(positions, ceil(Int, ylen * wnwPercent), ylen)
+            regions = histogramPosWndw(positions, ceil(Int16, ylen * wnwPercent), ylen)
             plot!(twinx(), x, regions,
                 label="Frequency",
                 seriestype=:bar,
@@ -281,8 +284,22 @@ begin
                 xlims=lim)
 
         end
-        png(plt, "iffts")
-        # matriz_media, picos = findPeaksBetweenClasses(consensusSignals)
+        png(plt, "$output/iffts")
+
+        _, _, norm = findPeaksBetweenClasses(map(x -> x[2], consensusSignals))
+
+
+        plt = plot(title="Signal distances between points classes - $(wnwPercent*100)%", dpi=300)
+        plot!(norm,
+            linecolor=:red,
+            xlims=lim)
+        plot!(twinx(), x, regions,
+            label="Frequency",
+            seriestype=:bar,
+            linecolor=nothing,
+            xlims=lim)
+
+        png(plt, "$output/distances")
 
     end
 
@@ -308,21 +325,15 @@ begin
         # Matriz média de distâncias para cada ponto
         matrixMeamDistances = mean(matrixDistances, dims=(2, 3))[:]
 
+        N = MinMax(matrixMeamDistances)
+        norm = N(matrixMeamDistances)
+
         # Mediana das médias pra definir picos
         peakThreashold = maximum(matrixMeamDistances)
         # Identificar os picos de maior valor
         peaksIdx = findall(x -> x == peakThreashold, matrixMeamDistances)
 
-        open("resultados.txt", "w") do arquivo
-            # write(arquivo, "Matriz Média:\n")
-            # write(arquivo, join(matrixMeamDistances, ", ") * "\n")
-            write(arquivo, "Valor de threshold (media):\n")
-            write(arquivo, join(peakThreashold, ", ") * "\n")
-            write(arquivo, "\nÍndices dos Picos:\n")
-            write(arquivo, join(peaksIdx, ", ") * "\n")
-        end
-
-        return (matrixMeamDistances, peaksIdx)
+        return (matrixMeamDistances, peaksIdx, norm)
     end
 
 
@@ -347,7 +358,7 @@ begin
             "-a", "--convergence-analysis"
             help = "Positions file for validation"
             action = :store_true
-            "-o", "--output"
+            "-o", "--output-directory"
             help = "Output directory"
             arg_type = String
             required = true
@@ -359,7 +370,7 @@ begin
         dirPath = parsed_args["files-directory"]
         windowSize::Float16 = parsed_args["window"]
         positionsBedFile = parsed_args["val-positions-file"]
-        outputFile::String = parsed_args["output"]
+        outputDirectory::String = parsed_args["output-directory"]
         varname = parsed_args["variant-name"]
         execConvAnalysis = parsed_args["convergence-analysis"]
 
@@ -375,21 +386,21 @@ begin
         end
 
         if !isnothing(positionsBedFile)
-            positions::Vector{Int} = DataIO.readVectorFromFile(positionsBedFile, Int)
+            positions::Vector{Int16} = DataIO.readVectorFromFile(positionsBedFile, Int16)
 
             if !isnothing(filePath)
                 # Recebe so o arquivo fasta de uma unic variant
-                validateEntropyWindow(positions, windowSize, varname, outputFile, filePath)
+                validateEntropyWindow(positions, windowSize, varname, outputDirectory, filePath)
             elseif !isnothing(dirPath)
                 # Rece um diretório como arquivos fastas dividido por classes, cada arquivo contem N organismos
-                compareVariantClassPerDistance(windowSize, outputFile, dirPath, positions, true)
+                compareVariantClassPerDistance(windowSize, outputDirectory, dirPath, positions, true)
             else
                 println("Non mode selected")
             end
         else
             if !isnothing(dirPath)
                 # Rece um diretório como arquivos fastas dividido por classes, cada arquivo contem N organismos
-                compareVariantClassPerDistance(windowSize, outputFile, dirPath)
+                compareVariantClassPerDistance(windowSize, outputDirectory, dirPath)
             else
                 println("Non mode selected")
             end

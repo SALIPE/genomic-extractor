@@ -3,15 +3,20 @@
 #$ -o /home/a61491/.outputs
 #$ -e /home/a61491/.errs
 
-source /home/a61491/.bashrc
+# source /home/a61491/.bashrc
+# export JULIA_NUM_THREADS=20
 
-export JULIA_NUM_THREADS=16
 
 PROJECTHOME=/home/a61491/rrm-genomic-extractor
-DIR_INPUT=/home/a61491/datasets/tutorial_data/VOCs
-OUTPUT=$PROJECTHOME/output_convergence
+# DIR_INPUT=/home/a61491/datasets/tutorial_data/VOCs
+DIR_INPUT=/home/a61491/datasets/consensus
+OUTPUT=$PROJECTHOME/output_dist/$1
+POSDIR=$PROJECTHOME/positions/all
 
-cd $PROJECTHOME && julia --project Main.jl -d $DIR_INPUT -w $1  -o $OUTPUT/euclidian_consensus\_$1% 
+rm -r $OUTPUT
+mkdir -p $OUTPUT
+
+cd $PROJECTHOME && julia --project Main.jl -d $DIR_INPUT -w $1 -p $POSDIR -o $OUTPUT
 
 
 
