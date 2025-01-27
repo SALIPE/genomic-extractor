@@ -77,7 +77,7 @@ function mountEntropyByWndw(
     wndwSize::Int,
     sequence::String)::Vector{Float64}
 
-    index = 1
+    index::Int16 = 1
     step::Int8 = 1
     seqlen = length(sequence)
 
