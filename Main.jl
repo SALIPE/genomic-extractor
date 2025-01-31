@@ -32,76 +32,6 @@ using
 using .RRM: runRRMMethodology!
 begin
 
-
-    function rrm_main()
-        setting = ArgParseSettings()
-        @add_arg_table! setting begin
-            "-w", "--window"
-            help = "Slide window size to apply method in the chromossome. Values from [256, 512, 1024, 2048]"
-            default = 2048
-            "-r", "--range-tolerance"
-            help = "Tolarence range to create ranges ex. -t 2 => [(1-15), (18-20)] turns into [(1-20)]"
-            default = 100
-            "-t", "--threshold"
-            help = "Threshold value for the filtered signal to select regions"
-            default = 0.2
-            "-b", "--bed-file"
-            help = "BED file with regions to analyse"
-        end
-
-        parsed_args = parse_args(ARGS, setting)
-
-        sldWindow::Int = parsed_args["window"]
-        tolerance::Int = parsed_args["range-tolerance"]
-        threshold::Float64 = parsed_args["threshold"]
-        regionsbedfile = parsed_args["bed-file"]
-
-        valid_wndw = [256, 512, 1024, 2048]
-        if !(sldWindow in valid_wndw)
-            println("Error: Invalid window size. Choose from: ", join(valid_wndw, ", "))
-            exit(1)
-        end
-
-        println("Selected slide window size: $sldWindow")
-        println("Selected tolerance value: $tolerance")
-        println("Selected threshold value: $threshold")
-
-        filePath::String = "/home/salipe/Desktop/GitHub/datasets/gen_dron_car.fasta"
-        dirPath::String = "/home/salipe/Desktop/GitHub/datasets/dron_iber_test"
-
-        if regionsbedfile === nothing
-            # runRRMMethodology!(filePath, sldWindow, tolerance, threshold)
-        else
-            regions = DataIO.readRegionsFromBed(regionsbedfile)
-            runRRMMethodology!(dirPath, regions, tolerance, threshold)
-        end
-    end
-
-    function max_entropy_main()
-        setting = ArgParseSettings()
-        @add_arg_table! setting begin
-            "-f", "--file"
-            help = "Fasta file"
-            required = true
-        end
-
-        parsed_args = parse_args(ARGS, setting)
-
-        fastaFile::String = parsed_args["file"]
-        sequences::Array{String} = []
-        for record in open(FASTAReader, fastaFile)
-            seq::String = sequence(String, record)
-            push!(sequences, seq)
-        end
-        kmers = KmerUtils.kmersFrequencies(sequences[1], 6, 1)
-        @show kmers
-        frequency = EntropyUtil.maxEntropy(kmers)
-        @show frequency
-
-    end
-
-
-
     function findPosWndw(
         positions::Vector{Int},
         wndwSize::Int,
@@ -337,6 +267,74 @@ begin
     end
 
 
+    #extract from k-mers
+    # k-mers list -> run windown slide -> count histogram for most freq -> extract regions
+    function wndwExlcusiveKmersHistogram(
+        exclusiveKmers::Vector{String},
+        wndwSize::Int16,
+        sequence::String
+    )
+        # ::Tuple{Int32,Vector{String}}
+
+
+        index::Int32 = 1
+        seqlen::Int32 = length(sequence)
+        histogram::Vector{Int32} = zeros(Int32, seqlen - wndwSize + 1)
+
+        while (index + wndwSize - 1) <= seqlen
+            wdw::String = sequence[index:index+wndwSize-1]
+
+            count = zero(Int32)
+            for kmer in exclusiveKmers
+                pattern = Regex("\\Q$kmer\\E")
+                count += length(collect(eachmatch(pattern, wdw)))
+            end
+
+            @show count
+            histogram[index] = count
+
+            index += 1
+        end
+
+        return histogram
+
+    end
+
+    function validateKmerFrequencies(
+        wnwPercent::Float32,
+        variantDirPath::String
+    )
+
+        variantDirs::Vector{String} = readdir(variantDirPath)
+
+        @show Threads.nthreads()
+
+        @floop ThreadedEx() for (i, variant) in enumerate(variantDirs)
+            println("Processing $variant")
+            seq::String = ""
+            for record in open(FASTAReader, "$variantDirPath/$variant/$(variant)_reference.fasta")
+                seq = sequence(String, record)
+            end
+
+            wnwSize::Int16 = ceil(Int, length(seq) * wnwPercent)
+
+            file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
+            content_inside_brackets = strip(file_content, ['[', ']'])
+
+            exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
+
+
+            hist::Vector{Int32} = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, seq)
+
+            plt = plot(hist, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+
+            png(plt, "$output/$variant")
+            println("Finish Processing $variant")
+
+        end
+
+    end
+
     function validate_region_main()
         setting = ArgParseSettings()
         @add_arg_table! setting begin
@@ -355,8 +353,11 @@ begin
             "-p", "--val-positions-file"
             help = "Positions file for validation"
             arg_type = String
-            "-a", "--convergence-analysis"
+            "--convergence-analysis"
             help = "Positions file for validation"
+            action = :store_true
+            "--kmers-freq"
+            help = "Mount K-mers positions"
             action = :store_true
             "-o", "--output-directory"
             help = "Output directory"
@@ -373,6 +374,7 @@ begin
         outputDirectory::String = parsed_args["output-directory"]
         varname = parsed_args["variant-name"]
         execConvAnalysis = parsed_args["convergence-analysis"]
+        kmersFreq = parsed_args["kmers-freq"]
 
         println("Parsed args:")
         for (arg, val) in parsed_args
@@ -383,9 +385,11 @@ begin
             # ConvergenceAnalysis.convergenceAnalysis(windowSize, dirPath)
             #ConvergenceAnalysis.convergenceAnalysisClasses(windowSize, dirPath)
             return 0
-        end
+        elseif kmersFreq
+            validateKmerFrequencies(windowSize, dirPath)
+            return 0
 
-        if !isnothing(positionsBedFile)
+        elseif !isnothing(positionsBedFile)
             positions::Vector{Int16} = DataIO.readVectorFromFile(positionsBedFile, Int16)
 
             if !isnothing(filePath)
