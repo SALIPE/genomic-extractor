@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROJECTHOME=~/Desktop/rrm-genomic-extractor
-DIR_INPUT=~/Desktop/datasets/tutorial_data/consensus
+DIR_INPUT=~/Desktop/datasets/tutorial_data/kmers
 OUTPUT=$PROJECTHOME/output_freq/$1
 
 
