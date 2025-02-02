@@ -272,28 +272,28 @@ begin
     function wndwExlcusiveKmersHistogram(
         exclusiveKmers::Vector{String},
         wndwSize::Int16,
-        sequence::String
-    )
-        # ::Tuple{Int32,Vector{String}}
-
+        sequences::Vector{String},
+        seqlen::Int32
+    )::Vector{Int32}
+        @show wndwSize
+        patterns = [Base.Fix1(occursin, Regex("\\Q$kmer\\E")) for kmer in exclusiveKmers]
 
         index::Int32 = 1
-        seqlen::Int32 = length(sequence)
         histogram::Vector{Int32} = zeros(Int32, seqlen - wndwSize + 1)
 
-        while (index + wndwSize - 1) <= seqlen
-            wdw::String = sequence[index:index+wndwSize-1]
+        for sequence in sequences
+            while (index + wndwSize - 1) <= seqlen
+                wdw::String = sequence[index:index+wndwSize-1]
 
-            count = zero(Int32)
-            for kmer in exclusiveKmers
-                pattern = Regex("\\Q$kmer\\E")
-                count += length(collect(eachmatch(pattern, wdw)))
+                count = zero(Int32)
+                for pattern in patterns
+                    if pattern(wdw)
+                        count += 1
+                    end
+                end
+                histogram[index] = count
+                index += 1
             end
-
-            @show count
-            histogram[index] = count
-
-            index += 1
         end
 
         return histogram
@@ -302,6 +302,7 @@ begin
 
     function validateKmerFrequencies(
         wnwPercent::Float32,
+        outputDir::String,
         variantDirPath::String
     )
 
@@ -309,14 +310,16 @@ begin
 
         @show Threads.nthreads()
 
-        @floop ThreadedEx() for (i, variant) in enumerate(variantDirs)
+        for (i, variant) in enumerate(variantDirs)
             println("Processing $variant")
-            seq::String = ""
-            for record in open(FASTAReader, "$variantDirPath/$variant/$(variant)_reference.fasta")
-                seq = sequence(String, record)
+
+            sequences = String[]
+            for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
+                push!(sequences, sequence(String, record))
             end
 
-            wnwSize::Int16 = ceil(Int, length(seq) * wnwPercent)
+            minSeqLength::Int32 = minimum(map(length, sequences))
+            wnwSize::Int16 = ceil(Int, minSeqLength * wnwPercent)
 
             file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
             content_inside_brackets = strip(file_content, ['[', ']'])
@@ -324,11 +327,11 @@ begin
             exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
 
 
-            hist::Vector{Int32} = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, seq)
+            hist::Vector{Int32} = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences, minSeqLength)
 
             plt = plot(hist, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
 
-            png(plt, "$output/$variant")
+            png(plt, "$outputDir/$variant")
             println("Finish Processing $variant")
 
         end
@@ -386,7 +389,7 @@ begin
             #ConvergenceAnalysis.convergenceAnalysisClasses(windowSize, dirPath)
             return 0
         elseif kmersFreq
-            validateKmerFrequencies(windowSize, dirPath)
+            validateKmerFrequencies(windowSize, outputDirectory, dirPath)
             return 0
 
         elseif !isnothing(positionsBedFile)
