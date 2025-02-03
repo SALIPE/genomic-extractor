@@ -354,7 +354,7 @@ begin
 
         outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray}}}(undef, length(variantDirs))
 
-        @floop ThreadedEx() for (v, variant) in enumerate(variantDirs)
+        for (v, variant) in enumerate(variantDirs)
             println("Processing $variant")
 
             sequences = String[]
@@ -365,7 +365,7 @@ begin
             minSeqLength::UInt16 = minimum(map(length, sequences))
             wnwSize::UInt8 = ceil(UInt8, minSeqLength * wnwPercent)
 
-            file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
+            file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav", String)
             content_inside_brackets = strip(file_content, ['[', ']'])
             exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
 

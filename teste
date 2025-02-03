@@ -1,0 +1,6 @@
+# intersecao entre todos os conjuntos
+all_domain_intersection = set.intersection(*[v for v in kmers_set.values()])
+
+# exclusive kmers in all domains
+uniques_kmers = {k: v.difference(*(v1 for k1, v1 in kmers_set.items() if k1 != k)) 
+           for k, v in kmers_set.items()}
