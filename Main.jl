@@ -273,30 +273,45 @@ begin
         exclusiveKmers::Vector{String},
         wndwSize::Int16,
         sequences::Vector{String},
-        seqlen::Int32
-    )::Vector{Int32}
+        maxSeqLen::Int32
+    )::Tuple{Vector{Int32},Vector{Int8}}
+
         @show wndwSize
         patterns = [Base.Fix1(occursin, Regex("\\Q$kmer\\E")) for kmer in exclusiveKmers]
 
-        index::Int32 = 1
-        histogram::Vector{Int32} = zeros(Int32, seqlen - wndwSize + 1)
 
-        for sequence in sequences
-            while (index + wndwSize - 1) <= seqlen
-                wdw::String = sequence[index:index+wndwSize-1]
+        # histogram::Vector{Int32} = zeros(Int32, maxSeqLen - wndwSize + 1)
+        # marked = zeros(Int8, maxSeqLen)
 
-                count = zero(Int32)
+        @floop for sequence in sequences
+            # Local variables for each thread
+            local_histogram = zeros(Int32, maxSeqLen - wndwSize + 1)
+            local_marked = zeros(Int8, maxSeqLen)
+
+            for index in 1:(length(sequence)-wndwSize+1)
+                endPos = index + wndwSize - 1
+                wdw = sequence[index:endPos]
+
+                count = 0
                 for pattern in patterns
                     if pattern(wdw)
                         count += 1
+                        local_marked[index:endPos] .= one(Int8)
                     end
                 end
-                histogram[index] = count
-                index += 1
+
+                # Update local histogram
+                local_histogram[index] += count
             end
+
+            # Reduce local results into global arrays
+            @reduce(
+                histogram = zeros(Int32, maxSeqLen - wndwSize + 1) .+ local_histogram,
+                marked = zeros(Int8, maxSeqLen) .| local_marked
+            )
         end
 
-        return histogram
+        return (histogram, marked)
 
     end
 
@@ -310,7 +325,7 @@ begin
 
         @show Threads.nthreads()
 
-        for (i, variant) in enumerate(variantDirs)
+        for variant in variantDirs
             println("Processing $variant")
 
             sequences = String[]
@@ -319,7 +334,8 @@ begin
             end
 
             minSeqLength::Int32 = minimum(map(length, sequences))
-            wnwSize::Int16 = ceil(Int, minSeqLength * wnwPercent)
+            maxSeqLength::Int32 = maximum(map(length, sequences))
+            wnwSize::Int16 = ceil(Int16, minSeqLength * wnwPercent)
 
             file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
             content_inside_brackets = strip(file_content, ['[', ']'])
@@ -327,10 +343,11 @@ begin
             exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
 
 
-            hist::Vector{Int32} = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences, minSeqLength)
+            histogram, marked = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences, maxSeqLength)
 
-            plt = plot(hist, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+            plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
 
+            plot!(marked)
             png(plt, "$outputDir/$variant")
             println("Finish Processing $variant")
 
