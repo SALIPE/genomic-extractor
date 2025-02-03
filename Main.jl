@@ -273,7 +273,6 @@ begin
     )::Bool
         kmer = args[1]
         wndwSize = args[2]
-
         klen = length(kmer)
         # Slide through window to find matches
         @inbounds for pos in 1:(wndwSize-klen+1)
@@ -294,11 +293,10 @@ begin
     # k-mers list -> run windown slide -> count histogram for most freq -> extract regions
     function wndwExlcusiveKmersHistogram(
         exclusiveKmers::Vector{String},
-        wndwSize::Int16,
+        wndwSize::UInt8,
         sequences::Vector{String},
-    )::Tuple{Vector{UInt32},BitArray}
+    )::Tuple{Vector{UInt16},BitArray}
 
-        @show wndwSize
         kmer_lengths = length.(exclusiveKmers)
         @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
 
@@ -308,18 +306,16 @@ begin
         maxSeqLen = maximum(length, sequences)
         total_windows = maxSeqLen - wndwSize + 1
 
-        num_threads = Threads.nthreads()
-        basesize = max(1, length(sequences) ÷ num_threads)
+        # num_threads = Threads.nthreads()
+        # basesize = max(1, length(sequences) ÷ num_threads)
 
-        @floop ThreadedEx(basesize=basesize) for seq in byte_seqs
+        @floop for seq in byte_seqs
             seq_len = length(seq)
             seq_windows = seq_len - wndwSize + 1
-
-            seq_hist = zeros(UInt32, seq_windows)
+            seq_hist = zeros(UInt16, seq_windows)
 
             for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
-
                 for pattern in patterns
                     if pattern(seq[initPos:endPos])
                         seq_hist[initPos] += 1
@@ -327,12 +323,12 @@ begin
                 end
             end
 
-            padded_hist = zeros(UInt32, total_windows)
+            padded_hist = zeros(UInt16, total_windows)
             valid_range = 1:length(seq_hist)
             padded_hist[valid_range] = seq_hist
 
             @reduce(
-                histogram = zeros(UInt32, total_windows) .+ padded_hist,
+                histogram = zeros(UInt16, total_windows) .+ padded_hist,
             )
         end
 
@@ -354,10 +350,11 @@ begin
     )
 
         variantDirs::Vector{String} = readdir(variantDirPath)
-
         @show Threads.nthreads()
 
-        for variant in variantDirs
+        outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray}}}(undef, length(variantDirs))
+
+        @floop ThreadedEx() for (v, variant) in enumerate(variantDirs)
             println("Processing $variant")
 
             sequences = String[]
@@ -365,25 +362,23 @@ begin
                 push!(sequences, sequence(String, record))
             end
 
-            minSeqLength::Int32 = minimum(map(length, sequences))
-            wnwSize::Int16 = ceil(Int16, minSeqLength * wnwPercent)
+            minSeqLength::UInt16 = minimum(map(length, sequences))
+            wnwSize::UInt8 = ceil(UInt8, minSeqLength * wnwPercent)
 
             file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
             content_inside_brackets = strip(file_content, ['[', ']'])
-
             exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
 
-
-            histogram, marked = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences)
-
-            plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$variant")
-
-            plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$(variant)_reg")
+            outputs[v] = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences))
 
             println("Finish Processing $variant")
+        end
 
+        for (variant, (histogram, marked)) in outputs
+            plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+            png(plt, "$outputDir/$variant")
+            plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+            png(plt, "$outputDir/$(variant)_reg")
         end
 
     end
