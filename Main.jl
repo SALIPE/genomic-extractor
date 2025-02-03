@@ -271,7 +271,6 @@ begin
         args,
         window_buffer
     )::Bool
-        any_match = false
         kmer = args[1]
         wndwSize = args[2]
 
@@ -286,10 +285,10 @@ begin
                 end
             end
             if match
-                any_match = true
+                return true
             end
         end
-        return any_match
+        return false
     end
     #extract from k-mers
     # k-mers list -> run windown slide -> count histogram for most freq -> extract regions
@@ -297,7 +296,7 @@ begin
         exclusiveKmers::Vector{String},
         wndwSize::Int16,
         sequences::Vector{String},
-    )::Tuple{Vector{UInt32},BitVector}
+    )::Vector{Int32}
 
         @show wndwSize
         kmer_lengths = length.(exclusiveKmers)
@@ -314,29 +313,30 @@ begin
             seq_len = length(seq)
             seq_windows = seq_len - wndwSize + 1
 
-            local_histogram = zeros(UInt32, total_windows)
-            local_marked = falses(maxSeqLen)
+            seq_hist = zeros(Int32, seq_windows)
 
             for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
 
-                any_match = false
                 for pattern in patterns
                     if pattern(seq[initPos:endPos])
-                        local_histogram[initPos] += 1
-                        any_match = true
+                        seq_hist[initPos] += 1
                     end
                 end
-                local_marked[initPos:endPos] .= any_match
             end
 
+            padded_hist = zeros(Int32, total_windows)
+
+            valid_range = 1:length(seq_hist)
+
+            padded_hist[valid_range] = seq_hist
+
             @reduce(
-                histogram = zeros(UInt32, total_windows) .+ local_histogram,
-                marked = falses(maxSeqLen) .| local_marked
+                histogram = zeros(Int32, total_windows) .+ padded_hist,
             )
         end
 
-        return (histogram, BitVector(marked))
+        return histogram
 
     end
 
@@ -367,13 +367,10 @@ begin
             exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
 
 
-            histogram, marked = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences)
+            histogram = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences)
 
             plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
             png(plt, "$outputDir/$variant")
-
-            plt = plot([marked ? 1 : 0 for mark in marked], title="Exclusive Kmers Regions - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$(variant)_reg")
 
             println("Finish Processing $variant")
 
