@@ -309,7 +309,7 @@ begin
         total_windows = maxSeqLen - wndwSize + 1
 
         num_threads = Threads.nthreads()
-        basesize = max(1, length(arr) ÷ num_threads)
+        basesize = max(1, length(sequences) ÷ num_threads)
 
         @floop ThreadedEx(basesize=basesize) for seq in byte_seqs
             seq_len = length(seq)
