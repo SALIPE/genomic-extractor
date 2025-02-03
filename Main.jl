@@ -308,8 +308,10 @@ begin
         maxSeqLen = maximum(length, sequences)
         total_windows = maxSeqLen - wndwSize + 1
 
+        num_threads = Threads.nthreads()
+        basesize = max(1, length(arr) ÷ num_threads)
 
-        @floop for seq in byte_seqs
+        @floop ThreadedEx(basesize=basesize) for seq in byte_seqs
             seq_len = length(seq)
             seq_windows = seq_len - wndwSize + 1
 
@@ -326,9 +328,7 @@ begin
             end
 
             padded_hist = zeros(UInt32, total_windows)
-
             valid_range = 1:length(seq_hist)
-
             padded_hist[valid_range] = seq_hist
 
             @reduce(
