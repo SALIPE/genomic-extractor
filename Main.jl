@@ -272,26 +272,22 @@ begin
         window_buffer
     )::Bool
         any_match = false
-        byte_kmers = args[1]
+        kmer = args[1]
         wndwSize = args[2]
 
-        for kmer in byte_kmers
-            klen = length(kmer)
-            # Slide through window to find matches
-            found = false
-            @inbounds for pos in 1:(wndwSize-klen+1)
-                match = true
-                for i in 1:klen
-                    if window_buffer[pos+i-1] ≠ kmer[i]
-                        match = false
-                        break
-                    end
-                end
-                if match
-                    found = true
+        klen = length(kmer)
+        # Slide through window to find matches
+        @inbounds for pos in 1:(wndwSize-klen+1)
+            match = true
+            for i in 1:klen
+                if window_buffer[pos+i-1] ≠ kmer[i]
+                    match = false
+                    break
                 end
             end
-            any_match |= found
+            if match
+                any_match = true
+            end
         end
         return any_match
     end
@@ -321,18 +317,12 @@ begin
             local_histogram = zeros(UInt32, total_windows)
             local_marked = falses(maxSeqLen)
 
-            buffer = Vector{UInt8}(undef, wndwSize)
-
             for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
 
-                @inbounds @simd for i in 1:wndwSize
-                    buffer[i] = seq[initPos+i-1]
-                end
-
                 any_match = false
                 for pattern in patterns
-                    if pattern(buffer)
+                    if pattern(seq[initPos:endPos])
                         local_histogram[initPos] += 1
                         any_match = true
                     end
@@ -382,8 +372,8 @@ begin
             plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
             png(plt, "$outputDir/$variant")
 
-            plt = plot(marked, title="Exclusive Kmers Regions - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$variant_reg")
+            plt = plot([marked ? 1 : 0 for mark in marked], title="Exclusive Kmers Regions - $wnwPercent", dpi=300)
+            png(plt, "$outputDir/$(variant)_reg")
 
             println("Finish Processing $variant")
 
