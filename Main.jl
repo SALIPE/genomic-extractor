@@ -296,7 +296,7 @@ begin
         exclusiveKmers::Vector{String},
         wndwSize::Int16,
         sequences::Vector{String},
-    )::Vector{Int32}
+    )::Tuple{Vector{UInt32},BitArray}
 
         @show wndwSize
         kmer_lengths = length.(exclusiveKmers)
@@ -313,7 +313,7 @@ begin
             seq_len = length(seq)
             seq_windows = seq_len - wndwSize + 1
 
-            seq_hist = zeros(Int32, seq_windows)
+            seq_hist = zeros(UInt32, seq_windows)
 
             for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
@@ -325,18 +325,25 @@ begin
                 end
             end
 
-            padded_hist = zeros(Int32, total_windows)
+            padded_hist = zeros(UInt32, total_windows)
 
             valid_range = 1:length(seq_hist)
 
             padded_hist[valid_range] = seq_hist
 
             @reduce(
-                histogram = zeros(Int32, total_windows) .+ padded_hist,
+                histogram = zeros(UInt32, total_windows) .+ padded_hist,
             )
         end
 
-        return histogram
+        marked = falses(maxSeqLen)
+
+        for i in eachindex(histogram)
+            if histogram[i] > 0
+                marked[i:i+wndwSize-1] .= true
+            end
+        end
+        return histogram, marked
 
     end
 
@@ -367,10 +374,13 @@ begin
             exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
 
 
-            histogram = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences)
+            histogram, marked = wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences)
 
             plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
             png(plt, "$outputDir/$variant")
+
+            plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+            png(plt, "$outputDir/$(variant)_reg")
 
             println("Finish Processing $variant")
 
