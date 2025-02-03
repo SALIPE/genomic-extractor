@@ -21,6 +21,7 @@ using
     Plots,
     LinearAlgebra,
     Normalization,
+    LoopVectorization,
     Statistics,
     ArgParse,
     .DataIO,
@@ -293,7 +294,7 @@ begin
     # k-mers list -> run windown slide -> count histogram for most freq -> extract regions
     function wndwExlcusiveKmersHistogram(
         exclusiveKmers::Vector{String},
-        wndwSize::UInt8,
+        wndwSize::UInt16,
         sequences::Vector{String},
     )::Tuple{Vector{UInt16},BitArray}
 
@@ -316,7 +317,7 @@ begin
 
             for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
-                for pattern in patterns
+                @simd for pattern in patterns
                     if pattern(seq[initPos:endPos])
                         seq_hist[initPos] += 1
                     end
@@ -334,13 +335,41 @@ begin
 
         marked = falses(maxSeqLen)
 
-        for i in eachindex(histogram)
+        @simd for i in eachindex(histogram)
             if histogram[i] > 0
                 marked[i:i+wndwSize-1] .= true
             end
         end
         return histogram, marked
 
+    end
+
+    function find_exclusive_class_elements(class_dict::Dict{String,Vector{String}})::Dict{String,Vector{String}}
+        # Track which classes each string appears in
+        presence = Dict{String,Set{String}}()
+
+        # First pass: Record class presence for each unique string
+        for (class_name, strings) in class_dict
+            unique_strings = unique(strings)
+            for str in unique_strings
+                if haskey(presence, str)
+                    push!(presence[str], class_name)
+                else
+                    presence[str] = Set([class_name])
+                end
+            end
+        end
+
+        # Second pass: Find exclusive elements for each class
+        exclusive_dict = Dict{String,Vector{String}}()
+
+        for (class_name, strings) in class_dict
+            unique_elements = unique(strings)
+            exclusive = filter(str -> presence[str] == Set([class_name]), unique_elements)
+            exclusive_dict[class_name] = exclusive
+        end
+
+        return exclusive_dict
     end
 
     function validateKmerFrequencies(
@@ -353,8 +382,26 @@ begin
         @show Threads.nthreads()
 
         outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray}}}(undef, length(variantDirs))
+        varKmer = Dict{String,Vector{String}}()
 
-        for (v, variant) in enumerate(variantDirs)
+        @simd for variant in variantDirs
+            println("Processing $variant")
+
+            file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
+            content_inside_brackets = strip(file_content, ['[', ']'])
+            exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
+
+            varKmer[variant] = exclusiveKmers
+
+            println("Finish Processing $variant")
+        end
+
+        exclusive_elements::Dict{String,Vector{String}} = find_exclusive_class_elements(varKmer)
+
+
+        @simd for i in eachindex(variantDirs)
+
+            variant::String = variantDirs[i]
             println("Processing $variant")
 
             sequences = String[]
@@ -363,13 +410,9 @@ begin
             end
 
             minSeqLength::UInt16 = minimum(map(length, sequences))
-            wnwSize::UInt8 = ceil(UInt8, minSeqLength * wnwPercent)
+            wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
 
-            file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav", String)
-            content_inside_brackets = strip(file_content, ['[', ']'])
-            exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
-
-            outputs[v] = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers, wnwSize, sequences))
+            outputs[v] = (variant, wndwExlcusiveKmersHistogram(get!(exclusive_elements, variant, String[]), wnwSize, sequences))
 
             println("Finish Processing $variant")
         end
