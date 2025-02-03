@@ -399,9 +399,9 @@ begin
         exclusive_elements::Dict{String,Vector{String}} = find_exclusive_class_elements(varKmer)
 
 
-        @simd for i in eachindex(variantDirs)
+        @simd for v in eachindex(variantDirs)
 
-            variant::String = variantDirs[i]
+            variant::String = variantDirs[v]
             println("Processing $variant")
 
             sequences = String[]
