@@ -14,13 +14,11 @@ function elementWiseMult(
     n::Int
 )::Vector{T} where {T<:Real}
 
-    crossEspectrum::Vector{T} = ones(T, length(rfftfreq(n)) - 1)
-    for s in series
+    crossEspectrum::Vector{T} = rfft(series[1])
+    for s in series[2:end]
         dft = rfft(s)
-        # plot!(dft)
-        crossEspectrum = crossEspectrum .* abs.(dft[2:length(dft)])
+        crossEspectrum = crossEspectrum .* abs.(dft[2:end])
     end
-    # png(plt, "ffts")
     return crossEspectrum
 end
 

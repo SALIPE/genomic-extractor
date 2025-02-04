@@ -12,7 +12,7 @@ export runRRMMethodology!
 
 function getFourierCoefficient(
     cuttedSequences::Array{String},
-    seqLen::UInt32
+    seqLen::Int64
 )
 
     toCross = Array{Vector{Float64}}(undef, length(cuttedSequences))
