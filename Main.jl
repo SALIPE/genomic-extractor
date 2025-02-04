@@ -315,9 +315,9 @@ begin
             seq_windows = seq_len - wndwSize + 1
             seq_hist = zeros(UInt16, seq_windows)
 
-            for initPos in 1:seq_windows
+            @inbounds @simd for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
-                @simd for pattern in patterns
+                for pattern in patterns
                     if pattern(seq[initPos:endPos])
                         seq_hist[initPos] += 1
                     end
@@ -335,7 +335,7 @@ begin
 
         marked = falses(maxSeqLen)
 
-        @simd for i in eachindex(histogram)
+        @inbounds @simd for i in eachindex(histogram)
             if histogram[i] > 0
                 marked[i:i+wndwSize-1] .= true
             end
@@ -344,7 +344,7 @@ begin
 
     end
 
-    function find_exclusive_class_elements(class_dict::Dict{String,Vector{String}})::Dict{String,Vector{String}}
+    function findExclusiveElements(class_dict::Dict{String,Vector{String}})::Dict{String,Vector{String}}
         # Track which classes each string appears in
         presence = Dict{String,Set{String}}()
 
@@ -385,21 +385,13 @@ begin
         varKmer = Dict{String,Vector{String}}()
 
         @simd for variant in variantDirs
-            println("Processing $variant")
-
-            file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
-            content_inside_brackets = strip(file_content, ['[', ']'])
-            exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
-
-            varKmer[variant] = exclusiveKmers
-
-            println("Finish Processing $variant")
+            varKmer[variant] = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
         end
 
-        exclusive_elements::Dict{String,Vector{String}} = find_exclusive_class_elements(varKmer)
+        exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
-
-        @simd for v in eachindex(variantDirs)
+        @show exclusiveKmers
+        for v in eachindex(variantDirs)
 
             variant::String = variantDirs[v]
             println("Processing $variant")
@@ -412,7 +404,7 @@ begin
             minSeqLength::UInt16 = minimum(map(length, sequences))
             wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
 
-            outputs[v] = (variant, wndwExlcusiveKmersHistogram(get!(exclusive_elements, variant, String[]), wnwSize, sequences))
+            outputs[v] = (variant, wndwExlcusiveKmersHistogram(get!(exclusiveKmers, variant, String[]), wnwSize, sequences))
 
             println("Finish Processing $variant")
         end
