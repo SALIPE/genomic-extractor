@@ -435,7 +435,7 @@ begin
                     current = true
                 elseif !bit && current
                     cross = RRM.getFourierCoefficient(
-                        [SubString(str, start, i - 1) for str in sequences],
+                        [str[start:i-1] for str in sequences],
                         i - 1 - start
                     )
                     push!(fourierCoefficients, cross)
@@ -444,7 +444,7 @@ begin
             end
             if current
                 cross = RRM.getFourierCoefficient(
-                    [SubString(str, start, minSeqLength) for str in sequences],
+                    [str[start:minSeqLength] for str in sequences],
                     minSeqLength - start
                 )
                 push!(fourierCoefficients, cross)
