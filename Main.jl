@@ -397,8 +397,9 @@ begin
         for v in eachindex(variantDirs)
             variant::String = variantDirs[v]
             println("Processing $variant")
-            cache_path = "$outputDir/.cache/$(variant).dat"
+            cache_path = "$variantDirPath/$variant/$(variant).dat"
             cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
+
 
             if !isnothing(cache)
                 @info "Using cached data from $cache_path"
@@ -409,7 +410,6 @@ begin
                 for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
                     push!(sequences, sequence(String, record))
                 end
-
                 minSeqLength::UInt16 = minimum(map(length, sequences))
                 wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
 
