@@ -22,6 +22,7 @@ using
     LinearAlgebra,
     Normalization,
     LoopVectorization,
+    Serialization,
     Statistics,
     ArgParse,
     .DataIO,
@@ -392,24 +393,34 @@ begin
 
         exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
+
         for v in eachindex(variantDirs)
             variant::String = variantDirs[v]
             println("Processing $variant")
+            cache_path = "$outputDir/.cache/$(variant).dat"
+            cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
 
-            sequences = String[]
-            for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
-                push!(sequences, sequence(String, record))
+            if !isnothing(cache)
+                @info "Using cached data from $cache_path"
+                outputs[v] = cache
+            else
+
+                sequences = String[]
+                for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
+                    push!(sequences, sequence(String, record))
+                end
+
+                minSeqLength::UInt16 = minimum(map(length, sequences))
+                wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
+
+                data::Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
+                outputs[v] = data
+                DataIO.save_cache(cache_path, data)
             end
-
-            minSeqLength::UInt16 = minimum(map(length, sequences))
-            wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
-
-            outputs[v] = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
-
             println("Finish Processing $variant")
         end
 
-        for (variant, (histogram, marked), sequence) in outputs
+        for (variant, (histogram, marked), sequences) in outputs
 
             fourierCoefficients = Vector{Vector{Float64}}()
 

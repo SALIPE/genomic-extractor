@@ -1,5 +1,5 @@
 module DataIO
-using FASTX, PyCall
+using FASTX, PyCall, Serialization
 
 export DataIO
 
@@ -217,6 +217,27 @@ def load_pickle(fpath):
     load_pickle = py"load_pickle"(file_name)
     return load_pickle
 end
+function save_cache(cache_path::String, data)
+    try
+        open(cache_path, "w") do io
+            serialize(io, data)
+        end
+        @info "Cache saved successfully: $cache_path"
+    catch e
+        @error "Failed to save cache" exception = (e, catch_backtrace())
+    end
+end
+
+function load_cache(cache_path::String)
+    try
+        isfile(cache_path) || return nothing
+        open(io -> deserialize(io), cache_path, "r")
+    catch e
+        @error "Cache loading failed" exception = (e, catch_backtrace())
+        nothing
+    end
+end
+
 
 
 end
