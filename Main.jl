@@ -315,11 +315,13 @@ begin
             seq_windows = seq_len - wndwSize + 1
             seq_hist = zeros(UInt16, seq_windows)
 
-            @inbounds @simd for initPos in 1:seq_windows
+
+            for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
                 for pattern in patterns
                     if pattern(seq[initPos:endPos])
                         seq_hist[initPos] += 1
+                        break
                     end
                 end
             end
@@ -381,7 +383,7 @@ begin
         variantDirs::Vector{String} = readdir(variantDirPath)
         @show Threads.nthreads()
 
-        outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray}}}(undef, length(variantDirs))
+        outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{String}}}}(undef, length(variantDirs))
         varKmer = Dict{String,Vector{String}}()
 
         @simd for variant in variantDirs
@@ -390,9 +392,7 @@ begin
 
         exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
-        @show exclusiveKmers
-        for v in eachindex(variantDirs)
-
+        @simd for v in eachindex(variantDirs)
             variant::String = variantDirs[v]
             println("Processing $variant")
 
@@ -404,17 +404,54 @@ begin
             minSeqLength::UInt16 = minimum(map(length, sequences))
             wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
 
-            outputs[v] = (variant, wndwExlcusiveKmersHistogram(get!(exclusiveKmers, variant, String[]), wnwSize, sequences))
+            outputs[v] = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
 
             println("Finish Processing $variant")
         end
 
-        for (variant, (histogram, marked)) in outputs
-            plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$variant")
-            plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$(variant)_reg")
+        for (variant, (histogram, marked, sequences)) in outputs
+
+            fourierCoefficients = Vector{Vector{Float64}}()
+
+            minSeqLength::UInt16 = minimum(map(length, sequences))
+            limitedMark::BitArray = marked[1:minSeqLength]
+            start = 0
+            current = false
+
+            @inbounds for (i, bit) in enumerate(limitedMark)
+                if bit && !current
+                    start = i
+                    current = true
+                elseif !bit && current
+                    cross = RRM.getFourierCoefficient(
+                        [SubString(str, start, i - 1) for str in sequences],
+                        i - 1 - start
+                    )
+                    push!(fourierCoefficients, cross)
+                    current = false
+                end
+            end
+            if current
+                cross = RRM.getFourierCoefficient(
+                    [SubString(str, start, minSeqLength) for str in sequences],
+                    minSeqLength - start
+                )
+                push!(fourierCoefficients, cross)
+            end
+
+            open("$outputDir/$(variant).txt", "w") do file
+                write(file, fourierCoefficients)
+            end
+
         end
+
+
+        # for (variant, (histogram, marked)) in outputs
+        #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+        #     png(plt, "$outputDir/$variant")
+        #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+        #     png(plt, "$outputDir/$(variant)_reg")
+        # end
 
     end
 
