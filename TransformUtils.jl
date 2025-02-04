@@ -14,7 +14,7 @@ function elementWiseMult(
     n::Int
 )::Vector{T} where {T<:Real}
 
-    crossEspectrum::Vector{T} = rfft(series[1])
+    crossEspectrum::Vector{T} = abs.(rfft(series[1])[2:end])
     for s in series[2:end]
         dft = rfft(s)
         crossEspectrum = crossEspectrum .* abs.(dft[2:end])
