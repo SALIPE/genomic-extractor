@@ -392,7 +392,7 @@ begin
 
         exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
-        @simd for v in eachindex(variantDirs)
+        for v in eachindex(variantDirs)
             variant::String = variantDirs[v]
             println("Processing $variant")
 
