@@ -409,7 +409,7 @@ begin
             println("Finish Processing $variant")
         end
 
-        for (variant, (histogram, marked, sequences)) in outputs
+        for (variant, (histogram, marked), sequence) in outputs
 
             fourierCoefficients = Vector{Vector{Float64}}()
 
