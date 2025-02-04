@@ -383,7 +383,7 @@ begin
         variantDirs::Vector{String} = readdir(variantDirPath)
         @show Threads.nthreads()
 
-        outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{String}}}}(undef, length(variantDirs))
+        outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}}(undef, length(variantDirs))
         varKmer = Dict{String,Vector{String}}()
 
         @simd for variant in variantDirs
