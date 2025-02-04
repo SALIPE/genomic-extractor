@@ -450,9 +450,11 @@ begin
                 push!(fourierCoefficients, cross)
             end
 
-            open("$outputDir/$(variant).txt", "w") do file
-                write(file, fourierCoefficients)
-            end
+            @show variant
+            @show fourierCoefficients
+            # open("$outputDir/$(variant).txt", "w") do file
+            #     write(file, fourierCoefficients)
+            # end
 
         end
 
