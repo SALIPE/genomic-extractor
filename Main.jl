@@ -381,6 +381,14 @@ begin
         variantDirPath::String
     )
 
+        cachdir = "$variantDirPath/.cache/"
+
+        try
+            mkdir(cachdir)
+        catch e
+            @error "create cache direcotry failed" exception = (e, catch_backtrace())
+        end
+
         variantDirs::Vector{String} = readdir(variantDirPath)
         @show Threads.nthreads()
 
@@ -397,9 +405,9 @@ begin
         for v in eachindex(variantDirs)
             variant::String = variantDirs[v]
             println("Processing $variant")
-            cache_path = "$variantDirPath/$variant/$(variant).dat"
-            cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
+            cache_path = "$cachdir/$(variant).dat"
 
+            cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
 
             if !isnothing(cache)
                 @info "Using cached data from $cache_path"
