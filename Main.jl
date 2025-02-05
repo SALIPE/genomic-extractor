@@ -1,7 +1,6 @@
 
 using Pkg
 Pkg.instantiate()
-# Pkg.activate(".")
 
 include("DataIO.jl")
 include("KmerUtils.jl")
@@ -22,7 +21,6 @@ using
     LinearAlgebra,
     Normalization,
     LoopVectorization,
-    Serialization,
     Statistics,
     ArgParse,
     .DataIO,
@@ -381,7 +379,6 @@ begin
         variantDirPath::String
     )
 
-        @show pwd()
         cachdir::String = "$(pwd())/.project_cache"
 
         try
@@ -406,7 +403,7 @@ begin
         for v in eachindex(variantDirs)
             variant::String = variantDirs[v]
             println("Processing $variant")
-            cache_path = "$cachdir/$(variant).dat"
+            cache_path = "$cachdir/$(variant)_outmask.dat"
 
             cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
 
@@ -429,7 +426,8 @@ begin
             println("Finish Processing $variant")
         end
 
-        for (variant, (histogram, marked), sequences) in outputs
+        for (variant, (_, marked), sequences) in outputs
+            cache_path = "$cachdir/$(variant)_fouriercoef.dat"
 
             fourierCoefficients = Vector{Vector{Float64}}()
 
@@ -459,21 +457,17 @@ begin
                 push!(fourierCoefficients, cross)
             end
 
-            @show variant
-            @show fourierCoefficients
-            # open("$outputDir/$(variant).txt", "w") do file
-            #     write(file, fourierCoefficients)
-            # end
+            DataIO.save_cache(cache_path, fourierCoefficients)
 
         end
 
 
-        # for (variant, (histogram, marked)) in outputs
-        #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
-        #     png(plt, "$outputDir/$variant")
-        #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
-        #     png(plt, "$outputDir/$(variant)_reg")
-        # end
+        for (variant, (histogram, marked)) in outputs
+            plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+            png(plt, "$outputDir/$variant")
+            plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+            png(plt, "$outputDir/$(variant)_reg")
+        end
 
     end
 
