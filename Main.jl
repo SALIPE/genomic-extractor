@@ -381,7 +381,8 @@ begin
         variantDirPath::String
     )
 
-        cachdir = "$variantDirPath/.cache/"
+        @show pwd()
+        cachdir::String = "$(pwd())/.project_cache"
 
         try
             mkdir(cachdir)

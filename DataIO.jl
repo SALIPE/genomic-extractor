@@ -1,5 +1,5 @@
 module DataIO
-using FASTX, PyCall, Serialization
+using FASTX, Pickle, Serialization
 
 export DataIO
 
@@ -199,24 +199,16 @@ function readVectorFromFile(file::String, T::Type)::Vector{T}
 end
 
 
-function read_pickle_data(file_name)::Vector{String}
+function read_pickle_data(file_name::AbstractString)
     # file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
     # content_inside_brackets = strip(file_content, ['[', ']'])
     # exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
     # data::Vector{String} = pickle.load(open(file_name, "r"), encoding="latin1")
 
-    py"""
-import pickle
- 
-def load_pickle(fpath):
-    with open(fpath, "rb") as f:
-        data = pickle.load(f)
-    return data
-"""
-
-    load_pickle = py"load_pickle"(file_name)
+    load_pickle = Pickle.load(file_name)
     return load_pickle
 end
+
 function save_cache(cache_path::String, data)
     try
         open(cache_path, "w") do io
