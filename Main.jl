@@ -1,35 +1,32 @@
 
-using Pkg
-Pkg.instantiate()
+using Distributed
 
-include("DataIO.jl")
-include("KmerUtils.jl")
-include("EntropyUtil.jl")
-include("TransformUtils.jl")
-include("RRMUtils.jl")
-include("ConvergenceAnalysis.jl")
+# Add worker processes first
+addprocs(4)
 
+@everywhere begin
+    using Pkg
+    Pkg.activate(".")
+    Pkg.instantiate()
+end
 
-# Directives for Multiprocessing and Distributed Computing
-#using Distributed, addprocs(4)
-# @everywhere
+@everywhere include("modules/DataIO.jl")
+@everywhere include("modules/KmerUtils.jl")
+@everywhere include("modules/EntropyUtil.jl")
+@everywhere include("modules/TransformUtils.jl")
+@everywhere include("modules/RRMUtils.jl")
+@everywhere include("modules/ConvergenceAnalysis.jl")
 
-using
-    FLoops,
-    FASTX,
-    Plots,
-    LinearAlgebra,
-    Normalization,
-    LoopVectorization,
-    Statistics,
-    ArgParse,
+@everywhere using FLoops, FASTX, Plots, LinearAlgebra, Normalization, LoopVectorization, Statistics, ArgParse
+
+@everywhere using
     .DataIO,
     .KmerUtils,
     .TransformUtils,
     .EntropyUtil,
     .ConvergenceAnalysis
 
-using .RRM: runRRMMethodology!
+@everywhere using .RRM: runRRMMethodology!
 begin
 
     function findPosWndw(
@@ -234,7 +231,7 @@ begin
     end
 
 
-    #Função para char quais são os picos de distancia entre as classes, a aprtir do consensus de distancia gerado 
+    #Função para achar quais são os picos de distancia entre as classes, a aprtir do consensus de distancia gerado 
     function findPeaksBetweenClasses(signals::Vector{Vector{Float64}})
         n_classes = length(signals)
 
