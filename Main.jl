@@ -286,13 +286,6 @@ begin
         sequenceTest::String = outputs[2][3][1]
         Classification.classifyInput(sequenceTest)
 
-        # for (variant, (histogram, marked)) in outputs
-        #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
-        #     png(plt, "$outputDir/$variant")
-        #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
-        #     png(plt, "$outputDir/$(variant)_reg")
-        # end
-
     end
 
     function validate_region_main()

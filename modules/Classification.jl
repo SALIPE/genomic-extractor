@@ -45,7 +45,6 @@ function classifyInput(
                 current = true
             elseif !bit && current
                 current = false
-
                 count = countPatterns(codeunits(inputSequence[start:i-1]), kmers)
 
                 push!(report[key], ((start, i - 1), count))
@@ -60,8 +59,9 @@ function classifyInput(
     open("$(pwd())/report.txt", "w") do file
 
         for (var, regions) in report
-            write(file, "\nVariant: $var - Exclusive Kmers")
-
+            write(file, "\n########### $(uppercase(var)) ############")
+            write(file, "\nTotal Exclusive Kmers: $(length(model[var][3]))")
+            write(file, "\n####################################\n")
             for ((initPos, endPos), count) in regions
                 write(file, "\nWindow Position( $initPos - $endPos ): \nKmer Count: $count")
             end

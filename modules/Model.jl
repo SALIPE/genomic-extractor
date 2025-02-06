@@ -8,6 +8,7 @@ using .DataIO,
     .RRM,
     .Classification,
     FLoops,
+    Plots,
     FASTX
 
 export Model
@@ -102,6 +103,13 @@ function trainModel(
 
     DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
 
+    for (variant, (histogram, marked)) in outputs
+        plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+        png(plt, "$outputDir/$variant")
+        plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+        png(plt, "$outputDir/$(variant)_reg")
+    end
+
     return outputs
 
 end
@@ -165,7 +173,7 @@ function wndwExlcusiveKmersHistogram(
             for pattern in patterns
                 if pattern(seq[initPos:endPos])
                     seq_hist[initPos] += 1
-                    break
+                    # break
                 end
             end
         end
@@ -181,7 +189,7 @@ function wndwExlcusiveKmersHistogram(
 
     marked = falses(maxSeqLen)
 
-    @inbounds @simd for i in eachindex(histogram)
+    for i in eachindex(histogram)
         if histogram[i] > 0
             marked[i:i+wndwSize-1] .= true
         end
