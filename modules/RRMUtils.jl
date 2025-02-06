@@ -8,7 +8,7 @@ using .DataIO,
     AbstractFFTs,
     Plots
 
-export runRRMMethodology!
+export RRM
 
 function getFourierCoefficient(
     cuttedSequences::Array{String},

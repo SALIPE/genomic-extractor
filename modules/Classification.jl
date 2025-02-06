@@ -10,15 +10,14 @@ export Classification
 
 function classifyInput(
     inputFile::AbstractString,
-    exclusiveKmers::Dict{String,Vector{String}},
 )
     modelCachedFile = "$(pwd())/.cache/trained_model.dat"
 
-    model::Union{Nothing,} = DataIO.load_cache(modelCachedFile)
+    model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
     if !isnothing(cache)
         @info "Using model from cached data from $cache_path"
-        return classifyInput(inputFile, exclusiveKmers, model)
+        return classifyInput(inputFile, model)
     else
         error("Model not found in cached files!")
     end
@@ -28,15 +27,14 @@ end
 
 function classifyInput(
     inputSequence::AbstractString,
-    exclusiveKmers::Dict{String,Vector{String}},
-    #Dict{VariantName, (Marked, Fourier Coefficients)}
-    model::Dict{String,Tuple{BitArray,Vector{Vector{Float64}}}}
+    #Dict{VariantName, (Marked, Fourier Coefficients, Kmers)}
+    model::Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}
 )
 
     report = Dict{String,Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}}()
-    for (key, (marked, coefs)) in model
+    for (key, (marked, _, kmers)) in model
         inputlen = minimum(length, [inputSequence, marked])
-	report[key] = Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}()
+        report[key] = Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}()
         limitedMark::BitArray = marked[1:inputlen]
         start = 0
         current = false
@@ -48,30 +46,27 @@ function classifyInput(
             elseif !bit && current
                 current = false
 
-                count = countPatterns(codeunits(inputSequence[start:i-1]), exclusiveKmers[key])
+                count = countPatterns(codeunits(inputSequence[start:i-1]), kmers)
 
                 push!(report[key], ((start, i - 1), count))
             end
         end
         if current
-            count = countPatterns(codeunits(inputSequence[start:inputlen]), exclusiveKmers[key])
+            count = countPatterns(codeunits(inputSequence[start:inputlen]), kmers)
             push!(report[key], ((start, inputlen), count))
         end
     end
 
-
     open("$(pwd())/report.txt", "w") do file
 
         for (var, regions) in report
-            write(file, "\nVariant: $var")
+            write(file, "\nVariant: $var - Exclusive Kmers")
 
-            for (i, (_, count)) in enumerate(regions)
-                write(file, "\n$i Region: $count")
+            for ((initPos, endPos), count) in regions
+                write(file, "\nWindow Position( $initPos - $endPos ): \nKmer Count: $count")
             end
         end
     end
-
-
 
 end
 
@@ -80,7 +75,6 @@ function countPatterns(
     kmers::Vector{String})::UInt8
 
     patterns = [Base.Fix1(occursinKmerBit, (codeunits(kmer), length(seqWindow))) for kmer in kmers]
-
     count::UInt8 = 0
 
     @floop for pattern in patterns
