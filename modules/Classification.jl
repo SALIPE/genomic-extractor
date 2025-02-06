@@ -16,7 +16,7 @@ function classifyInput(
     model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
     if !isnothing(model)
-        @info "Using model from cached data from $cache_path"
+        @info "Using model from cached data from $modelCachedFile"
         return classifyInput(inputFile, model)
     else
         error("Model not found in cached files!")
