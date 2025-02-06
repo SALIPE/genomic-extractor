@@ -159,7 +159,7 @@ function runRRMMethodology!(
     discPoints = Int[]
     println("Processing Regions")
     toCross = Array{Vector{Float64}}(undef, seqStat[2])
-    @inbounds while (initI + slidWindw) <= minSize
+    while (initI + slidWindw) <= minSize
         endI = (initI + slidWindw) - 1
         for (seqno, record) in enumerate(open(FASTAReader, filePath))
             toCross[seqno] = DataIO.sequence2NumericalSerie(sequence(record), initI, endI)

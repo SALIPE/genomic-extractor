@@ -423,9 +423,9 @@ begin
             println("Finish Processing $variant")
         end
 
-        for (variant, (_, marked), sequences) in outputs
-            cache_path = "$cachdir/$(variant)_fouriercoef.dat"
+        trainedModel = Dict{String,Tuple{BitArray,Vector{Vector{Float64}}}}()
 
+        for (variant, (_, marked), sequences) in outputs
             fourierCoefficients = Vector{Vector{Float64}}()
 
             minSeqLength::UInt16 = minimum(map(length, sequences))
@@ -433,7 +433,7 @@ begin
             start = 0
             current = false
 
-            @inbounds for (i, bit) in enumerate(limitedMark)
+            for (i, bit) in enumerate(limitedMark)
                 if bit && !current
                     start = i
                     current = true
@@ -453,11 +453,10 @@ begin
                 )
                 push!(fourierCoefficients, cross)
             end
-
-            DataIO.save_cache(cache_path, fourierCoefficients)
-
+            trainedModel[variant] = (marked, fourierCoefficients)
         end
 
+        DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
 
         for (variant, (histogram, marked)) in outputs
             plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
