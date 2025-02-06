@@ -281,9 +281,9 @@ begin
         variantDirPath::String
     )
 
-        Model.trainModel(wnwPercent, outputDir, variantDirPath)
+        outputs = Model.trainModel(wnwPercent, outputDir, variantDirPath)
 
-        sequenceTest::String = outputs[1][3][1]
+        sequenceTest::String = outputs[2][3][1]
         Classification.classifyInput(sequenceTest)
 
         # for (variant, (histogram, marked)) in outputs

@@ -102,6 +102,8 @@ function trainModel(
 
     DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
 
+    return outputs
+
 end
 
 
