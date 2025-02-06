@@ -97,7 +97,7 @@ function trainModel(
             )
             push!(fourierCoefficients, cross)
         end
-        trainedModel[variant] = (marked, fourierCoefficients)
+        trainedModel[variant] = (marked, fourierCoefficients, exclusiveKmers[variant])
     end
 
     DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
