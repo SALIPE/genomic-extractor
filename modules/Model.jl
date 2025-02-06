@@ -67,7 +67,7 @@ function trainModel(
 
     #Structure defined as {Variant Name , (Regions Marked, Fourier Coefficients, Exclusive Kmers)}
     # trainedModel = Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}()
-    trainedModel = Dict([(variant, Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}()) for variant in variantDirs])
+    trainedModel = Dict([(variant, (BitArray{1}(), Vector{Vector{Float64}}(), String[])) for variant in variantDirs])
 
     for (variant, (_, marked), sequences) in outputs
         fourierCoefficients = Vector{Vector{Float64}}()
