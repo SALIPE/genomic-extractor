@@ -16,11 +16,13 @@ end
 @everywhere include("modules/TransformUtils.jl")
 @everywhere include("modules/RRMUtils.jl")
 @everywhere include("modules/ConvergenceAnalysis.jl")
+@everywhere include("modules/Classification.jl")
 
 @everywhere using FLoops, FASTX, Plots, LinearAlgebra, Normalization, LoopVectorization, Statistics, ArgParse
 
 @everywhere using
     .DataIO,
+    .Classification,
     .KmerUtils,
     .TransformUtils,
     .EntropyUtil,
@@ -264,28 +266,7 @@ begin
     end
 
 
-    function occursinKmerBit(
-        args,
-        window_buffer
-    )::Bool
-        kmer = args[1]
-        wndwSize = args[2]
-        klen = length(kmer)
-        # Slide through window to find matches
-        @inbounds for pos in 1:(wndwSize-klen+1)
-            match = true
-            for i in 1:klen
-                if window_buffer[pos+i-1] ≠ kmer[i]
-                    match = false
-                    break
-                end
-            end
-            if match
-                return true
-            end
-        end
-        return false
-    end
+
     #extract from k-mers
     # k-mers list -> run windown slide -> count histogram for most freq -> extract regions
     function wndwExlcusiveKmersHistogram(
@@ -297,7 +278,7 @@ begin
         kmer_lengths = length.(exclusiveKmers)
         @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
 
-        patterns = [Base.Fix1(occursinKmerBit, (codeunits(kmer), wndwSize)) for kmer in exclusiveKmers]
+        patterns = [Base.Fix1(Classification.occursinKmerBit, (codeunits(kmer), wndwSize)) for kmer in exclusiveKmers]
 
         byte_seqs = [codeunits(s) for s in sequences]
         maxSeqLen = maximum(length, sequences)
@@ -310,7 +291,6 @@ begin
             seq_len = length(seq)
             seq_windows = seq_len - wndwSize + 1
             seq_hist = zeros(UInt16, seq_windows)
-
 
             for initPos in 1:seq_windows
                 endPos = initPos + wndwSize - 1
@@ -458,12 +438,15 @@ begin
 
         DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
 
-        for (variant, (histogram, marked)) in outputs
-            plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$variant")
-            plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
-            png(plt, "$outputDir/$(variant)_reg")
-        end
+        sequenceTest = outputs[1][3][1]
+        Classification.classifyInput(sequenceTest, exclusiveKmers, trainedModel)
+
+        # for (variant, (histogram, marked)) in outputs
+        #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+        #     png(plt, "$outputDir/$variant")
+        #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+        #     png(plt, "$outputDir/$(variant)_reg")
+        # end
 
     end
 
