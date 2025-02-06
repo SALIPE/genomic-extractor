@@ -33,10 +33,10 @@ function classifyInput(
     model::Dict{String,Tuple{BitArray,Vector{Vector{Float64}}}}
 )
 
-    report = Dict{String,Vector{Tuple{Tuple{Uint16,Uint16},UInt16}}}()
+    report = Dict{String,Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}}()
     for (key, (marked, coefs)) in model
         inputlen = minimum(length, [inputSequence, marked])
-
+	report[key] = Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}()
         limitedMark::BitArray = marked[1:inputlen]
         start = 0
         current = false
@@ -84,7 +84,7 @@ function countPatterns(
     count::UInt8 = 0
 
     @floop for pattern in patterns
-        if pattern(seqWindow[initPos:endPos])
+        if pattern(seqWindow)
             @reduce count += 1
         end
     end
