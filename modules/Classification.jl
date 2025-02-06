@@ -11,7 +11,7 @@ export Classification
 function classifyInput(
     inputFile::AbstractString,
 )
-    modelCachedFile = "$(pwd())/.cache/trained_model.dat"
+    modelCachedFile = "$(pwd())/.project_cache/trained_model.dat"
 
     model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
