@@ -9,15 +9,18 @@ using .DataIO,
 export Classification
 
 function classifyInput(
-    inputFile::AbstractString,
+    inputSequence::AbstractString,
+    outputfilename::Union{Nothing,AbstractString}=nothing
 )
+
+    @show outputfilename
     modelCachedFile = "$(pwd())/.project_cache/trained_model.dat"
 
     model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
     if !isnothing(model)
         @info "Using model from cached data from $modelCachedFile"
-        return classifyInput(inputFile, model)
+        classifyInput(inputSequence, model, outputfilename)
     else
         error("Model not found in cached files!")
     end
@@ -28,7 +31,8 @@ end
 function classifyInput(
     inputSequence::AbstractString,
     #Dict{VariantName, (Marked, Fourier Coefficients, Kmers)}
-    model::Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}
+    model::Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}},
+    outputfilename::Union{Nothing,String}
 )
 
     report = Dict{String,Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}}()
@@ -56,10 +60,12 @@ function classifyInput(
         end
     end
 
-    open("$(pwd())/report.txt", "w") do file
+    reportFilename::String = isnothing(outputfilename) ? "report" : outputfilename
+
+    open("$(pwd())/$(reportFilename).txt", "w") do file
 
         for (var, regions) in report
-            write(file, "\n########### $(uppercase(var)) ############")
+            write(file, "\n\n########### $(uppercase(var)) ############")
             write(file, "\nTotal Exclusive Kmers: $(length(model[var][3]))")
             write(file, "\n####################################\n")
             for ((initPos, endPos), count) in regions

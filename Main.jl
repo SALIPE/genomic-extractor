@@ -288,6 +288,38 @@ begin
 
     end
 
+    function sequencesClassification(
+        fasta::String
+    )
+
+        @show fasta
+        sequences = Vector{Tuple{String,String}}()
+        for record in open(FASTAReader, fasta)
+            seq::String = sequence(String, record)
+            id::String = identifier(record)
+            push!(sequences, (replace(id, r"\/|\|" => "_"), seq))
+
+        end
+
+        modelCachedFile = "$(pwd())/.project_cache/trained_model.dat"
+
+        model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
+
+        if !isnothing(model)
+            @info "Using model from cached data from $modelCachedFile"
+
+            @floop for (id, seq) in sequences
+                @show id
+                Classification.classifyInput(seq, model, id)
+            end
+
+        else
+            error("Model not found in cached files!")
+        end
+
+
+    end
+
     function validate_region_main()
         setting = ArgParseSettings()
         @add_arg_table! setting begin
@@ -312,6 +344,9 @@ begin
             "--kmers-freq"
             help = "Mount K-mers positions"
             action = :store_true
+            "--classify"
+            help = "Create sequence report classification"
+            action = :store_true
             "-o", "--output-directory"
             help = "Output directory"
             arg_type = String
@@ -328,6 +363,7 @@ begin
         varname = parsed_args["variant-name"]
         execConvAnalysis = parsed_args["convergence-analysis"]
         kmersFreq = parsed_args["kmers-freq"]
+        classify = parsed_args["classify"]
 
         println("Parsed args:")
         for (arg, val) in parsed_args
@@ -340,6 +376,9 @@ begin
             return 0
         elseif kmersFreq
             validateKmerFrequencies(windowSize, outputDirectory, dirPath)
+            return 0
+        elseif classify
+            sequencesClassification(filePath)
             return 0
 
         elseif !isnothing(positionsBedFile)
