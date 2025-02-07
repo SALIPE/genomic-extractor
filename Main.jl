@@ -2,7 +2,7 @@
 using Distributed
 
 # Add worker processes first
-addprocs(4)
+addprocs(1)
 
 @everywhere begin
     using Pkg
@@ -293,12 +293,12 @@ begin
     )
 
         @show fasta
-        sequences = Vector{Tuple{String,String}}()
+        sequences = Vector{Tuple{String,Base.CodeUnits}}()
         for record in open(FASTAReader, fasta)
             seq::String = sequence(String, record)
             id::String = identifier(record)
-            push!(sequences, (replace(id, r"\/|\|" => "_"), seq))
-
+            push!(sequences, (replace(id, r"\/|\|" => "_"), codeunits(seq)))
+            break
         end
 
         modelCachedFile = "$(pwd())/.project_cache/trained_model.dat"

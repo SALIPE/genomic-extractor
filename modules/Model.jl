@@ -154,7 +154,7 @@ function wndwExlcusiveKmersHistogram(
     kmer_lengths = length.(exclusiveKmers)
     @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
 
-    patterns = [Base.Fix1(Classification.occursinKmerBit, (codeunits(kmer), wndwSize)) for kmer in exclusiveKmers]
+    patterns = [Base.Fix1(Classification.occursinKmerBit, codeunits(kmer)) for kmer in exclusiveKmers]
 
     byte_seqs = [codeunits(s) for s in sequences]
     maxSeqLen = maximum(length, sequences)

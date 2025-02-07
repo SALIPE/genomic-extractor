@@ -29,7 +29,7 @@ function classifyInput(
 end
 
 function classifyInput(
-    inputSequence::AbstractString,
+    inputSequence::Base.CodeUnits,
     #Dict{VariantName, (Marked, Fourier Coefficients, Kmers)}
     model::Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}},
     outputfilename::Union{Nothing,String}
@@ -49,13 +49,13 @@ function classifyInput(
                 current = true
             elseif !bit && current
                 current = false
-                count = countPatterns(codeunits(inputSequence[start:i-1]), kmers)
+                count = @views countPatterns(inputSequence[start:i-1], kmers)
 
                 push!(report[key], ((start, i - 1), count))
             end
         end
         if current
-            count = countPatterns(codeunits(inputSequence[start:inputlen]), kmers)
+            count = @views countPatterns(inputSequence[start:inputlen], kmers)
             push!(report[key], ((start, inputlen), count))
         end
     end
@@ -77,10 +77,10 @@ function classifyInput(
 end
 
 function countPatterns(
-    seqWindow::Base.CodeUnits,
+    seqWindow::SubArray,
     kmers::Vector{String})::UInt8
 
-    patterns = [Base.Fix1(occursinKmerBit, (codeunits(kmer), length(seqWindow))) for kmer in kmers]
+    patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in kmers]
     count::UInt8 = 0
 
     @floop for pattern in patterns
@@ -92,26 +92,21 @@ function countPatterns(
 end
 
 function occursinKmerBit(
-    args,
-    window_buffer
+    kmer::Base.CodeUnits,
+    windowBuffer::SubArray
 )::Bool
-    kmer = args[1]
-    wndwSize = args[2]
+    wlen = length(windowBuffer)
     klen = length(kmer)
-    # Slide through window to find matches
-    for pos in 1:(wndwSize-klen+1)
+
+    @inbounds for i in 1:(wlen-klen+1)
         match = true
-        for i in 1:klen
-            if window_buffer[pos+i-1] ≠ kmer[i]
-                match = false
-                break
-            end
+        for j in 1:klen
+            (windowBuffer[i+j-1] ≠ kmer[j]) && (match = false; break)
         end
-        if match
-            return true
-        end
+        match && return true
     end
     return false
+
 end
 
 end
