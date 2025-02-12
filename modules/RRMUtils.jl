@@ -5,8 +5,7 @@ include("TransformUtils.jl")
 using .DataIO,
     .TransformUtils,
     Normalization,
-    AbstractFFTs,
-    Plots
+    AbstractFFTs
 
 export RRM
 

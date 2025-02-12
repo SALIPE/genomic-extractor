@@ -7,7 +7,9 @@ addprocs(1)
 @everywhere begin
     using Pkg
     Pkg.activate(".")
+    Pkg.resolve()
     Pkg.instantiate()
+
 end
 
 @everywhere include("modules/DataIO.jl")
@@ -21,10 +23,8 @@ end
 
 @everywhere using FLoops,
     FASTX,
-    Plots,
     LinearAlgebra,
     Normalization,
-    LoopVectorization,
     Statistics,
     ArgParse
 
@@ -95,7 +95,7 @@ begin
             seq::String = sequence(String, record)
             push!(sequences, seq)
         end
-        plt = plot(title="$variantName Regions - $(wnwPercent*100)%", dpi=300)
+        # plt = plot(title="$variantName Regions - $(wnwPercent*100)%", dpi=300)
 
         entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
         # Processo para encontrar valores de entropia por região do genoma
@@ -110,16 +110,16 @@ begin
         ylen = length(distances)
         x = range(1, ylen)
         lim = [0, ylen]
-        if validatePos
-            regions::Vector{Int} = histogramPosWndw(positions, ceil(Int, ylen * wnwPercent), ylen)
-            plot!(twinx(), x, regions,
-                label="Frequency",
-                seriestype=:bar,
-                linecolor=nothing,
-                xlims=lim)
-        end
-        plot!(x, distances, label="Distance-value", xlims=lim)
-        png(plt, output)
+        # if validatePos
+        #     regions::Vector{Int} = histogramPosWndw(positions, ceil(Int, ylen * wnwPercent), ylen)
+        #     plot!(twinx(), x, regions,
+        #         label="Frequency",
+        #         seriestype=:bar,
+        #         linecolor=nothing,
+        #         xlims=lim)
+        # end
+        # plot!(x, distances, label="Distance-value", xlims=lim)
+        # png(plt, output)
     end
 
 
@@ -190,53 +190,53 @@ begin
 
         end
 
-        plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
+        # plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
 
-        for (fastaFile, distances) in consensusSignals
-            plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
-        end
+        # for (fastaFile, distances) in consensusSignals
+        #     plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
+        # end
 
-        png(plt, "$output/euclidian_consensus")
+        #png(plt, "$output/euclidian_consensus")
 
         filteredEntropy = RRM.RRMEntropySignal(consensusSignals)
-        plt = plot(title="Signals Filtered using RRM - $wnwPercent", dpi=300)
+        # plt = plot(title="Signals Filtered using RRM - $wnwPercent", dpi=300)
 
         ylen::Int32 = minimum(map(x -> length(x[2]), filteredEntropy))
         x = range(1, ylen)
         lim = [0, ylen]
 
-        for (class, f) in filteredEntropy
-            plot!(x, f[1:ylen], label=class, xlims=lim)
-        end
+        # for (class, f) in filteredEntropy
+        #     plot!(x, f[1:ylen], label=class, xlims=lim)
+        # end
 
         regions::Vector{Int16} = Vector{Int16}()
 
-        if valPositions
+        # if valPositions
 
-            regions = histogramPosWndw(positions, ceil(Int16, ylen * wnwPercent), ylen)
-            plot!(twinx(), x, regions,
-                label="Frequency",
-                seriestype=:bar,
-                linecolor=nothing,
-                xlims=lim)
+        #     regions = histogramPosWndw(positions, ceil(Int16, ylen * wnwPercent), ylen)
+        #     plot!(twinx(), x, regions,
+        #         label="Frequency",
+        #         seriestype=:bar,
+        #         linecolor=nothing,
+        #         xlims=lim)
 
-        end
-        png(plt, "$output/iffts")
+        # end
+        # png(plt, "$output/iffts")
 
         _, _, norm = findPeaksBetweenClasses(map(x -> x[2], consensusSignals))
 
 
-        plt = plot(title="Signal distances between points classes - $wnwPercent", dpi=300)
-        plot!(norm,
-            linecolor=:red,
-            xlims=lim)
-        plot!(twinx(), x, regions,
-            label="Frequency",
-            seriestype=:bar,
-            linecolor=nothing,
-            xlims=lim)
+        # plt = plot(title="Signal distances between points classes - $wnwPercent", dpi=300)
+        # plot!(norm,
+        #     linecolor=:red,
+        #     xlims=lim)
+        # plot!(twinx(), x, regions,
+        #     label="Frequency",
+        #     seriestype=:bar,
+        #     linecolor=nothing,
+        #     xlims=lim)
 
-        png(plt, "$output/distances")
+        # png(plt, "$output/distances")
 
     end
 
@@ -289,7 +289,9 @@ begin
     end
 
     function sequencesClassification(
-        fasta::String
+        fasta::String,
+        modelPath::Union{Nothing,String},
+        outputdir::String
     )
 
         @show fasta
@@ -301,7 +303,7 @@ begin
             break
         end
 
-        modelCachedFile = "$(pwd())/.project_cache/trained_model.dat"
+        modelCachedFile = isnothing(modelPath) ? "$(pwd())/.project_cache/trained_model.dat" : modelPath
 
         model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
@@ -310,7 +312,7 @@ begin
 
             @floop for (id, seq) in sequences
                 @show id
-                Classification.classifyInput(seq, model, id)
+                Classification.classifyInput(seq, model, "$outputdir/$id")
             end
 
         else
@@ -333,8 +335,7 @@ begin
             "-w", "--window"
             help = "Slide window percent size to apply"
             arg_type = Float16
-            required = true
-            default = 0.01
+            default = 0.004
             "-p", "--val-positions-file"
             help = "Positions file for validation"
             arg_type = String
@@ -346,7 +347,6 @@ begin
             action = :store_true
             "--classify"
             help = "Create sequence report classification"
-            action = :store_true
             "-o", "--output-directory"
             help = "Output directory"
             arg_type = String
@@ -355,7 +355,7 @@ begin
 
         parsed_args = parse_args(ARGS, setting)
 
-        filePath = parsed_args["file"]
+        filePath::Union{Nothing,String} = parsed_args["file"]
         dirPath = parsed_args["files-directory"]
         windowSize::Float32 = parsed_args["window"]
         positionsBedFile = parsed_args["val-positions-file"]
@@ -363,7 +363,7 @@ begin
         varname = parsed_args["variant-name"]
         execConvAnalysis = parsed_args["convergence-analysis"]
         kmersFreq = parsed_args["kmers-freq"]
-        classify = parsed_args["classify"]
+        classify::Union{Nothing,String} = parsed_args["classify"]
 
         println("Parsed args:")
         for (arg, val) in parsed_args
@@ -377,8 +377,8 @@ begin
         elseif kmersFreq
             validateKmerFrequencies(windowSize, outputDirectory, dirPath)
             return 0
-        elseif classify
-            sequencesClassification(filePath)
+        elseif !isnothing(classify)
+            sequencesClassification(filePath, classify, outputDirectory)
             return 0
 
         elseif !isnothing(positionsBedFile)

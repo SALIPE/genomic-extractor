@@ -8,7 +8,6 @@ using .DataIO,
     .RRM,
     .Classification,
     FLoops,
-    Plots,
     FASTX
 
 export Model

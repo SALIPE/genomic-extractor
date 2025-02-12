@@ -2,9 +2,7 @@ module TransformUtils
 using DSP,
     AbstractFFTs,
     LinearAlgebra,
-    LoopVectorization,
-    Normalization,
-    Plots
+    Normalization
 
 export TransformUtils
 
@@ -77,7 +75,7 @@ function blockConv!(X::Vector{T}, H::Vector{T}) where {T<:Real}
 
     Y = Matrix{T}(undef, 0, 0)
 
-    @turbo for k in (0:K-1)
+    for k in (0:K-1)
         xk = x[(k*L+1):(k*L+N)]
         Y[k, :] = circConvt!(xk, H, N)
     end

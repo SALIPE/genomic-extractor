@@ -60,9 +60,9 @@ function classifyInput(
         end
     end
 
-    reportFilename::String = isnothing(outputfilename) ? "report" : outputfilename
+    reportFilename::String = isnothing(outputfilename) ? "$(pwd())/report.txt" : outputfilename
 
-    open("$(pwd())/$(reportFilename).txt", "w") do file
+    open(reportFilename, "w") do file
 
         for (var, regions) in report
             write(file, "\n\n########### $(uppercase(var)) ############")
