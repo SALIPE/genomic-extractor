@@ -372,7 +372,7 @@ begin
             #ConvergenceAnalysis.convergenceAnalysisClasses(windowSize, dirPath)
             return 0
         elseif kmersFreq
-            validateKmerFrequencies(windowSize, outputDirectory, dirPath)
+            extractKmerFeaturesByFrequence(windowSize, outputDirectory, dirPath)
             return 0
         elseif !isnothing(classify)
             sequencesClassification(filePath, classify, outputDirectory)
