@@ -23,6 +23,13 @@ function shannonEntropy(kmers::Dict{String,Int})::Float64
     return _entropy(probs)
 end
 
+function shannonEntropy(data::Vector{Float64})::Float64
+    total = sum(data)
+    probs::Vector{Float64} = [x / total for x in data]
+
+    return _entropy(probs)
+end
+
 function maxEntropy(
     kmers::Dict{String,Int}
 )::Float64
