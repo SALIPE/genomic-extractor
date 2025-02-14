@@ -93,7 +93,7 @@ end
 
 function occursinKmerBit(
     kmer::Base.CodeUnits,
-    windowBuffer::SubArray
+    windowBuffer::Union{SubArray,Vector{UInt8}}
 )::Bool
     wlen = length(windowBuffer)
     klen = length(kmer)
