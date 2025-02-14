@@ -17,7 +17,6 @@ function trainModel(
     outputDir::String,
     variantDirPath::String)
 
-
     cachdir::String = "$(pwd())/.project_cache"
 
     try
@@ -109,8 +108,6 @@ function trainModel(
         png(plt, "$outputDir/$(variant)_reg")
     end
 
-    return outputs
-
 end
 
 
@@ -182,7 +179,8 @@ function wndwExlcusiveKmersHistogram(
         padded_hist[valid_range] = seq_hist
 
         @reduce(
-            histogram = zeros(UInt16, total_windows) .+ padded_hist,
+            histogram = ones(UInt16, total_windows) .* padded_hist,
+            # histogram = zeros(UInt16, total_windows) .+ padded_hist,
         )
     end
 

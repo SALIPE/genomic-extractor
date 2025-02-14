@@ -13,7 +13,7 @@ OUTPUT=$PROJECTHOME/output_freq/$1
 rm -r $OUTPUT
 mkdir -p $OUTPUT
 
-cd $PROJECTHOME && julia --project Main.jl -d $DIR_INPUT -w $1 -o $OUTPUT --kmers-freq
+cd $PROJECTHOME && julia --project Main.jl -d $DIR_INPUT -w $1 -o $OUTPUT --extract-model
 
 
 

@@ -2,7 +2,7 @@
 using Distributed
 
 # Add worker processes first
-addprocs(1)
+addprocs(5)
 
 @everywhere begin
     using Pkg
@@ -275,16 +275,13 @@ begin
 
 
 
-    function validateKmerFrequencies(
+    function extractKmerFeaturesByFrequence(
         wnwPercent::Float32,
         outputDir::String,
         variantDirPath::String
     )
 
-        outputs = Model.trainModel(wnwPercent, outputDir, variantDirPath)
-
-        sequenceTest::String = outputs[2][3][1]
-        Classification.classifyInput(sequenceTest)
+        Model.trainModel(wnwPercent, outputDir, variantDirPath)
 
     end
 
@@ -342,7 +339,7 @@ begin
             "--convergence-analysis"
             help = "Positions file for validation"
             action = :store_true
-            "--kmers-freq"
+            "--extract-model"
             help = "Mount K-mers positions"
             action = :store_true
             "--classify"
@@ -362,7 +359,7 @@ begin
         outputDirectory::String = parsed_args["output-directory"]
         varname = parsed_args["variant-name"]
         execConvAnalysis = parsed_args["convergence-analysis"]
-        kmersFreq = parsed_args["kmers-freq"]
+        kmersFreq = parsed_args["extract-model"]
         classify::Union{Nothing,String} = parsed_args["classify"]
 
         println("Parsed args:")
