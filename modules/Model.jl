@@ -28,7 +28,7 @@ function trainModel(
     variantDirs::Vector{String} = readdir(variantDirPath)
     @show Threads.nthreads()
 
-    outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}}(undef, length(variantDirs))
+    outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{Float64}},Vector{String}}}(undef, length(variantDirs))
     varKmer = Dict{String,Vector{String}}()
 
     @simd for variant in variantDirs
@@ -43,7 +43,7 @@ function trainModel(
         println("Processing $variant")
         cache_path = "$cachdir/$(variant)_outmask.dat"
 
-        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
+        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{Float64}},Vector{String}}} = DataIO.load_cache(cache_path)
 
         if !isnothing(cache)
             @info "Using cached data from $cache_path"
@@ -57,56 +57,56 @@ function trainModel(
             minSeqLength::UInt16 = minimum(map(length, sequences))
             wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
 
-            data::Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
+            data::Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{Float64}},Vector{String}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
         println("Finish Processing $variant")
     end
 
-    #Structure defined as {Variant Name , (Regions Marked, Fourier Coefficients, Exclusive Kmers)}
+    #Structure defined as {Variant Name , (Regions Marked, Fourier Coefficients/Probabilities, Exclusive Kmers)}
     # trainedModel = Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}()
-    trainedModel = Dict([(variant, (BitArray{1}(), Vector{Vector{Float64}}(), String[])) for variant in variantDirs])
+    trainedModel = Dict([(variant, (BitArray{1}(), Vector{Float64}(), String[])) for variant in variantDirs])
 
-    for (variant, (_, marked), sequences) in outputs
-        fourierCoefficients = Vector{Vector{Float64}}()
+    for (variant, (_, marked, probabilities), _) in outputs
+        # fourierCoefficients = Vector{Vector{Float64}}()
 
-        minSeqLength::UInt16 = minimum(map(length, sequences))
-        limitedMark::BitArray = marked[1:minSeqLength]
-        start = 0
-        current = false
+        # minSeqLength::UInt16 = minimum(map(length, sequences))
+        # limitedMark::BitArray = marked[1:minSeqLength]
+        # start = 0
+        # current = false
 
-        for (i, bit) in enumerate(limitedMark)
-            if bit && !current
-                start = i
-                current = true
-            elseif !bit && current
-                cross = RRM.getFourierCoefficient(
-                    [str[start:i-1] for str in sequences],
-                    i - 1 - start
-                )
-                push!(fourierCoefficients, cross)
-                current = false
-            end
-        end
-        if current
-            cross = RRM.getFourierCoefficient(
-                [str[start:minSeqLength] for str in sequences],
-                minSeqLength - start
-            )
-            push!(fourierCoefficients, cross)
-        end
-        trainedModel[variant] = (marked, fourierCoefficients, exclusiveKmers[variant])
+        # for (i, bit) in enumerate(limitedMark)
+        #     if bit && !current
+        #         start = i
+        #         current = true
+        #     elseif !bit && current
+        #         # cross = RRM.getFourierCoefficient(
+        #         #     [str[start:i-1] for str in sequences],
+        #         #     i - 1 - start
+        #         # )
+        #         # push!(fourierCoefficients, cross)
+        #         current = false
+        #     end
+        # end
+        # if current
+        #     # cross = RRM.getFourierCoefficient(
+        #     #     [str[start:minSeqLength] for str in sequences],
+        #     #     minSeqLength - start
+        #     # )
+        #     # push!(fourierCoefficients, cross)
+        # end
+        trainedModel[variant] = (marked, probabilities, exclusiveKmers[variant])
     end
 
     DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
 
-    for (variant, (histogram, marked)) in outputs
-        plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
-        png(plt, "$outputDir/$variant")
-        plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
-        png(plt, "$outputDir/$(variant)_reg")
-    end
+    # for (variant, (histogram, marked)) in outputs
+    #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+    #     png(plt, "$outputDir/$variant")
+    #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+    #     png(plt, "$outputDir/$(variant)_reg")
+    # end
 
 end
 
@@ -145,7 +145,7 @@ function wndwExlcusiveKmersHistogram(
     exclusiveKmers::Vector{String},
     wndwSize::UInt16,
     sequences::Vector{String},
-)::Tuple{Vector{UInt16},BitArray}
+)::Tuple{Vector{UInt16},BitArray,Vector{Float64}}
 
     kmer_lengths = length.(exclusiveKmers)
     @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
@@ -180,18 +180,23 @@ function wndwExlcusiveKmersHistogram(
 
         @reduce(
             histogram = ones(UInt16, total_windows) .* padded_hist,
-            # histogram = zeros(UInt16, total_windows) .+ padded_hist,
+            countin = zeros(UInt16, total_windows) .+ padded_hist,
         )
     end
 
     marked = falses(maxSeqLen)
+    regionCount = count(i -> i > 0, histogram)
+    probabilities = Vector{Float64}(undef, regionCount)
 
+    p_idx = one(Int)
     for i in eachindex(histogram)
         if histogram[i] > 0
             marked[i:i+wndwSize-1] .= true
+            probabilities[p_idx] = countin[i] / length(sequences)
+            p_idx += 1
         end
     end
-    return histogram, marked
+    return histogram, marked, probabilities
 
 end
 
