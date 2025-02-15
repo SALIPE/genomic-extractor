@@ -12,6 +12,10 @@ using .DataIO,
 
 export Model
 
+
+
+
+
 function trainModel(
     wnwPercent::Float32,
     outputDir::String,
@@ -28,7 +32,7 @@ function trainModel(
     variantDirs::Vector{String} = readdir(variantDirPath)
     @show Threads.nthreads()
 
-    outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{Float64}},Vector{String}}}(undef, length(variantDirs))
+    outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}}(undef, length(variantDirs))
     varKmer = Dict{String,Vector{String}}()
 
     @simd for variant in variantDirs
@@ -45,7 +49,7 @@ function trainModel(
 
         cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{Float64}},Vector{String}}} = DataIO.load_cache(cache_path)
 
-        if !isnothing(cache)
+        if !isnothing(cache)sigmoid
             @info "Using cached data from $cache_path"
             outputs[v] = cache
         else
@@ -64,39 +68,43 @@ function trainModel(
         println("Finish Processing $variant")
     end
 
-    #Structure defined as {Variant Name , (Regions Marked, Fourier Coefficients/Probabilities, Exclusive Kmers)}
+    #Structure defined as {Variant Name , (Regions Marked, Fourier Coefficients, Exclusive Kmers)}
     # trainedModel = Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}()
-    trainedModel = Dict([(variant, (BitArray{1}(), Vector{Float64}(), String[])) for variant in variantDirs])
+    trainedModel = Dict([(variant, (BitArray{1}(), Vector{Tuple{Int,Int,Vector{Float64}}}(), String[])) for variant in variantDirs])
 
-    for (variant, (_, marked, probabilities), _) in outputs
-        # fourierCoefficients = Vector{Vector{Float64}}()
 
-        # minSeqLength::UInt16 = minimum(map(length, sequences))
-        # limitedMark::BitArray = marked[1:minSeqLength]
-        # start = 0
-        # current = false
+    # the idea here its to create a way to extract a way how the class should be using RRM, this way
+    # we well have the windows and the frequence range and it magnitude (0-1) to compare.
 
-        # for (i, bit) in enumerate(limitedMark)
-        #     if bit && !current
-        #         start = i
-        #         current = true
-        #     elseif !bit && current
-        #         # cross = RRM.getFourierCoefficient(
-        #         #     [str[start:i-1] for str in sequences],
-        #         #     i - 1 - start
-        #         # )
-        #         # push!(fourierCoefficients, cross)
-        #         current = false
-        #     end
-        # end
-        # if current
-        #     # cross = RRM.getFourierCoefficient(
-        #     #     [str[start:minSeqLength] for str in sequences],
-        #     #     minSeqLength - start
-        #     # )
-        #     # push!(fourierCoefficients, cross)
-        # end
-        trainedModel[variant] = (marked, probabilities, exclusiveKmers[variant])
+    for (variant, (_, marked), _) in outputs
+        fourierCoefficients = Vector{Tuple{Int,Int,Vector{Float64}}}()
+
+        minSeqLength::UInt16 = minimum(map(length, sequences))
+        limitedMark::BitArray = marked[1:minSeqLength]
+        start = 0
+        current = false
+
+        for (i, bit) in enumerate(limitedMark)
+            if bit && !current
+                start = i
+                current = true
+            elseif !bit && current
+                cross = RRM.getFourierCoefficient(
+                    [str[start:i-1] for str in sequences],
+                    i - 1 - start
+                )
+                push!(fourierCoefficients, (start, i - 1, cross))
+                current = false
+            end
+        end
+        if current
+            cross = RRM.getFourierCoefficient(
+                [str[start:minSeqLength] for str in sequences],
+                minSeqLength - start
+            )
+            push!(fourierCoefficients, (start, minSeqLength, cross))
+        end
+        trainedModel[variant] = (marked, fourierCoefficients, exclusiveKmers[variant])
     end
 
     DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
@@ -109,6 +117,9 @@ function trainModel(
     # end
 
 end
+
+
+
 
 
 function findExclusiveElements(class_dict::Dict{String,Vector{String}})::Dict{String,Vector{String}}
@@ -145,7 +156,7 @@ function wndwExlcusiveKmersHistogram(
     exclusiveKmers::Vector{String},
     wndwSize::UInt16,
     sequences::Vector{String},
-)::Tuple{Vector{UInt16},BitArray,Vector{Float64}}
+)::Tuple{Vector{UInt16},BitArray}
 
     kmer_lengths = length.(exclusiveKmers)
     @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
@@ -179,24 +190,23 @@ function wndwExlcusiveKmersHistogram(
         padded_hist[valid_range] = seq_hist
 
         @reduce(
-            histogram = ones(UInt16, total_windows) .* padded_hist,
-            countin = zeros(UInt16, total_windows) .+ padded_hist,
+            histogram = ones(UInt16, total_windows) .+ padded_hist
         )
     end
 
     marked = falses(maxSeqLen)
-    regionCount = count(i -> i > 0, histogram)
-    probabilities = Vector{Float64}(undef, regionCount)
+    # regionCount = count(i -> i > 0, histogram)
+    # probabilities = Vector{Float64}(undef, regionCount)
 
-    p_idx = one(Int)
+    # p_idx = one(Int)
     for i in eachindex(histogram)
         if histogram[i] > 0
             marked[i:i+wndwSize-1] .= true
-            probabilities[p_idx] = countin[i] / length(sequences)
-            p_idx += 1
+            # probabilities[p_idx] = countin[i] / length(sequences)
+            # p_idx += 1
         end
     end
-    return histogram, marked, probabilities
+    return histogram, marked
 
 end
 

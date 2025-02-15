@@ -16,13 +16,14 @@ function getFourierCoefficient(
 
     toCross = Array{Vector{Float64}}(undef, length(cuttedSequences))
 
-    for (seqno, sequence) in enumerate(cuttedSequences)
+    @inbounds for (seqno, sequence) in enumerate(cuttedSequences)
         toCross[seqno] = DataIO.sequence2NumericalSerie(sequence)
     end
 
     crossEspectrum = TransformUtils.elementWiseMult(toCross, seqLen)
-
-    return crossEspectrum
+    N = MinMax(crossEspectrum)
+    norm = N(crossEspectrum)
+    return norm
 
 end
 

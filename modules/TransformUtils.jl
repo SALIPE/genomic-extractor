@@ -20,6 +20,8 @@ function elementWiseMult(
     return crossEspectrum
 end
 
+
+
 # https://brianmcfee.net/dstbook-site/content/ch10-convtheorem/ConvolutionTheorem.html
 function circConvt!(N::Vector{T}, K::Vector{T}, BS::Int) where {T<:Real}
     # Optimized for the case the kernel is in N (Shorter)
