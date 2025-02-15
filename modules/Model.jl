@@ -13,10 +13,8 @@ using .DataIO,
 export Model
 
 
-
-
-
-function trainModel(
+# FUnctio to extract discriminatives features from each class
+function extractFeaturesTemplate(
     wnwPercent::Float32,
     outputDir::String,
     variantDirPath::String)
@@ -47,7 +45,7 @@ function trainModel(
         println("Processing $variant")
         cache_path = "$cachdir/$(variant)_outmask.dat"
 
-        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{Float64}},Vector{String}}} = DataIO.load_cache(cache_path)
+        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
 
         if !isnothing(cache)sigmoid
             @info "Using cached data from $cache_path"
@@ -61,7 +59,7 @@ function trainModel(
             minSeqLength::UInt16 = minimum(map(length, sequences))
             wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
 
-            data::Tuple{String,Tuple{Vector{UInt16},BitArray,Vector{Float64}},Vector{String}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
+            data::Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
@@ -76,7 +74,7 @@ function trainModel(
     # the idea here its to create a way to extract a way how the class should be using RRM, this way
     # we well have the windows and the frequence range and it magnitude (0-1) to compare.
 
-    for (variant, (_, marked), _) in outputs
+    for (variant, (_, marked), sequences) in outputs
         fourierCoefficients = Vector{Tuple{Int,Int,Vector{Float64}}}()
 
         minSeqLength::UInt16 = minimum(map(length, sequences))
