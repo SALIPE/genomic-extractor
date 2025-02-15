@@ -281,7 +281,7 @@ begin
         variantDirPath::String
     )
 
-        Model.trainModel(wnwPercent, outputDir, variantDirPath)
+        Model.extractFeaturesTemplate(wnwPercent, outputDir, variantDirPath)
 
     end
 
