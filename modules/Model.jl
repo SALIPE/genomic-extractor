@@ -47,7 +47,7 @@ function extractFeaturesTemplate(
 
         cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
 
-        if !isnothing(cache)sigmoid
+        if !isnothing(cache)
             @info "Using cached data from $cache_path"
             outputs[v] = cache
         else
