@@ -1,0 +1,241 @@
+
+
+########### ALPHA ############
+Window Position( 648 - 1031 ): 
+Classification: Float32[0.5363487]
+Window Position( 1174 - 1492 ): 
+Classification: Float32[0.5380132]
+Window Position( 1785 - 2567 ): 
+Classification: Float32[0.5412623]
+Window Position( 2625 - 3385 ): 
+Classification: Float32[0.5421901]
+Window Position( 3761 - 4545 ): 
+Classification: Float32[0.5426583]
+Window Position( 4728 - 5013 ): 
+Classification: Float32[0.5360655]
+Window Position( 5168 - 5506 ): 
+Classification: Float32[0.53977865]
+Window Position( 5714 - 6104 ): 
+Classification: Float32[0.5442101]
+Window Position( 6734 - 7387 ): 
+Classification: Float32[0.5401689]
+Window Position( 7812 - 8097 ): 
+Classification: Float32[0.54293907]
+Window Position( 8431 - 8709 ): 
+Classification: Float32[0.54209155]
+Window Position( 10023 - 10430 ): 
+Classification: Float32[0.5409245]
+Window Position( 11934 - 12631 ): 
+Classification: Float32[0.5391297]
+Window Position( 12789 - 13042 ): 
+Classification: Float32[0.54134285]
+Window Position( 13891 - 14229 ): 
+Classification: Float32[0.544886]
+Window Position( 14447 - 14785 ): 
+Classification: Float32[0.54195464]
+Window Position( 14915 - 15388 ): 
+Classification: Float32[0.5390181]
+Window Position( 15521 - 15829 ): 
+Classification: Float32[0.5407005]
+Window Position( 15947 - 16285 ): 
+Classification: Float32[0.53589493]
+Window Position( 16287 - 16571 ): 
+Classification: Float32[0.536002]
+Window Position( 17402 - 18081 ): 
+Classification: Float32[0.5384354]
+Window Position( 18566 - 18826 ): 
+Classification: Float32[0.5448708]
+Window Position( 19006 - 19494 ): 
+Classification: Float32[0.536501]
+Window Position( 20052 - 20384 ): 
+Classification: Float32[0.5372452]
+Window Position( 20938 - 21246 ): 
+Classification: Float32[0.5367751]
+Window Position( 21537 - 22092 ): 
+Classification: Float32[0.54273504]
+Window Position( 23033 - 23809 ): 
+Classification: Float32[0.5400014]
+Window Position( 24268 - 24606 ): 
+Classification: Float32[0.5401881]
+Window Position( 24676 - 25235 ): 
+Classification: Float32[0.54081666]
+Window Position( 25247 - 25550 ): 
+Classification: Float32[0.54168874]
+Window Position( 25595 - 26180 ): 
+Classification: Float32[0.54187214]
+Window Position( 27272 - 27559 ): 
+Classification: Float32[0.5435677]
+Window Position( 27734 - 28382 ): 
+Classification: Float32[0.5393666]
+Window Position( 28642 - 29360 ): 
+Classification: Float32[0.5403175]
+Window Position( 29573 - 29579 ): 
+Classification: Float32[0.5717858]
+
+########### DELTA ############
+Window Position( 1 - 332 ): 
+Classification: Float32[0.5368749]
+Window Position( 923 - 1467 ): 
+Classification: Float32[0.54068786]
+Window Position( 1545 - 1856 ): 
+Classification: Float32[0.53824663]
+Window Position( 2019 - 2390 ): 
+Classification: Float32[0.5445953]
+Window Position( 3051 - 4303 ): 
+Classification: Float32[0.53751355]
+Window Position( 4916 - 5302 ): 
+Classification: Float32[0.53675497]
+Window Position( 5423 - 6145 ): 
+Classification: Float32[0.53784394]
+Window Position( 6149 - 6654 ): 
+Classification: Float32[0.54019016]
+Window Position( 6871 - 7246 ): 
+Classification: Float32[0.5386518]
+Window Position( 8733 - 9321 ): 
+Classification: Float32[0.54141325]
+Window Position( 9410 - 10151 ): 
+Classification: Float32[0.5304542]
+Window Position( 10277 - 10516 ): 
+Classification: Float32[0.54453725]
+Window Position( 10737 - 11574 ): 
+Classification: Float32[0.53779405]
+Window Position( 12796 - 13061 ): 
+Classification: Float32[0.5434797]
+Window Position( 13719 - 14060 ): 
+Classification: Float32[0.5390564]
+Window Position( 15198 - 15573 ): 
+Classification: Float32[0.5440173]
+Window Position( 15786 - 16116 ): 
+Classification: Float32[0.53966546]
+Window Position( 16213 - 17033 ): 
+Classification: Float32[0.54289794]
+Window Position( 17228 - 17614 ): 
+Classification: Float32[0.540993]
+Window Position( 17948 - 18574 ): 
+Classification: Float32[0.5370552]
+Window Position( 18967 - 19342 ): 
+Classification: Float32[0.53784317]
+Window Position( 19352 - 19842 ): 
+Classification: Float32[0.53888136]
+Window Position( 20112 - 20514 ): 
+Classification: Float32[0.53963554]
+Window Position( 21119 - 22278 ): 
+Classification: Float32[0.54238]
+Window Position( 22512 - 23113 ): 
+Classification: Float32[0.54034775]
+Window Position( 23330 - 23823 ): 
+Classification: Float32[0.540905]
+Window Position( 24136 - 24528 ): 
+Classification: Float32[0.5374587]
+Window Position( 24591 - 25144 ): 
+Classification: Float32[0.5412327]
+Window Position( 25195 - 26259 ): 
+Classification: Float32[0.53916645]
+Window Position( 26344 - 26885 ): 
+Classification: Float32[0.54358035]
+Window Position( 26926 - 29155 ): 
+Classification: Float32[0.53892267]
+Window Position( 29165 - 29638 ): 
+Classification: Float32[0.5412895]
+
+########### BETA ############
+Window Position( 869 - 1163 ): 
+Classification: Float32[0.54455656]
+Window Position( 21602 - 21918 ): 
+Classification: Float32[0.54024327]
+Window Position( 22007 - 22323 ): 
+Classification: Float32[0.5442314]
+Window Position( 23456 - 23781 ): 
+Classification: Float32[0.5378016]
+Window Position( 25696 - 26015 ): 
+Classification: Float32[0.5372056]
+Window Position( 26249 - 26573 ): 
+Classification: Float32[0.5430115]
+
+########### GAMMA ############
+Window Position( 1 - 917 ): 
+Classification: Float32[0.5429083]
+Window Position( 970 - 1301 ): 
+Classification: Float32[0.54206073]
+Window Position( 1688 - 1996 ): 
+Classification: Float32[0.5394264]
+Window Position( 2225 - 2867 ): 
+Classification: Float32[0.54248697]
+Window Position( 3575 - 3946 ): 
+Classification: Float32[0.5376817]
+Window Position( 4314 - 4592 ): 
+Classification: Float32[0.5357843]
+Window Position( 5395 - 5940 ): 
+Classification: Float32[0.53991216]
+Window Position( 6062 - 6873 ): 
+Classification: Float32[0.5431784]
+Window Position( 7026 - 7367 ): 
+Classification: Float32[0.54006374]
+Window Position( 7644 - 8030 ): 
+Classification: Float32[0.53858334]
+Window Position( 8172 - 8740 ): 
+Classification: Float32[0.53941566]
+Window Position( 8833 - 9204 ): 
+Classification: Float32[0.5379459]
+Window Position( 9858 - 10187 ): 
+Classification: Float32[0.5435566]
+Window Position( 10763 - 11488 ): 
+Classification: Float32[0.54339314]
+Window Position( 12167 - 12424 ): 
+Classification: Float32[0.5367517]
+Window Position( 12481 - 12896 ): 
+Classification: Float32[0.5444153]
+Window Position( 13598 - 13978 ): 
+Classification: Float32[0.53774506]
+Window Position( 15731 - 16057 ): 
+Classification: Float32[0.5425612]
+Window Position( 16625 - 17377 ): 
+Classification: Float32[0.5418443]
+Window Position( 17516 - 17847 ): 
+Classification: Float32[0.5357287]
+Window Position( 18167 - 18508 ): 
+Classification: Float32[0.54494387]
+Window Position( 19485 - 19793 ): 
+Classification: Float32[0.54459995]
+Window Position( 21352 - 22250 ): 
+Classification: Float32[0.53933924]
+Window Position( 22257 - 23130 ): 
+Classification: Float32[0.5406814]
+Window Position( 23396 - 23727 ): 
+Classification: Float32[0.5356525]
+Window Position( 24380 - 24760 ): 
+Classification: Float32[0.5369152]
+Window Position( 24826 - 25714 ): 
+Classification: Float32[0.5415635]
+Window Position( 25887 - 26515 ): 
+Classification: Float32[0.5431713]
+Window Position( 27507 - 27797 ): 
+Classification: Float32[0.5318424]
+Window Position( 27878 - 28634 ): 
+Classification: Float32[0.5408967]
+Window Position( 28762 - 29593 ): 
+Classification: Float32[0.5385338]
+
+########### OMICRON ############
+Window Position( 5214 - 5479 ): 
+Classification: Float32[0.5361248]
+Window Position( 10274 - 10542 ): 
+Classification: Float32[0.53736466]
+Window Position( 11353 - 11616 ): 
+Classification: Float32[0.5413313]
+Window Position( 13011 - 13279 ): 
+Classification: Float32[0.5400969]
+Window Position( 15056 - 15324 ): 
+Classification: Float32[0.536423]
+Window Position( 23394 - 23674 ): 
+Classification: Float32[0.53763026]
+Window Position( 23931 - 24205 ): 
+Classification: Float32[0.53488326]
+Window Position( 24795 - 25075 ): 
+Classification: Float32[0.5383504]
+Window Position( 25379 - 25659 ): 
+Classification: Float32[0.53322643]
+Window Position( 27057 - 27334 ): 
+Classification: Float32[0.5392197]
+Window Position( 28066 - 28429 ): 
+Classification: Float32[0.5381957]

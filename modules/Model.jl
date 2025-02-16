@@ -40,7 +40,7 @@ function extractFeaturesTemplate(
     exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
 
-    for v in eachindex(variantDirs)
+    @inounds for v in eachindex(variantDirs)
         variant::String = variantDirs[v]
         println("Processing $variant")
         cache_path = "$cachdir/$(variant)_outmask.dat"

@@ -12,12 +12,12 @@ export RRM
 function getFourierCoefficient(
     cuttedSequences::Array{String},
     seqLen::Int64
-)
+)::Float64
 
     toCross = Array{Vector{Float64}}(undef, length(cuttedSequences))
 
-    @inbounds for (seqno, sequence) in enumerate(cuttedSequences)
-        toCross[seqno] = DataIO.sequence2NumericalSerie(sequence)
+    @inbounds for (i, sequence) in enumerate(cuttedSequences)
+        toCross[i] = DataIO.sequence2NumericalSerie(sequence)
     end
 
     crossEspectrum = TransformUtils.elementWiseMult(toCross, seqLen)

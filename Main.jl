@@ -106,10 +106,10 @@ begin
 
             # plot!(x, y, label="Entropy-value", xlims=lim)
         end
-        distances = ConvergenceAnalysis.euclidean_distance(entropy_signals)
-        ylen = length(distances)
-        x = range(1, ylen)
-        lim = [0, ylen]
+        # distances = ConvergenceAnalysis.euclidean_distance(entropy_signals)
+        # ylen = length(distances)
+        # x = range(1, ylen)
+        # lim = [0, ylen]
         # if validatePos
         #     regions::Vector{Int} = histogramPosWndw(positions, ceil(Int, ylen * wnwPercent), ylen)
         #     plot!(twinx(), x, regions,
