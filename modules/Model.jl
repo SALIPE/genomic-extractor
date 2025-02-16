@@ -188,7 +188,7 @@ function wndwExlcusiveKmersHistogram(
         padded_hist[valid_range] = seq_hist
 
         @reduce(
-            histogram = ones(UInt16, total_windows) .+ padded_hist
+            histogram = zeros(UInt16, total_windows) .+ padded_hist
         )
     end
 
