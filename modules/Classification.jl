@@ -31,7 +31,7 @@ end
 function classifyInput(
     inputSequence::Base.CodeUnits,
     #Dict{VariantName, (Marked, Fourier Coefficients, Kmers)}
-    model::Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}},
+    model::Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}},
     outputfilename::Union{Nothing,String}
 )
 
