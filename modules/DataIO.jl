@@ -1,5 +1,5 @@
 module DataIO
-using FASTX, Pickle, Serialization
+using FASTX, Pickle, Serialization, BioSequences
 
 export DataIO
 
@@ -10,26 +10,39 @@ EIIP_NUCLEOTIDE = Dict{Char,Float64}([
     ('C', 0.1340)])
 
 EIIP_AMINOACID = Dict{Char,Float64}([
-    ('L', 0.0000),
-    ('I', 0.0000),
-    ('N', 0.0036),
-    ('G', 0.0050),
-    ('V', 0.0057),
-    ('E', 0.0058),
-    ('P', 0.0198),
-    ('H', 0.0242),
-    ('K', 0.0371),
+    ('*', 0.0000),
     ('A', 0.0373),
-    ('Y', 0.0516),
-    ('W', 0.0548),
-    ('Q', 0.0761),
-    ('M', 0.0823),
-    ('S', 0.0829),
+    ('B', 0.0000),#non-exist
     ('C', 0.0829),
-    ('T', 0.0941),
+    ('D', 0.1263),
+    ('E', 0.0058),
     ('F', 0.0946),
+    ('G', 0.0050),
+    ('H', 0.0242),
+    ('I', 0.0000),
+    ('J', 0.0000),#non-exist
+    ('K', 0.0371),
+    ('L', 0.0000),
+    ('M', 0.0823),
+    ('N', 0.0036),
+    ('O', 0.0000),#non-exist 
+    ('P', 0.0198),
+    ('Q', 0.0761),
     ('R', 0.0959),
-    ('D', 0.1263)])
+    ('S', 0.0829),
+    ('T', 0.0941),
+    ('U', 0.0000),#non-exist 
+    ('V', 0.0057),
+    ('W', 0.0548),
+    ('X', 0.0000),#non-exist 
+    ('Y', 0.0516),
+    ('Z', 0.0000),#non-exist 
+])
+
+function padRNA(rna::LongSequence{RNAAlphabet{4}})
+    pad_length = (3 - (length(rna) % 3)) % 3
+    return rna * LongSequence{RNAAlphabet{4}}(repeat('N', pad_length))
+end
 
 function getSequencesFromFastaFile(
     filePath::String
@@ -79,6 +92,15 @@ function getShortestLength(
     return (seqLen, seqAmount)
 end
 
+
+function sequence2AminNumSerie(
+    seqpar::AbstractString
+)::Vector{Float64}
+    rna = convert(LongSequence{RNAAlphabet{4}}, seqpar)
+    padded = padRNA(rna)
+    return foreach(c -> EIIP_AMINOACID[c], padded)
+end
+
 function sequence2NumericalSerie(
     seqpar::AbstractString
 )::Vector{Float64}
@@ -109,18 +131,7 @@ function sequence2NumericalSerie(
     return arrSeq
 end
 
-function progressBar!(current::Int, total::Int; width::Int=50)
-    progress = current / total
-    complete_width = Int(round(progress * width))
-    incomplete_width = width - complete_width
-    bar = "[" * "="^complete_width * "-"^incomplete_width * "]"
 
-    percentage = Int(round(progress * 100))
-
-    print("\r", bar, " ", percentage, "%")
-
-    flush(stdout)
-end
 
 function writeFASTASingleChr!(
     originalFilePath::String,
@@ -129,11 +140,9 @@ function writeFASTASingleChr!(
 )
     for record in open(FASTAReader, originalFilePath)
         name = identifier(record)
-        total = length(ranges)
         println("\nExporting file: $name $filename")
         FASTAWriter(open(name * filename, "w")) do writer
             for (current, (initRng, endRng)) in enumerate(ranges)
-                DataIO.progressBar!(current, total)
                 write(writer, FASTARecord(name * ":" * string(initRng) * "_" * string(endRng),
                     sequence(record)[initRng:endRng]))
             end

@@ -17,7 +17,7 @@ function getFourierCoefficient(
     toCross = Array{Vector{Float64}}(undef, length(cuttedSequences))
 
     @inbounds for (i, sequence) in enumerate(cuttedSequences)
-        toCross[i] = DataIO.sequence2NumericalSerie(sequence)
+        toCross[i] = DataIO.sequence2AminNumSerie(sequence)
     end
 
     crossEspectrum = TransformUtils.elementWiseMult(toCross, seqLen)
@@ -169,10 +169,8 @@ function runRRMMethodology!(
         for serie in toCross
             filterSignal!(discPoints, freqWindow, initI - 1, serie, signalThreshold)
         end
-        DataIO.progressBar!(endI, minSize)
         initI = endI + 1
     end
-    DataIO.progressBar!(100, 100)
 
     ranges = extractRanges(sort(unique(discPoints)), tolerance)
     # @show ranges
@@ -194,7 +192,6 @@ function runRRMMethodology!(
     # Mudar no futuro para parelelizar so é possivel atualmente pq está linear
     toCross = Array{Vector{Float64}}(undef, length(files))
     for (i, (chr, initI, endI)) in enumerate(regions)
-        DataIO.progressBar!(i, length(regions))
         discPoints = Int[]
         # Each file is a genome from a organism
         for (fileno, file) in enumerate(files)
@@ -219,7 +216,6 @@ function runRRMMethodology!(
             extractRegionPoints[chr] = ranges
         end
     end
-    DataIO.progressBar!(1, 1)
     println("")
     DataIO.writeFASTAS!(dirPath, "_output.fasta", extractRegionPoints)
 
