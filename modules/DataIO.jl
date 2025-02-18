@@ -94,11 +94,18 @@ end
 
 
 function sequence2AminNumSerie(
-    seqpar::AbstractString
+    sequence::String
 )::Vector{Float64}
-    rna = convert(LongSequence{RNAAlphabet{4}}, seqpar)
-    padded = padRNA(rna)
-    return foreach(c -> EIIP_AMINOACID[c], padded)
+
+    dna = LongSequence{DNAAlphabet{4}}(sequence)
+    rna = convert(LongSequence{RNAAlphabet{4}}, dna)
+    amn = BioSequences.translate(padRNA(rna))
+    eiip = Vector{Float64}(undef, length(amn))
+
+    @inbounds for (i, c) in enumerate(amn)
+        eiip[i] = EIIP_AMINOACID[Char(c)]
+    end
+    return eiip
 end
 
 function sequence2NumericalSerie(

@@ -10,9 +10,8 @@ using .DataIO,
 export RRM
 
 function getFourierCoefficient(
-    cuttedSequences::Array{String},
-    seqLen::Int64
-)::Float64
+    cuttedSequences::Array{String}
+)::Vector{Float64}
 
     toCross = Array{Vector{Float64}}(undef, length(cuttedSequences))
 
@@ -20,9 +19,10 @@ function getFourierCoefficient(
         toCross[i] = DataIO.sequence2AminNumSerie(sequence)
     end
 
-    crossEspectrum = TransformUtils.elementWiseMult(toCross, seqLen)
+    crossEspectrum = TransformUtils.elementWiseMult(toCross)
     N = MinMax(crossEspectrum)
     norm = N(crossEspectrum)
+
     return norm
 
 end
@@ -33,7 +33,7 @@ function _extractFreqWindow(
 )::Tuple{Int,Int} where {T<:Real}
 
     freqIndexes = Integer[]
-    crossEspectrum = TransformUtils.elementWiseMult(numSeries, seqLen)
+    crossEspectrum = TransformUtils.elementWiseMult(numSeries)
     N = MinMax(crossEspectrum)
     norm = N(crossEspectrum)
 

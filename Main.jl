@@ -2,12 +2,11 @@
 using Distributed
 
 # Add worker processes first
-addprocs(5)
+addprocs(1)
 
 @everywhere begin
     using Pkg
     Pkg.activate(".")
-    Pkg.resolve()
     Pkg.instantiate()
 
 end

@@ -8,14 +8,13 @@ export TransformUtils
 
 
 function elementWiseMult(
-    series::Array{Vector{T}},
-    n::Int
+    series::Array{Vector{T}}
 )::Vector{T} where {T<:Real}
 
     crossEspectrum::Vector{T} = abs.(rfft(series[1])[2:end])
     for s in series[2:end]
-        dft = rfft(s)
-        crossEspectrum = crossEspectrum .* abs.(dft[2:end])
+        dft = abs.(rfft(s)[2:end])
+        crossEspectrum = crossEspectrum .* dft
     end
     return crossEspectrum
 end

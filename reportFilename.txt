@@ -8,19 +8,19 @@ Classification: false
 Window Position( 1785 - 2567 ): 
 Classification: false
 Window Position( 2625 - 3385 ): 
-Classification: false
+Classification: true
 Window Position( 3761 - 4545 ): 
 Classification: true
 Window Position( 4728 - 5013 ): 
 Classification: false
 Window Position( 5168 - 5506 ): 
-Classification: true
+Classification: false
 Window Position( 5714 - 6104 ): 
-Classification: true
+Classification: false
 Window Position( 6734 - 7387 ): 
-Classification: false
+Classification: true
 Window Position( 7812 - 8097 ): 
-Classification: false
+Classification: true
 Window Position( 8431 - 8709 ): 
 Classification: true
 Window Position( 10023 - 10430 ): 
@@ -28,17 +28,17 @@ Classification: false
 Window Position( 11934 - 12631 ): 
 Classification: true
 Window Position( 12789 - 13042 ): 
-Classification: false
+Classification: true
 Window Position( 13891 - 14229 ): 
 Classification: true
 Window Position( 14447 - 14785 ): 
-Classification: false
+Classification: true
 Window Position( 14915 - 15388 ): 
-Classification: false
+Classification: true
 Window Position( 15521 - 15829 ): 
-Classification: false
+Classification: true
 Window Position( 15947 - 16285 ): 
-Classification: false
+Classification: true
 Window Position( 16287 - 16571 ): 
 Classification: false
 Window Position( 17402 - 18081 ): 
@@ -52,21 +52,21 @@ Classification: false
 Window Position( 20938 - 21246 ): 
 Classification: true
 Window Position( 21537 - 22092 ): 
-Classification: false
+Classification: true
 Window Position( 23033 - 23809 ): 
 Classification: false
 Window Position( 24268 - 24606 ): 
 Classification: false
 Window Position( 24676 - 25235 ): 
-Classification: false
-Window Position( 25247 - 25550 ): 
 Classification: true
-Window Position( 25595 - 26180 ): 
+Window Position( 25247 - 25550 ): 
 Classification: false
+Window Position( 25595 - 26180 ): 
+Classification: true
 Window Position( 27272 - 27559 ): 
 Classification: false
 Window Position( 27734 - 28382 ): 
-Classification: false
+Classification: true
 Window Position( 28642 - 29360 ): 
 Classification: false
 Window Position( 29573 - 29579 ): 
@@ -74,31 +74,31 @@ Classification: false
 
 ########### DELTA ############
 Window Position( 1 - 332 ): 
-Classification: true
-Window Position( 923 - 1467 ): 
 Classification: false
+Window Position( 923 - 1467 ): 
+Classification: true
 Window Position( 1545 - 1856 ): 
 Classification: true
 Window Position( 2019 - 2390 ): 
-Classification: false
-Window Position( 3051 - 4303 ): 
 Classification: true
+Window Position( 3051 - 4303 ): 
+Classification: false
 Window Position( 4916 - 5302 ): 
 Classification: false
 Window Position( 5423 - 6145 ): 
 Classification: false
 Window Position( 6149 - 6654 ): 
-Classification: true
+Classification: false
 Window Position( 6871 - 7246 ): 
-Classification: true
+Classification: false
 Window Position( 8733 - 9321 ): 
 Classification: true
 Window Position( 9410 - 10151 ): 
-Classification: false
+Classification: true
 Window Position( 10277 - 10516 ): 
 Classification: false
 Window Position( 10737 - 11574 ): 
-Classification: false
+Classification: true
 Window Position( 12796 - 13061 ): 
 Classification: true
 Window Position( 13719 - 14060 ): 
@@ -110,13 +110,13 @@ Classification: false
 Window Position( 16213 - 17033 ): 
 Classification: false
 Window Position( 17228 - 17614 ): 
-Classification: false
+Classification: true
 Window Position( 17948 - 18574 ): 
 Classification: true
 Window Position( 18967 - 19342 ): 
 Classification: false
 Window Position( 19352 - 19842 ): 
-Classification: true
+Classification: false
 Window Position( 20112 - 20514 ): 
 Classification: false
 Window Position( 21119 - 22278 ): 
@@ -126,9 +126,9 @@ Classification: true
 Window Position( 23330 - 23823 ): 
 Classification: false
 Window Position( 24136 - 24528 ): 
-Classification: false
-Window Position( 24591 - 25144 ): 
 Classification: true
+Window Position( 24591 - 25144 ): 
+Classification: false
 Window Position( 25195 - 26259 ): 
 Classification: false
 Window Position( 26344 - 26885 ): 
@@ -140,33 +140,33 @@ Classification: false
 
 ########### BETA ############
 Window Position( 869 - 1163 ): 
-Classification: true
-Window Position( 21602 - 21918 ): 
-Classification: true
-Window Position( 22007 - 22323 ): 
-Classification: true
-Window Position( 23456 - 23781 ): 
 Classification: false
-Window Position( 25696 - 26015 ): 
+Window Position( 21602 - 21918 ): 
+Classification: false
+Window Position( 22007 - 22323 ): 
+Classification: false
+Window Position( 23456 - 23781 ): 
 Classification: true
+Window Position( 25696 - 26015 ): 
+Classification: false
 Window Position( 26249 - 26573 ): 
 Classification: false
 
 ########### GAMMA ############
 Window Position( 1 - 917 ): 
-Classification: true
+Classification: false
 Window Position( 970 - 1301 ): 
-Classification: true
+Classification: false
 Window Position( 1688 - 1996 ): 
 Classification: false
 Window Position( 2225 - 2867 ): 
-Classification: false
+Classification: true
 Window Position( 3575 - 3946 ): 
-Classification: false
+Classification: true
 Window Position( 4314 - 4592 ): 
-Classification: true
+Classification: false
 Window Position( 5395 - 5940 ): 
-Classification: true
+Classification: false
 Window Position( 6062 - 6873 ): 
 Classification: true
 Window Position( 7026 - 7367 ): 
@@ -178,43 +178,43 @@ Classification: false
 Window Position( 8833 - 9204 ): 
 Classification: false
 Window Position( 9858 - 10187 ): 
-Classification: true
-Window Position( 10763 - 11488 ): 
-Classification: true
-Window Position( 12167 - 12424 ): 
 Classification: false
-Window Position( 12481 - 12896 ): 
+Window Position( 10763 - 11488 ): 
+Classification: false
+Window Position( 12167 - 12424 ): 
 Classification: true
+Window Position( 12481 - 12896 ): 
+Classification: false
 Window Position( 13598 - 13978 ): 
 Classification: false
 Window Position( 15731 - 16057 ): 
 Classification: true
 Window Position( 16625 - 17377 ): 
-Classification: false
+Classification: true
 Window Position( 17516 - 17847 ): 
-Classification: false
+Classification: true
 Window Position( 18167 - 18508 ): 
 Classification: false
 Window Position( 19485 - 19793 ): 
-Classification: true
+Classification: false
 Window Position( 21352 - 22250 ): 
-Classification: true
+Classification: false
 Window Position( 22257 - 23130 ): 
 Classification: true
 Window Position( 23396 - 23727 ): 
 Classification: false
 Window Position( 24380 - 24760 ): 
-Classification: false
+Classification: true
 Window Position( 24826 - 25714 ): 
 Classification: false
 Window Position( 25887 - 26515 ): 
-Classification: true
-Window Position( 27507 - 27797 ): 
 Classification: false
+Window Position( 27507 - 27797 ): 
+Classification: true
 Window Position( 27878 - 28634 ): 
 Classification: true
 Window Position( 28762 - 29593 ): 
-Classification: false
+Classification: true
 
 ########### OMICRON ############
 Window Position( 5214 - 5479 ): 
@@ -222,15 +222,15 @@ Classification: false
 Window Position( 10274 - 10542 ): 
 Classification: false
 Window Position( 11353 - 11616 ): 
-Classification: true
+Classification: false
 Window Position( 13011 - 13279 ): 
 Classification: false
 Window Position( 15056 - 15324 ): 
-Classification: true
+Classification: false
 Window Position( 23394 - 23674 ): 
 Classification: true
 Window Position( 23931 - 24205 ): 
-Classification: false
+Classification: true
 Window Position( 24795 - 25075 ): 
 Classification: true
 Window Position( 25379 - 25659 ): 
