@@ -1,38 +1,32 @@
 
-using Distributed
+# using Distributed
 
 # Add worker processes first
-addprocs(1)
+# addprocs(1)
 
-@everywhere begin
-    using Pkg
-    Pkg.activate(".")
-    Pkg.instantiate()
+using Pkg
+Pkg.activate(".")
+Pkg.instantiate()
 
-end
 
-@everywhere include("modules/DataIO.jl")
-@everywhere include("modules/KmerUtils.jl")
-@everywhere include("modules/EntropyUtil.jl")
-@everywhere include("modules/TransformUtils.jl")
-@everywhere include("modules/RRMUtils.jl")
-@everywhere include("modules/ConvergenceAnalysis.jl")
-@everywhere include("modules/Classification.jl")
-@everywhere include("modules/Model.jl")
+include("modules/DataIO.jl")
+include("modules/EntropyUtil.jl")
+include("modules/TransformUtils.jl")
+include("modules/ConvergenceAnalysis.jl")
+include("modules/Classification.jl")
+include("modules/Model.jl")
 
-@everywhere using FLoops,
+using FLoops,
     FASTX,
     LinearAlgebra,
     Normalization,
     Statistics,
     ArgParse
 
-@everywhere using
+using
     .DataIO,
     .Model,
-    .RRM,
     .Classification,
-    .KmerUtils,
     .TransformUtils,
     .EntropyUtil,
     .ConvergenceAnalysis
@@ -197,7 +191,7 @@ begin
 
         #png(plt, "$output/euclidian_consensus")
 
-        filteredEntropy = RRM.RRMEntropySignal(consensusSignals)
+        filteredEntropy = TransformUtils.RRMEntropySignal(consensusSignals)
         # plt = plot(title="Signals Filtered using RRM - $wnwPercent", dpi=300)
 
         ylen::Int32 = minimum(map(x -> length(x[2]), filteredEntropy))
@@ -273,17 +267,6 @@ begin
     end
 
 
-
-    function extractKmerFeaturesByFrequence(
-        wnwPercent::Float32,
-        outputDir::String,
-        variantDirPath::String
-    )
-
-        Model.extractFeaturesTemplate(wnwPercent, outputDir, variantDirPath)
-
-    end
-
     function sequencesClassification(
         fasta::String,
         modelPath::Union{Nothing,String},
@@ -301,7 +284,7 @@ begin
 
         modelCachedFile = isnothing(modelPath) ? "$(pwd())/.project_cache/trained_model.dat" : modelPath
 
-        model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
+        model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
         if !isnothing(model)
             @info "Using model from cached data from $modelCachedFile"
@@ -318,87 +301,182 @@ begin
 
     end
 
-    function validate_region_main()
-        setting = ArgParseSettings()
-        @add_arg_table! setting begin
-            "-f", "--file"
-            help = "Single Fasta file"
-            "-d", "--files-directory"
-            help = "Variant directory with organisms Fasta file"
-            "--variant-name"
-            help = "Variant name"
-            arg_type = String
-            "-w", "--window"
-            help = "Slide window percent size to apply"
-            arg_type = Float16
-            default = 0.004
-            "-p", "--val-positions-file"
-            help = "Positions file for validation"
-            arg_type = String
-            "--convergence-analysis"
-            help = "Positions file for validation"
-            action = :store_true
-            "--extract-model"
-            help = "Mount K-mers positions"
-            action = :store_true
-            "--classify"
-            help = "Create sequence report classification"
-            "-o", "--output-directory"
-            help = "Output directory"
-            arg_type = String
-            required = true
+
+    function main()
+        settings = ArgParseSettings(
+            description="Genome Regions Extractor and Classifier",
+            version="0.1",
+            add_version=true,
+            prog="greac"
+        )
+
+        # Create subcommand structure
+        @add_arg_table! settings begin
+            ("convergence-analysis", action=:command,
+                help="Perform convergence analysis between sequences")
+            ("extract-model", action=:command,
+                help="Extract discriminative features for classification")
+            ("classify", action=:command,
+                help="Classify sequences using a pre-trained model")
+            ("region-validation", action=:command,
+                help="Validate genomic regions with various parameters")
         end
 
-        parsed_args = parse_args(ARGS, setting)
+        # Add arguments for each subcommand
+        add_convergence_analysis_args!(settings)
+        add_extract_model_args!(settings)
+        add_classify_args!(settings)
+        add_region_validation_args!(settings)
 
-        filePath::Union{Nothing,String} = parsed_args["file"]
-        dirPath = parsed_args["files-directory"]
-        windowSize::Float32 = parsed_args["window"]
-        positionsBedFile = parsed_args["val-positions-file"]
-        outputDirectory::String = parsed_args["output-directory"]
-        varname = parsed_args["variant-name"]
-        execConvAnalysis = parsed_args["convergence-analysis"]
-        kmersFreq = parsed_args["extract-model"]
-        classify::Union{Nothing,String} = parsed_args["classify"]
+        parsed_args = parse_args(settings)
 
-        println("Parsed args:")
-        for (arg, val) in parsed_args
-            println("  $arg  =>  $val")
-        end
-
-        if execConvAnalysis
-            # ConvergenceAnalysis.convergenceAnalysis(windowSize, dirPath)
-            #ConvergenceAnalysis.convergenceAnalysisClasses(windowSize, dirPath)
-            return 0
-        elseif kmersFreq
-            extractKmerFeaturesByFrequence(windowSize, outputDirectory, dirPath)
-            return 0
-        elseif !isnothing(classify)
-            sequencesClassification(filePath, classify, outputDirectory)
-            return 0
-
-        elseif !isnothing(positionsBedFile)
-            positions::Vector{Int16} = DataIO.readVectorFromFile(positionsBedFile, Int16)
-
-            if !isnothing(filePath)
-                # Recebe so o arquivo fasta de uma unic variant
-                validateEntropyWindow(positions, windowSize, varname, outputDirectory, filePath)
-            elseif !isnothing(dirPath)
-                # Rece um diretório como arquivos fastas dividido por classes, cada arquivo contem N organismos
-                compareVariantClassPerDistance(windowSize, outputDirectory, dirPath, positions, true)
-            else
-                println("Non mode selected")
+        try
+            if parsed_args["%COMMAND%"] == "convergence-analysis"
+                handle_convergence_analysis(parsed_args["convergence-analysis"])
+            elseif parsed_args["%COMMAND%"] == "extract-model"
+                handle_extract_model(parsed_args["extract-model"])
+            elseif parsed_args["%COMMAND%"] == "classify"
+                handle_classify(parsed_args["classify"])
+            elseif parsed_args["%COMMAND%"] == "region-validation"
+                handle_region_validation(parsed_args["region-validation"])
             end
-        else
-            if !isnothing(dirPath)
-                # Rece um diretório como arquivos fastas dividido por classes, cada arquivo contem N organismos
-                compareVariantClassPerDistance(windowSize, outputDirectory, dirPath)
-            else
-                println("Non mode selected")
-            end
+        catch e
+            @error "Error processing command" exception = (e, catch_backtrace())
         end
     end
 
-    validate_region_main()
+    function add_convergence_analysis_args!(settings)
+        s = settings["convergence-analysis"]
+        @add_arg_table! s begin
+            "-d", "--files-directory"
+            help = "Variant directory with organisms Fasta file"
+            required = true
+            arg_type = String
+            "-w", "--window"
+            help = "Slide window percent size to apply"
+            arg_type = Float32
+            default = 0.004
+        end
+    end
+
+    function add_extract_model_args!(settings)
+        s = settings["extract-model"]
+        @add_arg_table! s begin
+            "-d", "--files-directory"
+            help = "Variant directory with organisms Fasta file"
+            required = true
+            arg_type = String
+            "-w", "--window"
+            help = "Slide window percent size to apply"
+            arg_type = Float32
+            default = 0.004
+            "-o", "--output-directory"
+            help = "Output directory for the model"
+            arg_type = String
+        end
+    end
+
+    function add_classify_args!(settings)
+        s = settings["classify"]
+        @add_arg_table! s begin
+            "-f", "--file"
+            help = "Single Fasta file to classify"
+            required = true
+            arg_type = String
+            "--model"
+            help = "Path to pre-trained model file"
+            arg_type = String
+            "-o", "--output-directory"
+            help = "Output directory for results"
+            arg_type = String
+            required = true
+        end
+    end
+
+    function add_region_validation_args!(settings)
+        s = settings["region-validation"]
+        @add_arg_table! s begin
+            "-f", "--file"
+            help = "Single Fasta file"
+            arg_type = String
+            "-d", "--files-directory"
+            help = "Directory containing Fasta files"
+            arg_type = String
+            "--variant-name"
+            help = "Variant name identifier"
+            arg_type = String
+            "-w", "--window"
+            help = "Sliding window percent size"
+            arg_type = Float32
+            default = 0.004
+            "-p", "--val-positions-file"
+            help = "Validation positions file"
+            arg_type = String
+            "-o", "--output-directory"
+            help = "Output directory"
+            required = true
+            arg_type = String
+        end
+    end
+
+    #= Command Handlers =#
+
+    function handle_convergence_analysis(args)
+        @info "Starting convergence analysis" args
+        ConvergenceAnalysis.convergenceAnalysis(
+            args["window"],
+            args["files-directory"]
+        )
+    end
+
+    function handle_extract_model(args)
+        @info "Starting model extraction" args
+        Model.extractFeaturesTemplate(
+            args["window"],
+            args["output-directory"],
+            args["files-directory"]
+        )
+    end
+
+    function handle_classify(args)
+        @info "Starting classification" args
+        sequencesClassification(
+            args["file"],
+            args["model"],
+            args["output-directory"]
+        )
+    end
+
+    function handle_region_validation(args)
+        @info "Starting region validation" args
+        positions = isnothing(args["val-positions-file"]) ? nothing :
+                    DataIO.readVectorFromFile(args["val-positions-file"], Int16)
+
+        if !isnothing(args["file"])
+            validateEntropyWindow(
+                positions,
+                args["window"],
+                args["variant-name"],
+                args["output-directory"],
+                args["file"]
+            )
+        elseif !isnothing(args["files-directory"])
+            compareVariantClassPerDistance(
+                args["window"],
+                args["output-directory"],
+                args["files-directory"],
+                positions,
+                true
+            )
+        else
+            error("Must specify either --file or --files-directory")
+        end
+    end
+
+
+
+    if abspath(PROGRAM_FILE) == @__FILE__
+        main()
+    end
 
 end

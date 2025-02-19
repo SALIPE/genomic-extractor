@@ -44,54 +44,6 @@ function padRNA(rna::LongSequence{RNAAlphabet{4}})
     return rna * LongSequence{RNAAlphabet{4}}(repeat('N', pad_length))
 end
 
-function getSequencesFromFastaFile(
-    filePath::String
-)::Array{FASTX.FASTA.Record}
-    sequences::Array{FASTX.FASTA.Record} = []
-    for record in open(FASTAReader, filePath)
-        push!(sequences, record)
-        # push!(sequences, codeunits(sequence(record)))
-        # println(identifier(record))
-        # println(sequence(record))
-        # println(description(record))
-    end
-    return sequences
-end
-
-
-function getLongestLength(
-    filePath::String
-)::Int
-    sequenceLen::Int = zero(Int)
-    for record in open(FASTAReader, filePath)
-        if (iszero(sequenceLen))
-            sequenceLen = seqsize(record)
-        elseif (seqsize(record) > sequenceLen)
-            sequenceLen = seqsize(record)
-        end
-
-    end
-    return seqIndex
-end
-
-function getShortestLength(
-    filePath::String
-)::Tuple{Int,Int}
-    seqAmount::Int = zero(Int)
-    seqLen::Int = zero(Int)
-    for record in open(FASTAReader, filePath)
-        seqAmount += 1
-        @show seqsize(record)
-        if (iszero(seqLen))
-            seqLen = seqsize(record)
-        elseif (seqsize(record) < seqLen)
-            seqLen = seqsize(record)
-        end
-
-    end
-    return (seqLen, seqAmount)
-end
-
 
 function sequence2AminNumSerie(
     sequence::String
@@ -109,79 +61,18 @@ function sequence2AminNumSerie(
 end
 
 function sequence2NumericalSerie(
-    seqpar::AbstractString
+    sequence::AbstractString
 )::Vector{Float64}
 
-    dict = keys(EIIP_NUCLEOTIDE)
-    arrSeq = Float64[]
-    for c in eachindex(seqpar)
-        key = seqpar[c]
-        keyin = key ∈ dict
-        push!(arrSeq, keyin ? EIIP_NUCLEOTIDE[key] : zero(Float64))
+    eiip = Vector{Float64}(undef, length(sequence))
+    @inbounds for (i, c) in enumerate(sequence)
+        eiip[i] = EIIP_NUCLEOTIDE[Char(c)]
     end
-    return arrSeq
-end
-
-function sequence2NumericalSerie(
-    seqpar::AbstractString,
-    initIndex::Integer,
-    endIndex::Integer
-)::Vector{Float64}
-
-    dict = keys(EIIP_NUCLEOTIDE)
-    arrSeq = Float64[]
-    @inbounds for c in initIndex:endIndex
-        key = seqpar[c]
-        keyin = key ∈ dict
-        push!(arrSeq, keyin ? EIIP_NUCLEOTIDE[key] : zero(Float64))
-    end
-    return arrSeq
+    return eiip
 end
 
 
 
-function writeFASTASingleChr!(
-    originalFilePath::String,
-    filename::String,
-    ranges::Vector{Tuple{Int,Int}}
-)
-    for record in open(FASTAReader, originalFilePath)
-        name = identifier(record)
-        println("\nExporting file: $name $filename")
-        FASTAWriter(open(name * filename, "w")) do writer
-            for (current, (initRng, endRng)) in enumerate(ranges)
-                write(writer, FASTARecord(name * ":" * string(initRng) * "_" * string(endRng),
-                    sequence(record)[initRng:endRng]))
-            end
-        end
-    end
-end
-
-function writeFASTAS!(
-    originalDirPath::String,
-    filename::String,
-    ranges::Dict{String,Vector{Tuple{Int,Int}}}
-)
-
-    chrs = keys(ranges)
-    @show chrs
-    for file in readdir(originalDirPath)
-        println("\nExporting file: $file")
-        FASTAWriter(open(file * filename, "w")) do writer
-            for record in open(FASTAReader, originalDirPath * "/" * file)
-                chr = identifier(record)
-                @show chr
-                if (chr ∈ chrs)
-                    for (initRng, endRng) in ranges[chr]
-                        write(writer, FASTARecord(chr * ":" * string(initRng) * "_" * string(endRng),
-                            sequence(record)[initRng:endRng]))
-                    end
-                end
-            end
-        end
-    end
-
-end
 
 function readRegionsFromBed(
     bedFilePath::String

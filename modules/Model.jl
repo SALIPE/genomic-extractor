@@ -1,14 +1,13 @@
 module Model
 
 include("DataIO.jl")
-include("RRMUtils.jl")
 include("Classification.jl")
+include("TransformUtils.jl")
 
 using .DataIO,
-    .RRM,
+    .TransformUtils,
     .Classification,
-    FLoops,
-    FASTX
+    FLoops
 
 export Model
 
@@ -87,13 +86,13 @@ function extractFeaturesTemplate(
                 start = i
                 current = true
             elseif !bit && current
-                cross = RRM.getFourierCoefficient([str[start:i-1] for str in sequences])
+                cross = TransformUtils.getFourierCoefficient([str[start:i-1] for str in sequences])
                 push!(fourierCoefficients, (start, i - 1, cross))
                 current = false
             end
         end
         if current
-            cross = RRM.getFourierCoefficient([str[start:minSeqLength] for str in sequences])
+            cross = TransformUtils.getFourierCoefficient([str[start:minSeqLength] for str in sequences])
             push!(fourierCoefficients, (start, minSeqLength, cross))
         end
         trainedModel[variant] = (marked, fourierCoefficients, exclusiveKmers[variant])

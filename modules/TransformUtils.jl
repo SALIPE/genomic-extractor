@@ -1,8 +1,8 @@
 module TransformUtils
-using DSP,
-    AbstractFFTs,
-    LinearAlgebra,
-    Normalization
+
+include("DataIO.jl")
+
+using .DataIO, AbstractFFTs, Normalization
 
 export TransformUtils
 
@@ -19,71 +19,85 @@ function elementWiseMult(
     return crossEspectrum
 end
 
+function getFourierCoefficient(
+    cuttedSequences::Array{String}
+)::Vector{Float64}
 
+    toCross = Array{Vector{Float64}}(undef, length(cuttedSequences))
 
-# https://brianmcfee.net/dstbook-site/content/ch10-convtheorem/ConvolutionTheorem.html
-function circConvt!(N::Vector{T}, K::Vector{T}, BS::Int) where {T<:Real}
-    # Optimized for the case the kernel is in N (Shorter)
-    lenN = length(N)
-    lenN < length(K) && return circConvt!(K, N, BS)
-    if lenN > BS
-        error("BS must be >= the length of N")
-    elseif length(K) > BS
-        error("BS must be >= the length of K")
+    @inbounds for (i, sequence) in enumerate(cuttedSequences)
+        toCross[i] = DataIO.sequence2AminNumSerie(sequence)
     end
 
-    Y = Vector{T}(undef, BS)
-    for ii in eachindex(Y)
-        sumVal = zero(T)
-        for kk ∈ eachindex(K)
-            oa = (ii >= kk) ? N[ii-kk+1] : N[ii-kk+lenN]
-            prev = sumVal + (K[kk] * oa)
-            # sumVal = prev
-            prev === Inf ? break : sumVal = prev
+    crossEspectrum = TransformUtils.elementWiseMult(toCross)
+    N = MinMax(crossEspectrum)
+    norm = N(crossEspectrum)
+
+    return norm
+
+end
+
+function RRMEntropySignal(
+    consensusSignals::Vector{Tuple{String,Vector{Float64}}}
+)
+    signals = Vector{Tuple{String,Vector{Float64}}}(undef, length(consensusSignals))
+
+    # plt = plot(title="Entropy Signals Norms.", dpi=300)
+    for (i, (class, signal)) in enumerate(consensusSignals)
+        N = MinMax(signal)
+        norm = N(signal)
+        # plot!(norm, label=class)
+        signals[i] = (class, norm)
+    end
+    # png(plt, "norm_signals")
+
+    min_length = minimum(map(x -> length(x[2]), signals))
+
+    freqWindow = _extractFreqWindow(map(x -> x[2], signals), min_length)
+
+    for (i, (class, sequence)) in enumerate(signals)
+        fft = abs.(rfft(sequence))
+        for ii in eachindex(fft)
+            if (ii < freqWindow[1] || ii > freqWindow[2])
+                fft[ii] = zero(fft[ii])
+            end
         end
-        Y[ii] = sumVal
-        N[ii] = sumVal
+        normal = irfft(fft, length(sequence))
+        signals[i] = (class, normal)
     end
 
-    # for ii in eachindex(N)
-    #     sumVal = zero(T)
-    #     for kk ∈ eachindex(K)
-    #         oa = (ii >= kk) ? N[ii-kk+1] : N[ii-kk+N]
-    #         prev = sumVal + (K[kk] * oa)
-    #         (prev === Nan || prev === Inf) ? break : sumVal = prev
-    #     end
-    #     N[ii] = sumVal
-    # end
-    return Y
-end
-
-
-function blockConv!(X::Vector{T}, H::Vector{T}) where {T<:Real}
-    # Optimized for the case the kernel is in N (Shorter)
-    Nx::Int = length(X)
-    M::Int = length(H)
-    Nx < M && return blockConv!(H, X)
-
-    N = floor(Int, M + (M / 2))
-    # number of zeros to pad
-    M1::Int = M - 1
-    # Block size
-    L::Int = N - M1
-    # Number of blocks
-    K = floor(Int, (Nx + M1 - 1) / L)
-
-    x::Vector{T} = reduce(vcat, [zeros(M1), X, zeros(N - 1)])
-
-    Y = Matrix{T}(undef, 0, 0)
-
-    for k in (0:K-1)
-        xk = x[(k*L+1):(k*L+N)]
-        Y[k, :] = circConvt!(xk, H, N)
-    end
-    Y = transpose(Y[:, M:N])
-    return transpose(Y[:])
+    return signals
 
 end
 
+function _extractFreqWindow(
+    numSeries::Array{Vector{T}},
+    seqLen::Int
+)::Tuple{Int,Int} where {T<:Real}
+
+    freqIndexes = Integer[]
+    crossEspectrum = elementWiseMult(numSeries)
+    N = MinMax(crossEspectrum)
+    norm = N(crossEspectrum)
+
+    @inbounds for ii in eachindex(norm)
+        if norm[ii] >= 0.1
+            push!(freqIndexes, ii)
+        else
+            crossEspectrum[ii] = zero(T)
+        end
+    end
+
+
+    # Filtro passa faixa, ou retornando apenas a frequencia como impulso
+    if length(freqIndexes) > 0
+        if (freqIndexes[1] == freqIndexes[length(freqIndexes)])
+            return (1, freqIndexes[1])
+        end
+        return (freqIndexes[1], freqIndexes[length(freqIndexes)])
+    else
+        return (1, seqLen)
+    end
+end
 
 end
