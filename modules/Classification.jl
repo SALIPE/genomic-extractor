@@ -3,10 +3,20 @@ module Classification
 include("DataIO.jl")
 
 using .DataIO,
+    AbstractFFTs,
     FLoops,
     Serialization
 
 export Classification
+
+mutable struct ClassificationBlockRegressor
+    class::String
+    models::Vector{Tuple{Int,Int,Vector{Float64},Any}}
+end
+
+mutable struct ModelClassBlockStruct
+    blockmodelchain::Array{ClassificationBlockRegressor}
+end
 
 function classifyInput(
     inputSequence::AbstractString,

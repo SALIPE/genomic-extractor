@@ -46,7 +46,7 @@ end
 
 
 function sequence2AminNumSerie(
-    sequence::String
+    sequence::AbstractString
 )::Vector{Float64}
 
     dna = LongSequence{DNAAlphabet{4}}(sequence)

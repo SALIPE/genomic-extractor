@@ -1,8 +1,8 @@
 module Model
 
 include("DataIO.jl")
-include("Classification.jl")
 include("TransformUtils.jl")
+include("Classification.jl")
 
 using .DataIO,
     .TransformUtils,
@@ -26,82 +26,113 @@ end
 function createModelBlock(
     blockClassName::String,
     regionsFourierCoefs::Vector{Tuple{Int,Int,Vector{Float64}}},
-    trueSequences::Vector{String},
-    falseSequences::Vector{String})::ClassificationBlockRegressor
+    trueSequences::AbstractArray,
+    falseSequences::AbstractArray,
+    nTree
+)::ClassificationBlockRegressor
 
     block_model = ClassificationBlockRegressor(blockClassName, Vector{Tuple{Int,Int,Any}}())
 
-    # para cada região criar uma sigmoid para comparação entre sinais
+    # Pre-allocate reusable containers
+    X_buffer = Vector{Float64}[]  # Reused for each region
+    labels_buffer = Float16[]     # Reused for each region
+
     for (initIdx, endIdx, cross) in regionsFourierCoefs
-        X = Vector{Vector{Float64}}()
-        labels = Vector{Float16}()
+        freIndexes = findall(x -> x > 0, cross)
+        isempty(freIndexes) && continue
 
-        freIndexes::Vector{Int} = filter(ii -> cross[ii] > 0, eachindex(cross))
+        # Fix critical min/max frequency calculation
+        minFreq = minimum(freIndexes)
+        maxFreq = maximum(freIndexes)
+        region_length = endIdx - initIdx + 1
 
-        if !isempty(freIndexes)
 
-            minFreq::Int = maximum(freIndexes)
-            maxFreq::Int = maximum(freIndexes)
+        # Precompute FFT plan for this region
+        fft_plan = plan_rfft(Vector{Float64}(undef, region_length))
 
-            #extract all the fft from each region
-            for seq in falseSequences
-                if lastindex(seq) >= endIdx
-                    num = DataIO.sequence2AminNumSerie(seq[initIdx:endIdx])
-                    dft = abs.(rfft(num)[2:end])
+        # Reuse buffers to reduce allocations
+        empty!(X_buffer)
+        empty!(labels_buffer)
+        sizehint!(X_buffer, length(falseSequences) + length(trueSequences))
+        sizehint!(labels_buffer, length(falseSequences) + length(trueSequences))
 
-                    push!(X, dft[minFreq:maxFreq])
-                    push!(labels, zero(Float16))
-                end
-            end
-            for seq in trueSequences
-                if lastindex(seq) >= endIdx
-                    num = DataIO.sequence2AminNumSerie(seq[initIdx:endIdx])
-                    dft = abs.(rfft(num)[2:end])
+        # Process sequences using view-based access
+        process_sequences!(X_buffer, labels_buffer, falseSequences, initIdx, endIdx, fft_plan, minFreq, maxFreq, 0.0f16)
+        process_sequences!(X_buffer, labels_buffer, trueSequences, initIdx, endIdx, fft_plan, minFreq, maxFreq, 1.0f16)
 
-                    push!(X, dft[minFreq:maxFreq])
-                    push!(labels, one(Float16))
-                end
-            end
-            regionBlockModel = RandomForestRegressor(n_trees=20)
+        # isempty(X_buffer) && continue
 
-            X_matrix = reduce(hcat, X) |> permutedims
-
-            # Ensure y is a row vector with correct dimensions (1 x n_samples)
-            DecisionTree.fit!(regionBlockModel, X_matrix, labels)
-            push!(block_model.models, (initIdx, endIdx, cross, regionBlockModel))
+        # Convert to matrix without intermediate allocations
+        X_matrix = Matrix{Float64}(undef, length(X_buffer), length(X_buffer[1]))
+        for i in eachindex(X_buffer)
+            X_matrix[i, :] = X_buffer[i]
         end
+
+        regionBlockModel = RandomForestRegressor(n_trees=nTree)
+        DecisionTree.fit!(regionBlockModel, X_matrix, labels_buffer)
+
+        push!(block_model.models, (initIdx, endIdx, cross, regionBlockModel))
     end
+
     return block_model
 end
 
+function process_sequences!(X, labels, sequences, initIdx, endIdx, fft_plan, minFreq, maxFreq, label)
+    @inbounds for seq in sequences
+        lastindex(seq) < endIdx && continue
+        # Use views to avoid substring allocations
+        subseq = @view seq[initIdx:endIdx]
+        num = DataIO.sequence2AminNumSerie(subseq)
+
+        # Compute FFT using pre-planned transform
+        dft = abs.(fft_plan * num)
+        dft_trimmed = @view dft[2:end]  # Skip DC component
+
+
+        push!(X, dft_trimmed[minFreq:maxFreq])
+        push!(labels, label)
+    end
+end
+
 function trainModel(
-    classes::Vector{String},
-    model::Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}}
+    classes::Dict{String,Vector{String}},
+    model::Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}},
+    nTrees=20
 )::ModelClassBlockStruct
 
-    modelBlckStruct = ModelClassBlockStruct(Array{ClassificationBlockRegressor}(undef, length(classes)))
+    modelBlckStruct = ModelClassBlockStruct(Vector{ClassificationBlockRegressor}(undef, length(classes)))
+    class_names = collect(keys(classes))
 
-    @inbounds for i in eachindex(classes)
-        class::String = classes[i]
-        # para cada classe criar seu bloco de modelos sigmois para cada região
-        falseSequences = Vector{String}()
-        trueSequences = Vector{String}()
-        for key in classes
-            cache_path = "$(pwd())/.project_cache/$(key)_outmask.dat"
-            vardata::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
-            sqs::Vector{String} = vardata[3]
+    # Precompute all false sequences once
+    total_sequences = sum(length(v) for v in values(classes))
+    class_index = Dict{String,Vector{Int}}()
+    all_seqs = Vector{String}(undef, total_sequences)
 
-            @inbounds for i in eachindex(sqs)
-                # push!(falseSequences, DataIO.sequence2AminNumSerie(sqs[i]))
-                if key != class
-                    push!(falseSequences, sqs[i])
-                else
-                    push!(trueSequences, sqs[i])
-                end
-            end
-        end
-        modelBlckStruct.blockmodelchain[i] = createModelBlock(class, model[class][2], trueSequences, falseSequences)
+    # Build global sequence index
+    idx = 1
+    for (cls, seqs) in classes
+        class_index[cls] = idx:(idx+length(seqs)-1)
+        all_seqs[idx:(idx+length(seqs)-1)] = seqs
+        idx += length(seqs)
     end
+
+    @inbounds for (i, cls) in enumerate(class_names)
+        true_range = class_index[cls]
+        false_ranges = [v for (k, v) in class_index if k != cls]
+
+        # Use view-based selection for memory efficiency
+        trueSequences = @view all_seqs[true_range]
+        falseSequences = vcat([@view all_seqs[r] for r in false_ranges]...)
+
+        modelBlckStruct.blockmodelchain[i] = createModelBlock(
+            cls,
+            model[cls][2],
+            trueSequences,
+            falseSequences,
+            nTrees
+        )
+    end
+
     return modelBlckStruct
 end
 
