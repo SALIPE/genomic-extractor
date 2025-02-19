@@ -290,12 +290,11 @@ begin
             @info "Using model from cached data from $modelCachedFile"
 
             @floop for (id, seq) in sequences
-                @show id
                 Classification.classifyInput(seq, model, "$outputdir/$id")
             end
 
         else
-            error("Model not found in cached files!")
+            @error "Model not found in cached files!"
         end
 
 

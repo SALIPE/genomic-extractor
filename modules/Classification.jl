@@ -88,6 +88,37 @@ function classifyInput(
 
 end
 
+function classifySequence(
+    blockModel::ModelClassBlockStruct,
+    inputSequence::String)
+
+    classifications = Dict{String,Float16}()
+    for block in blockModel.blockmodelchain
+
+        predictions::BitArray = []
+        for (initi, endi, cross, c_model) in block.models
+            freIndexes::Vector{Int} = filter(ii -> cross[ii] >= 0, eachindex(cross))
+            if !isempty(freIndexes)
+                minFreq::Int = maximum(freIndexes)
+                maxFreq::Int = maximum(freIndexes)
+
+                if lastindex(inputSequence) >= endi
+                    num = DataIO.sequence2AminNumSerie(inputSequence[initi:endi])
+                    dft = abs.(rfft(num)[2:end])
+                    norm = dft[minFreq:maxFreq]
+                    input = reduce(hcat, [norm]) |> permutedims
+                    raw_output = predict(c_model, input)[1]
+
+                    push!(predictions, raw_output >= 0.5f0)
+                end
+            end
+        end
+        classifications[block.class] = count(i -> i, predictions) / length(predictions)
+    end
+    maxPercent = maximum(x -> x[2], classifications)
+    return findfirst(x -> x == maxPercent, classifications), maxPercent, classifications
+end
+
 function countPatterns(
     seqWindow::SubArray,
     kmers::Vector{String})::UInt8

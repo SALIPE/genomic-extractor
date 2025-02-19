@@ -7,12 +7,106 @@ include("TransformUtils.jl")
 using .DataIO,
     .TransformUtils,
     .Classification,
+    DecisionTree,
+    ScikitLearn,
+    AbstractFFTs,
     FLoops
 
 export Model
 
+mutable struct ClassificationBlockRegressor
+    class::String
+    models::Vector{Tuple{Int,Int,Vector{Float64},Any}}
+end
 
-# FUnctio to extract discriminatives features from each class
+mutable struct ModelClassBlockStruct
+    blockmodelchain::Array{ClassificationBlockRegressor}
+end
+
+function createModelBlock(
+    blockClassName::String,
+    regionsFourierCoefs::Vector{Tuple{Int,Int,Vector{Float64}}},
+    trueSequences::Vector{String},
+    falseSequences::Vector{String})::ClassificationBlockRegressor
+
+    block_model = ClassificationBlockRegressor(blockClassName, Vector{Tuple{Int,Int,Any}}())
+
+    # para cada região criar uma sigmoid para comparação entre sinais
+    for (initIdx, endIdx, cross) in regionsFourierCoefs
+        X = Vector{Vector{Float64}}()
+        labels = Vector{Float16}()
+
+        freIndexes::Vector{Int} = filter(ii -> cross[ii] > 0, eachindex(cross))
+
+        if !isempty(freIndexes)
+
+            minFreq::Int = maximum(freIndexes)
+            maxFreq::Int = maximum(freIndexes)
+
+            #extract all the fft from each region
+            for seq in falseSequences
+                if lastindex(seq) >= endIdx
+                    num = DataIO.sequence2AminNumSerie(seq[initIdx:endIdx])
+                    dft = abs.(rfft(num)[2:end])
+
+                    push!(X, dft[minFreq:maxFreq])
+                    push!(labels, zero(Float16))
+                end
+            end
+            for seq in trueSequences
+                if lastindex(seq) >= endIdx
+                    num = DataIO.sequence2AminNumSerie(seq[initIdx:endIdx])
+                    dft = abs.(rfft(num)[2:end])
+
+                    push!(X, dft[minFreq:maxFreq])
+                    push!(labels, one(Float16))
+                end
+            end
+            regionBlockModel = RandomForestRegressor(n_trees=20)
+
+            X_matrix = reduce(hcat, X) |> permutedims
+
+            # Ensure y is a row vector with correct dimensions (1 x n_samples)
+            DecisionTree.fit!(regionBlockModel, X_matrix, labels)
+            push!(block_model.models, (initIdx, endIdx, cross, regionBlockModel))
+        end
+    end
+    return block_model
+end
+
+function trainModel(
+    classes::Vector{String},
+    model::Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}}
+)::ModelClassBlockStruct
+
+    modelBlckStruct = ModelClassBlockStruct(Array{ClassificationBlockRegressor}(undef, length(classes)))
+
+    @inbounds for i in eachindex(classes)
+        class::String = classes[i]
+        # para cada classe criar seu bloco de modelos sigmois para cada região
+        falseSequences = Vector{String}()
+        trueSequences = Vector{String}()
+        for key in classes
+            cache_path = "$(pwd())/.project_cache/$(key)_outmask.dat"
+            vardata::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
+            sqs::Vector{String} = vardata[3]
+
+            @inbounds for i in eachindex(sqs)
+                # push!(falseSequences, DataIO.sequence2AminNumSerie(sqs[i]))
+                if key != class
+                    push!(falseSequences, sqs[i])
+                else
+                    push!(trueSequences, sqs[i])
+                end
+            end
+        end
+        modelBlckStruct.blockmodelchain[i] = createModelBlock(class, model[class][2], trueSequences, falseSequences)
+    end
+    return modelBlckStruct
+end
+
+
+# Functio to extract discriminatives features from each class
 function extractFeaturesTemplate(
     wnwPercent::Float32,
     outputDir::String,
