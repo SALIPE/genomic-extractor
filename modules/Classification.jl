@@ -60,19 +60,31 @@ function classifyInput(
         end
     end
 
-    reportFilename::String = isnothing(outputfilename) ? "$(pwd())/report.txt" : outputfilename
-
-    open(reportFilename, "w") do file
-
-        for (var, regions) in report
-            write(file, "\n\n########### $(uppercase(var)) ############")
-            write(file, "\nTotal Exclusive Kmers: $(length(model[var][3]))")
-            write(file, "\n####################################\n")
-            for ((initPos, endPos), count) in regions
-                write(file, "\nWindow Position( $initPos - $endPos ): \nKmer Count: $count")
+    if !isnothing(outputfilename)
+        open(outputfilename, "w") do file
+            for (var, regions) in report
+                write(file, "\n\n########### $(uppercase(var)) ############")
+                write(file, "\nTotal Exclusive Kmers: $(length(model[var][3]))")
+                write(file, "\n####################################\n")
+                for ((initPos, endPos), count) in regions
+                    write(file, "\nWindow Position( $initPos - $endPos ): \nKmer Count: $count")
+                end
             end
         end
     end
+
+    classifications = Dict{String,Float16}()
+
+    for (var, regions) in report
+        predictions::BitArray = []
+        for ((initPos, endPos), count) in regions
+            push!(predictions, count > 0)
+        end
+        classifications[var] = count(i -> i, predictions) / length(predictions)
+    end
+
+    maxPercent = maximum(x -> x[2], classifications)
+    return findfirst(x -> x == maxPercent, classifications), maxPercent, classifications
 
 end
 
