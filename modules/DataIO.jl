@@ -3,13 +3,13 @@ using FASTX, Pickle, Serialization, BioSequences
 
 export DataIO
 
-EIIP_NUCLEOTIDE = Dict{Char,Float64}([
+EIIP_NUCLEOTIDE = Dict{Char,Float32}([
     ('A', 0.1260),
     ('G', 0.0806),
     ('T', 0.1335),
     ('C', 0.1340)])
 
-EIIP_AMINOACID = Dict{Char,Float64}([
+EIIP_AMINOACID = Dict{Char,Float32}([
     ('*', 0.0000),
     ('A', 0.0373),
     ('B', 0.0000),#non-exist
@@ -47,12 +47,12 @@ end
 
 function sequence2AminNumSerie(
     sequence::AbstractString
-)::Vector{Float64}
+)::Vector{Float32}
 
     dna = LongSequence{DNAAlphabet{4}}(sequence)
     rna = convert(LongSequence{RNAAlphabet{4}}, dna)
     amn = BioSequences.translate(padRNA(rna))
-    eiip = Vector{Float64}(undef, length(amn))
+    eiip = Vector{Float32}(undef, length(amn))
 
     @inbounds for (i, c) in enumerate(amn)
         eiip[i] = EIIP_AMINOACID[Char(c)]
@@ -62,9 +62,9 @@ end
 
 function sequence2NumericalSerie(
     sequence::AbstractString
-)::Vector{Float64}
+)::Vector{Float32}
 
-    eiip = Vector{Float64}(undef, length(sequence))
+    eiip = Vector{Float32}(undef, length(sequence))
     @inbounds for (i, c) in enumerate(sequence)
         eiip[i] = EIIP_NUCLEOTIDE[Char(c)]
     end

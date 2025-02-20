@@ -13,7 +13,6 @@ include("modules/DataIO.jl")
 include("modules/EntropyUtil.jl")
 include("modules/TransformUtils.jl")
 include("modules/ConvergenceAnalysis.jl")
-include("modules/Classification.jl")
 include("modules/Model.jl")
 
 using FLoops,
@@ -26,7 +25,6 @@ using FLoops,
 using
     .DataIO,
     .Model,
-    .Classification,
     .TransformUtils,
     .EntropyUtil,
     .ConvergenceAnalysis
@@ -149,9 +147,10 @@ begin
 
     end
 
-
-    # Do a comparison betweeen variant class regions based on the euclidian distance
-    # the comparison should be a explanation to why use a consensus signal for class classfication evaluation
+    ```
+        Do a comparison betweeen variant class regions based on the euclidian distance
+        the comparison should be a explanation to why use a consensus signal for class classfication evaluation
+    ```
     function compareVariantClassPerDistance(
         wnwPercent::Float32,
         output::String,
@@ -268,30 +267,47 @@ begin
 
 
     function sequencesClassification(
-        fasta::String,
+        folderPath::String,
         modelPath::Union{Nothing,String},
-        outputdir::String
+        outputdir::Union{Nothing,String}
     )
-
-        @show fasta
-        sequences = Vector{Tuple{String,Base.CodeUnits}}()
-        for record in open(FASTAReader, fasta)
-            seq::String = sequence(String, record)
-            id::String = identifier(record)
-            push!(sequences, (replace(id, r"\/|\|" => "_"), codeunits(seq)))
-            break
-        end
-
         modelCachedFile = isnothing(modelPath) ? "$(pwd())/.project_cache/trained_model.dat" : modelPath
 
         model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
         if !isnothing(model)
             @info "Using model from cached data from $modelCachedFile"
+            classes = ["Alpha", "Delta", "Beta", "Gamma", "Omicron"]
+            inputclassdata = Dict{String,Vector{String}}()
 
-            @floop for (id, seq) in sequences
-                Classification.classifyInput(seq, model, "$outputdir/$id")
+            for key in classes
+                cache_path = "$(pwd())/.project_cache/$(key)_outmask.dat"
+                vardata::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
+                inputclassdata[key] = vardata[3]
             end
+
+            mdelstruct = Model.trainModel(inputclassdata, model)
+
+            confMatrix = Dict{String,Tuple{Int,Int}}()
+
+            for class in classes
+                classeqs = Vector{String}()
+                for record in open(FASTAReader, "$folderPath/$class.fasta")
+                    seq::String = sequence(String, record)
+                    push!(classeqs, seq)
+                end
+
+                classifications = String[]
+                for seq in classeqs
+                    cl, _, _ = Model.classifySequence(mdelstruct, seq)
+                    # cl, _, _ = Classification.classifyInput(codeunits(seq), model, nothing)
+                    push!(classifications, cl)
+                end
+                confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
+
+            end
+
+            @info confMatrix
 
         else
             @error "Model not found in cached files!"
@@ -388,7 +404,6 @@ begin
             "-o", "--output-directory"
             help = "Output directory for results"
             arg_type = String
-            required = true
         end
     end
 

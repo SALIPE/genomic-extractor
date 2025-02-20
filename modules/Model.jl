@@ -2,14 +2,13 @@ module Model
 
 include("DataIO.jl")
 include("TransformUtils.jl")
-include("Classification.jl")
 
 using .DataIO,
     .TransformUtils,
-    .Classification,
+    Serialization,
     DecisionTree,
-    ScikitLearn,
     AbstractFFTs,
+    FFTW,
     FLoops
 
 export Model
@@ -23,76 +22,63 @@ mutable struct ModelClassBlockStruct
     blockmodelchain::Array{ClassificationBlockRegressor}
 end
 
+#=
+Create blocks for region classification for each class and mask pre-extracted data structure
+=#
 function createModelBlock(
     blockClassName::String,
     regionsFourierCoefs::Vector{Tuple{Int,Int,Vector{Float64}}},
-    trueSequences::AbstractArray,
-    falseSequences::AbstractArray,
+    trueSequences::AbstractVector{String},
+    falseSequences::AbstractVector{String},
     nTree
 )::ClassificationBlockRegressor
 
     block_model = ClassificationBlockRegressor(blockClassName, Vector{Tuple{Int,Int,Any}}())
 
-    # Pre-allocate reusable containers
-    X_buffer = Vector{Float64}[]  # Reused for each region
-    labels_buffer = Float16[]     # Reused for each region
 
     for (initIdx, endIdx, cross) in regionsFourierCoefs
-        freIndexes = findall(x -> x > 0, cross)
+        freIndexes = findall(>(0), cross)
         isempty(freIndexes) && continue
 
-        # Fix critical min/max frequency calculation
-        minFreq = minimum(freIndexes)
-        maxFreq = maximum(freIndexes)
-        region_length = endIdx - initIdx + 1
+        minFreq::Int = minimum(freIndexes)
+        maxFreq::Int = maximum(freIndexes)
 
+        X = Vector{Vector{float(Float32)}}()
+        labels = Vector{Float16}()
 
-        # Precompute FFT plan for this region
-        fft_plan = plan_rfft(Vector{Float64}(undef, region_length))
+        #extract all the fft from each region
+        for seq in falseSequences
+            lastindex(seq) < endIdx && continue
 
-        # Reuse buffers to reduce allocations
-        empty!(X_buffer)
-        empty!(labels_buffer)
-        sizehint!(X_buffer, length(falseSequences) + length(trueSequences))
-        sizehint!(labels_buffer, length(falseSequences) + length(trueSequences))
+            subseq = @view seq[initIdx:endIdx]
+            num = DataIO.sequence2AminNumSerie(subseq)
+            dft = abs.(rfft(num)[2:end])
 
-        # Process sequences using view-based access
-        process_sequences!(X_buffer, labels_buffer, falseSequences, initIdx, endIdx, fft_plan, minFreq, maxFreq, 0.0f16)
-        process_sequences!(X_buffer, labels_buffer, trueSequences, initIdx, endIdx, fft_plan, minFreq, maxFreq, 1.0f16)
+            push!(X, dft[minFreq:maxFreq])
+            push!(labels, zero(Float16))
 
-        # isempty(X_buffer) && continue
+        end
+        for seq in trueSequences
+            lastindex(seq) < endIdx && continue
 
-        # Convert to matrix without intermediate allocations
-        X_matrix = Matrix{Float64}(undef, length(X_buffer), length(X_buffer[1]))
-        for i in eachindex(X_buffer)
-            X_matrix[i, :] = X_buffer[i]
+            subseq = @view seq[initIdx:endIdx]
+            num = DataIO.sequence2AminNumSerie(subseq)
+            dft = abs.(rfft(num)[2:end])
+
+            push!(X, dft[minFreq:maxFreq])
+            push!(labels, one(Float16))
         end
 
-        regionBlockModel = RandomForestRegressor(n_trees=nTree)
-        DecisionTree.fit!(regionBlockModel, X_matrix, labels_buffer)
 
+        X_matrix = reduce(hcat, X) |> permutedims
+
+        regionBlockModel = RandomForestRegressor()
+        fit!(regionBlockModel, X_matrix, labels)
         push!(block_model.models, (initIdx, endIdx, cross, regionBlockModel))
     end
-
     return block_model
 end
 
-function process_sequences!(X, labels, sequences, initIdx, endIdx, fft_plan, minFreq, maxFreq, label)
-    @inbounds for seq in sequences
-        lastindex(seq) < endIdx && continue
-        # Use views to avoid substring allocations
-        subseq = @view seq[initIdx:endIdx]
-        num = DataIO.sequence2AminNumSerie(subseq)
-
-        # Compute FFT using pre-planned transform
-        dft = abs.(fft_plan * num)
-        dft_trimmed = @view dft[2:end]  # Skip DC component
-
-
-        push!(X, dft_trimmed[minFreq:maxFreq])
-        push!(labels, label)
-    end
-end
 
 function trainModel(
     classes::Dict{String,Vector{String}},
@@ -235,9 +221,6 @@ function extractFeaturesTemplate(
 end
 
 
-
-
-
 function findExclusiveElements(class_dict::Dict{String,Vector{String}})::Dict{String,Vector{String}}
     # Track which classes each string appears in
     presence = Dict{String,Set{String}}()
@@ -266,8 +249,12 @@ function findExclusiveElements(class_dict::Dict{String,Vector{String}})::Dict{St
     return exclusive_dict
 end
 
-#extract from k-mers
-# k-mers list -> run windown slide -> count histogram for most freq -> extract regions
+#=
+    Feature extraction based on exclusive kmers.
+    Extraction process:
+    k-mers list -> run windown slide -> count histogram for most freq -> extract regions
+
+=#
 function wndwExlcusiveKmersHistogram(
     exclusiveKmers::Vector{String},
     wndwSize::UInt16,
@@ -277,7 +264,7 @@ function wndwExlcusiveKmersHistogram(
     kmer_lengths = length.(exclusiveKmers)
     @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
 
-    patterns = [Base.Fix1(Classification.occursinKmerBit, codeunits(kmer)) for kmer in exclusiveKmers]
+    patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in exclusiveKmers]
 
     byte_seqs = [codeunits(s) for s in sequences]
     maxSeqLen = maximum(length, sequences)
@@ -322,10 +309,171 @@ function wndwExlcusiveKmersHistogram(
             # p_idx += 1
         end
     end
-    return histogram, marked
+    return histogram, markstrucutreed
 
 end
 
+function classifyInput(
+    inputSequence::AbstractString,
+    outputfilename::Union{Nothing,AbstractString}=nothing
+)
+
+    @show outputfilename
+    modelCachedFile = "$(pwd())/.project_cache/trained_model.dat"
+
+    model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
+
+    if !isnothing(model)
+        @info "Using model from cached data from $modelCachedFile"
+        classifyInput(inputSequence, model, outputfilename)
+    else
+        error("Model not found in cached files!")
+    end
+
+
+end
+
+#=
+Classification function based on the counters of exclusive kmers appearance.
+
+model structure description (this is the extracted features): Dict{VariantName, (Marked, Fourier Coefficients, Kmers)}
+=#
+function classifyInput(
+    inputSequence::Base.CodeUnits,
+    model::Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}},
+    outputfilename::Union{Nothing,String}
+)
+
+    report = Dict{String,Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}}()
+    for (key, (marked, _, kmers)) in model
+        inputlen = minimum(length, [inputSequence, marked])
+        report[key] = Vector{Tuple{Tuple{UInt16,UInt16},UInt16}}()
+        limitedMark::BitArray = marked[1:inputlen]
+        start = 0
+        current = false
+
+        for (i, bit) in enumerate(limitedMark)
+            if bit && !current
+                start = i
+                current = true
+            elseif !bit && current
+                current = false
+                count = @views countPatterns(inputSequence[start:i-1], kmers)
+
+                push!(report[key], ((start, i - 1), count))
+            end
+        end
+        if current
+            count = @views countPatterns(inputSequence[start:inputlen], kmers)
+            push!(report[key], ((start, inputlen), count))
+        end
+    end
+
+    if !isnothing(outputfilename)
+        open(outputfilename, "w") do file
+            for (var, regions) in report
+                write(file, "\n\n########### $(uppercase(var)) ############")
+                write(file, "\nTotal Exclusive Kmers: $(length(model[var][3]))")
+                write(file, "\n####################################\n")
+                for ((initPos, endPos), count) in regions
+                    write(file, "\nWindow Position( $initPos - $endPos ): \nKmer Count: $count")
+                end
+            end
+        end
+    end
+
+    classifications = Dict{String,Float16}()
+
+    for (var, regions) in report
+        predictions::BitArray = []
+        for ((initPos, endPos), count) in regions
+            push!(predictions, count > 0)
+        end
+        classifications[var] = count(i -> i, predictions) / length(predictions)
+    end
+
+    maxPercent = maximum(x -> x[2], classifications)
+    return findfirst(x -> x == maxPercent, classifications), maxPercent, classifications
+
+end
+
+
+function classifySequence(
+    blockModel::ModelClassBlockStruct,
+    inputSequence::String)
+
+    classifications = Dict{String,Float16}()
+    for block in blockModel.blockmodelchain
+
+        predictions::BitArray = []
+        for (initIdx, endIdx, cross, innerModel) in block.models
+            lastindex(inputSequence) < endIdx && continue
+
+            freIndexes = findall(>(0), cross)
+            isempty(freIndexes) && continue
+
+            minFreq::Int = minimum(freIndexes)
+            maxFreq::Int = maximum(freIndexes)
+
+            subseq = @view inputSequence[initIdx:endIdx]
+            num = DataIO.sequence2AminNumSerie(subseq)
+
+            dft = abs.(rfft(num)[2:end])
+            norm = dft[minFreq:maxFreq]
+
+            input = reduce(hcat, [norm]) |> permutedims
+            raw_output = predict(innerModel, input)[1]
+
+            push!(predictions, raw_output >= 0.5f0)
+
+
+        end
+        classifications[block.class] = count(i -> i, predictions) / length(predictions)
+    end
+    maxPercent = maximum(x -> x[2], classifications)
+    return findfirst(x -> x == maxPercent, classifications), maxPercent, classifications
+end
+
+
+#=
+Count kmers appearance in the region segment, doing a codeunits regex
+=#
+function countPatterns(
+    seqWindow::SubArray,
+    kmers::Vector{String})::UInt8
+
+    patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in kmers]
+    count::UInt8 = 0
+
+    @floop for pattern in patterns
+        if pattern(seqWindow)
+            @reduce count += 1
+        end
+    end
+    return count
+end
+
+
+#=
+Codeunits "regex", beacuse is a byte comparison 
+=#
+function occursinKmerBit(
+    kmer::Base.CodeUnits,
+    windowBuffer::Union{SubArray,Vector{UInt8}}
+)::Bool
+    wlen = length(windowBuffer)
+    klen = length(kmer)
+
+    @inbounds for i in 1:(wlen-klen+1)
+        match = true
+        for j in 1:klen
+            (windowBuffer[i+j-1] ≠ kmer[j]) && (match = false; break)
+        end
+        match && return true
+    end
+    return false
+
+end
 
 end
 
