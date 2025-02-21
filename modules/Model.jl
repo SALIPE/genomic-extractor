@@ -307,7 +307,7 @@ function wndwExlcusiveKmersHistogram(
             # p_idx += 1
         end
     end
-    return histogram, markstrucutreed
+    return histogram, marked
 
 end
 
