@@ -282,7 +282,7 @@ begin
             inputclassdata = Dict{String,Vector{String}}()
 
             for key in classes
-                cache_path = "$(pwd())/.project_cache/$(key)_outmask.dat"
+                cache_path = "$(pwd())/.project_cache/$wnwPercent/$(key)_outmask.dat"
                 vardata::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
                 inputclassdata[key] = vardata[3]
             end
