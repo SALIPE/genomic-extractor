@@ -493,7 +493,7 @@ begin
 
         sequencesClassification(
             args["test-dir"],
-            args["output-directory"],
+            nothing,
             args["window"]
         )
     end
