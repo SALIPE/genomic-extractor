@@ -7,6 +7,7 @@ using .DataIO,
     .TransformUtils,
     Serialization,
     DecisionTree,
+    FASTX,
     AbstractFFTs,
     FFTW,
     FLoops
@@ -126,13 +127,13 @@ end
 # Functio to extract discriminatives features from each class
 function extractFeaturesTemplate(
     wnwPercent::Float32,
-    outputDir::String,
+    outputDir::Union{Nothing,String},
     variantDirPath::String)
 
-    cachdir::String = "$(pwd())/.project_cache"
+    cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
 
     try
-        mkdir(cachdir)
+        mkpath(cachdir)
     catch e
         @error "create cache direcotry failed" exception = (e, catch_backtrace())
     end
@@ -186,6 +187,10 @@ function extractFeaturesTemplate(
 
     for (variant, (_, marked), sequences) in outputs
         fourierCoefficients = Vector{Tuple{Int,Int,Vector{Float64}}}()
+        #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
+        #     png(plt, "$outputDir/$variant")
+        #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
+        #     png(plt, "$outputDir/$(variant)_reg")
 
         minSeqLength::UInt16 = minimum(map(length, sequences))
         limitedMark::BitArray = marked[1:minSeqLength]
@@ -209,14 +214,7 @@ function extractFeaturesTemplate(
         trainedModel[variant] = (marked, fourierCoefficients, exclusiveKmers[variant])
     end
 
-    DataIO.save_cache("$cachdir/trained_model.dat", trainedModel)
-
-    # for (variant, (histogram, marked)) in outputs
-    #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
-    #     png(plt, "$outputDir/$variant")
-    #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
-    #     png(plt, "$outputDir/$(variant)_reg")
-    # end
+    DataIO.save_cache("$cachdir/extracted_features.dat", trainedModel)
 
 end
 
@@ -315,11 +313,12 @@ end
 
 function classifyInput(
     inputSequence::AbstractString,
+    wnwPercent::Float32,
     outputfilename::Union{Nothing,AbstractString}=nothing
 )
 
     @show outputfilename
-    modelCachedFile = "$(pwd())/.project_cache/trained_model.dat"
+    modelCachedFile = "$(pwd())/.project_cache/$wnwPercent/extracted_features.dat"
 
     model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 

@@ -268,10 +268,10 @@ begin
 
     function sequencesClassification(
         folderPath::String,
-        modelPath::Union{Nothing,String},
-        outputdir::Union{Nothing,String}
+        outputdir::Union{Nothing,String},
+        wnwPercent::Float32,
     )
-        modelCachedFile = isnothing(modelPath) ? "$(pwd())/.project_cache/trained_model.dat" : modelPath
+        modelCachedFile = "$(pwd())/.project_cache/$wnwPercent/extracted_features.dat"
 
         model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
 
@@ -333,6 +333,8 @@ begin
                 help="Extract discriminative features for classification")
             ("classify", action=:command,
                 help="Classify sequences using a pre-trained model")
+            ("benchmark", action=:command,
+                help="Benchmark extract features model and classify creating and print confusion matrix")
             ("region-validation", action=:command,
                 help="Validate genomic regions with various parameters")
         end
@@ -341,6 +343,7 @@ begin
         add_convergence_analysis_args!(settings)
         add_extract_model_args!(settings)
         add_classify_args!(settings)
+        add_benchmark_args!(settings)
         add_region_validation_args!(settings)
 
         parsed_args = parse_args(settings)
@@ -352,6 +355,8 @@ begin
                 handle_extract_model(parsed_args["extract-model"])
             elseif parsed_args["%COMMAND%"] == "classify"
                 handle_classify(parsed_args["classify"])
+            elseif parsed_args["%COMMAND%"] == "benchmark"
+                handle_benchmark(parsed_args["benchmark"])
             elseif parsed_args["%COMMAND%"] == "region-validation"
                 handle_region_validation(parsed_args["region-validation"])
             end
@@ -394,16 +399,32 @@ begin
     function add_classify_args!(settings)
         s = settings["classify"]
         @add_arg_table! s begin
-            "-f", "--file"
-            help = "Single Fasta file to classify"
+            "-w", "--window"
+            help = "Sliding window percent size"
+            arg_type = Float32
             required = true
-            arg_type = String
-            "--model"
-            help = "Path to pre-trained model file"
-            arg_type = String
+            "--test-dir"
+            help = "Test dataset path"
+            required = true
             "-o", "--output-directory"
             help = "Output directory for results"
             arg_type = String
+        end
+    end
+
+    function add_benchmark_args!(settings)
+        s = settings["benchmark"]
+        @add_arg_table! s begin
+            "-w", "--window"
+            help = "Sliding window percent size"
+            arg_type = Float32
+            required = true
+            "--train-dir"
+            help = "Training dataset path"
+            required = true
+            "--test-dir"
+            help = "Test dataset path"
+            required = true
         end
     end
 
@@ -455,9 +476,24 @@ begin
     function handle_classify(args)
         @info "Starting classification" args
         sequencesClassification(
-            args["file"],
-            args["model"],
-            args["output-directory"]
+            args["test-dir"],
+            args["output-directory"],
+            args["window"]
+        )
+    end
+
+    function handle_benchmark(args)
+        @info "Starting benchmark" args
+        Model.extractFeaturesTemplate(
+            args["window"],
+            nothing,
+            args["train-dir"]
+        )
+
+        sequencesClassification(
+            args["test-dir"],
+            args["output-directory"],
+            args["window"]
         )
     end
 
