@@ -424,13 +424,21 @@ function classifySequence(
             raw_output = predict(innerModel, input)[1]
 
             push!(predictions, raw_output >= 0.5f0)
-
-
         end
-        classifications[block.class] = count(i -> i, predictions) / length(predictions)
+        if length(predictions) == 0
+            @error "Non discriminative points for classification on class $(block.class)"
+        else
+            classifications[block.class] = count(i -> i, predictions) / length(predictions)
+        end
+
     end
     maxPercent = maximum(x -> x[2], classifications)
-    return findfirst(x -> x == maxPercent, classifications), maxPercent, classifications
+    classification::Union{String,Nothing} = findfirst(x -> x == maxPercent, classifications)
+
+    if isnothing(classification)
+        error("Insufficient data for classification")
+    end
+    return classification, maxPercent, classifications
 end
 
 
