@@ -447,10 +447,10 @@ Count kmers appearance in the region segment, doing a codeunits regex
 =#
 function countPatterns(
     seqWindow::SubArray,
-    kmers::Vector{String})::UInt8
+    kmers::Vector{String})::UInt16
 
     patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in kmers]
-    count::UInt8 = 0
+    count::UInt16 = 0
 
     @floop for pattern in patterns
         if pattern(seqWindow)
