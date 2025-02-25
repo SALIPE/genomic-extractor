@@ -287,7 +287,7 @@ begin
                 inputclassdata[key] = vardata[3]
             end
 
-            mdelstruct = Model.trainModel(inputclassdata, model)
+            # mdelstruct = Model.trainModel(inputclassdata, model)
 
             confMatrix = Dict{String,Tuple{Int,Int}}()
 
@@ -300,8 +300,8 @@ begin
 
                 classifications = String[]
                 for seq in classeqs
-                    cl, _, _ = Model.classifySequence(mdelstruct, seq)
-                    # cl, _, _ = Classification.classifyInput(codeunits(seq), model, nothing)
+                    # cl, _, _ = Model.classifySequence(mdelstruct, seq)
+                    cl, _, _ = Model.classifyInput(codeunits(seq), model, nothing)
                     push!(classifications, cl)
                 end
                 confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
