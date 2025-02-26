@@ -24,6 +24,62 @@ mutable struct ModelClassBlockStruct
 end
 
 #=
+Extract kmers appearance frequence in all the data and create the dataset for clasification
+=#
+function createWndModelData(
+    wnwPercent::Float32,
+    variantDirPath::String
+)
+
+    cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
+
+    try
+        mkpath(cachdir)
+    catch e
+        @error "create cache direcotry failed" exception = (e, catch_backtrace())
+    end
+
+    variantDirs::Vector{String} = readdir(variantDirPath)
+    kmerset = Set{String}()
+
+    @simd for variant in variantDirs
+        variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
+        union!(kmerset, Set(variantKmers))
+    end
+
+    input_data = Vector{Tuple{String,Vector{Vector{Float64}}}}(undef, length(variantDirs))
+
+    @inbounds for v in eachindex(variantDirs)
+        variant::String = variantDirs[v]
+        println("Processing $variant")
+        cache_path = "$cachdir/$(variant)_wndfreqsignals.dat"
+
+        cache::Union{Nothing,Vector{Vector{Float64}}} = DataIO.load_cache(cache_path)
+
+        if !isnothing(cache)
+            @info "Using cached data from $cache_path"
+            input_data[v] = (variant, data)
+        else
+
+            sequences = String[]
+            for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
+                push!(sequences, sequence(String, record))
+            end
+            minSeqLength::UInt16 = minimum(map(length, sequences))
+            wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
+
+            data = Model.wndwSequencesKmersHistogram(kmerset, wnwSize, sequences)
+            DataIO.save_cache(cache_path, data)
+
+            input_data[v] = (variant, data)
+
+        end
+        println("Finish Processing $variant")
+    end
+
+end
+
+#=
 Create blocks for region classification for each class and mask pre-extracted data structure
 =#
 function createModelBlock(
@@ -308,6 +364,49 @@ function wndwExlcusiveKmersHistogram(
         end
     end
     return histogram, marked
+
+end
+
+
+function wndwSequencesKmersHistogram(
+    kmerset::Set{String},
+    wndwSize::UInt16,
+    sequences::Vector{String},
+)::Vector{Vector{Float64}}
+
+    kmer_lengths = length.(kmerset)
+    @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
+
+    patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in kmerset]
+
+    byte_seqs = [codeunits(s) for s in sequences]
+    maxSeqLen = maximum(length, sequences)
+    total_windows = maxSeqLen - wndwSize + 1
+
+    kmer_total::Int = length(kmerset)
+    x_signals = Vector{Vector{Float64}}(undef, length(sequences))
+
+    @floop for (i, seq) in enumerate(byte_seqs)
+        seq_windows = length(seq) - wndwSize + 1
+        seq_hist = zeros(UInt16, seq_windows)
+
+        for initPos in 1:seq_windows
+            endPos = initPos + wndwSize - 1
+            for pattern in patterns
+                if pattern(seq[initPos:endPos])
+                    seq_hist[initPos] += 1
+                end
+            end
+        end
+
+        padded_hist = zeros(UInt16, total_windows)
+        padded_hist[1:length(seq_hist)] = seq_hist
+
+
+        x_signals[i] = Float64.(padded_hist) ./ kmer_total
+    end
+
+    return x_signals
 
 end
 

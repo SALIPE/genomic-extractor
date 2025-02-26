@@ -26,6 +26,7 @@ Manifest.toml
 *.fasta
 /.vscode
 /.project_cache
+notebooks/.project_cache
 *.zip
 *.svg
 *.csv

@@ -467,11 +467,14 @@ begin
 
     function handle_extract_model(args)
         @info "Starting model extraction" args
-        Model.extractFeaturesTemplate(
+        Model.createWndModelData(
             args["window"],
-            args["output-directory"],
-            args["files-directory"]
-        )
+            args["files-directory"])
+        # Model.extractFeaturesTemplate(
+        #     args["window"],
+        #     args["output-directory"],
+        #     args["files-directory"]
+        # )
     end
 
     function handle_classify(args)
