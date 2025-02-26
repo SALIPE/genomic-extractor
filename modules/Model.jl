@@ -58,7 +58,7 @@ function createWndModelData(
 
         if !isnothing(cache)
             @info "Using cached data from $cache_path"
-            input_data[v] = (variant, data)
+            input_data[v] = (variant, cache)
         else
 
             sequences = String[]
