@@ -47,14 +47,14 @@ function createWndModelData(
         union!(kmerset, Set(variantKmers))
     end
 
-    input_data = Vector{Tuple{String,Vector{Vector{Float64}}}}(undef, length(variantDirs))
+    input_data = Vector{Tuple{String,Vector{Vector{UInt64}}}}(undef, length(variantDirs))
 
     @inbounds for v in eachindex(variantDirs)
         variant::String = variantDirs[v]
         println("Processing $variant")
         cache_path = "$cachdir/$(variant)_wndfreqsignals.dat"
 
-        cache::Union{Nothing,Vector{Vector{Float64}}} = DataIO.load_cache(cache_path)
+        cache::Union{Nothing,Vector{Vector{UInt64}}} = DataIO.load_cache(cache_path)
 
         if !isnothing(cache)
             @info "Using cached data from $cache_path"
@@ -372,7 +372,7 @@ function wndwSequencesKmersHistogram(
     kmerset::Set{String},
     wndwSize::UInt16,
     sequences::Vector{String},
-)::Vector{Vector{Float64}}
+)::Vector{Vector{UInt64}}
 
     kmer_lengths = length.(kmerset)
     @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
@@ -383,12 +383,12 @@ function wndwSequencesKmersHistogram(
     maxSeqLen = maximum(length, sequences)
     total_windows = maxSeqLen - wndwSize + 1
 
-    kmer_total::Int = length(kmerset)
-    x_signals = Vector{Vector{Float64}}(undef, length(sequences))
+    # kmer_total::Int = length(kmerset)
+    x_signals = Vector{Vector{UInt64}}(undef, length(sequences))
 
     @floop for (i, seq) in enumerate(byte_seqs)
         seq_windows = length(seq) - wndwSize + 1
-        seq_hist = zeros(UInt16, seq_windows)
+        seq_hist = zeros(UInt64, seq_windows)
 
         for initPos in 1:seq_windows
             endPos = initPos + wndwSize - 1
@@ -399,11 +399,11 @@ function wndwSequencesKmersHistogram(
             end
         end
 
-        padded_hist = zeros(UInt16, total_windows)
+        padded_hist = zeros(UInt64, total_windows)
         padded_hist[1:length(seq_hist)] = seq_hist
 
-
-        x_signals[i] = Float64.(padded_hist) ./ kmer_total
+        x_signals[i] = padded_hist
+        # x_signals[i] = Float64.(padded_hist) ./ kmer_total
     end
 
     return x_signals
