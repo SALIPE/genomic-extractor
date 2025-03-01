@@ -333,6 +333,13 @@ begin
 
         variantDirs::Vector{String} = readdir(variantDirPath)
 
+        kmerset = Set{String}()
+
+        @simd for variant in variantDirs
+            variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
+            union!(kmerset, Set(variantKmers))
+        end
+
         meta_data = Dict{String,Int}()
         byte_seqs = Dict{String,Vector{Base.CodeUnits}}()
         wnw_size = one(Int)
@@ -353,6 +360,7 @@ begin
         end
 
         distribution = NaiveBayes.getKmerAppearences(
+            kmerset,
             meta_data,
             byte_seqs,
             wnw_size)

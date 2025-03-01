@@ -13,6 +13,7 @@ struct VariantDataloader
 end
 
 function getKmerAppearences(
+    kmerset::Set{String},
     meta_data::Dict{String,Int},
     byte_seqs::Dict{String,Vector{Base.CodeUnits}},
     wnw_size::Int
