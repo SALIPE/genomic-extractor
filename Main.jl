@@ -15,6 +15,7 @@ include("modules/EntropyUtil.jl")
 include("modules/TransformUtils.jl")
 include("modules/ConvergenceAnalysis.jl")
 include("modules/Model.jl")
+include("modules/NaiveBayes.jl")
 
 using FLoops,
     FASTX,
@@ -26,6 +27,7 @@ using FLoops,
 using
     .DataIO,
     .Model,
+    .NaiveBayes,
     .TransformUtils,
     .EntropyUtil,
     .ConvergenceAnalysis
@@ -317,6 +319,47 @@ begin
 
     end
 
+    function getKmersDistributinPerClass(
+        wnwPercent::Float32,
+        variantDirPath::String
+    )
+        cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
+
+        try
+            mkpath(cachdir)
+        catch e
+            @error "create cache direcotry failed" exception = (e, catch_backtrace())
+        end
+
+        variantDirs::Vector{String} = readdir(variantDirPath)
+
+        meta_data = Dict{String,Int}()
+        byte_seqs = Dict{String,Vector{Base.CodeUnits}}()
+        wnw_size = one(Int)
+
+        for variant in variantDirs
+            byte_seqs[variant] = Vector{Base.CodeUnits}()
+
+            for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
+                push!(byte_seqs[variant], codeunits(sequence(String, record)))
+            end
+
+            minSeqLength::Int = minimum(map(length, byte_seqs[variant]))
+            if (wnw_size == one(Int) || wnw_size > minSeqLength)
+                wnw_size = ceil(Int, minSeqLength * wnwPercent)
+            end
+
+            meta_data[variant] = length(byte_seqs[variant])
+        end
+
+        distribution = NaiveBayes.getKmerAppearences(
+            meta_data,
+            byte_seqs,
+            wnw_size)
+
+        DataIO.save_cache("$cachdir/kmers_appearances.dat", distribution)
+    end
+
 
     function main()
         settings = ArgParseSettings(
@@ -467,9 +510,14 @@ begin
 
     function handle_extract_model(args)
         @info "Starting model extraction" args
-        Model.createWndModelData(
+
+        getKmersDistributinPerClass(
             args["window"],
-            args["files-directory"])
+            args["files-directory"]
+        )
+        # Model.createWndModelData(
+        #     args["window"],
+        #     args["files-directory"])
         # Model.extractFeaturesTemplate(
         #     args["window"],
         #     args["output-directory"],
