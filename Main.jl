@@ -148,10 +148,10 @@ begin
 
     end
 
-    ```
-        Do a comparison betweeen variant class regions based on the euclidian distance
-        the comparison should be a explanation to why use a consensus signal for class classfication evaluation
-    ```
+    #=
+         Do a comparison betweeen variant class regions based on the euclidian distance
+         the comparison should be a explanation to why use a consensus signal for class classfication evaluation
+     =#
     function compareVariantClassPerDistance(
         wnwPercent::Float32,
         output::String,
