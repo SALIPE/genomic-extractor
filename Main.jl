@@ -328,7 +328,7 @@ begin
         try
             mkpath(cachdir)
         catch e
-            @error "create cache direcotry failed" exception = (e, catch_backtrace())
+            @error "create cache directory failed" exception = (e, catch_backtrace())
         end
 
         variantDirs::Vector{String} = readdir(variantDirPath)
@@ -359,13 +359,15 @@ begin
             meta_data[variant] = length(byte_seqs[variant])
         end
 
+        @info "Window size value: $wnw_size"
+
         distribution = NaiveBayes.getKmerAppearences(
             kmerset,
             meta_data,
             byte_seqs,
             wnw_size)
 
-        DataIO.save_cache("$cachdir/kmers_appearances.dat", distribution)
+        DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
     end
 
 

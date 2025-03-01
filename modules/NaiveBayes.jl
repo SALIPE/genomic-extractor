@@ -25,6 +25,7 @@ function getKmerAppearences(
     distribution = Vector{Tuple{String,Dict{String,Vector{UInt64}}}}(undef, length(kmerset))
 
     @floop for (i, kmer) in enumerate(collect(kmerset))
+        @show kmer
         distribution[i] = (kmer, get_appearences(codeunits(kmer)))
     end
 
