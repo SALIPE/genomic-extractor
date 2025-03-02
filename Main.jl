@@ -361,7 +361,7 @@ begin
 
         @info "Window size value: $wnw_size"
 
-        distribution = NaiveBayes.getKmerAppearences(
+        distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
             kmerset,
             meta_data,
             byte_seqs,
