@@ -15,26 +15,26 @@ function fitMulticlassNB(
     kmerset::Set{String},
     meta_data::Dict{String,Int},
     byte_seqs::Dict{String,Vector{Base.CodeUnits}},
-    wnw_size::Int
+    wnw_size::Int,
+    max_seq_windows::Int
 )::MultiClassNaiveBayes
 
 
-    seq_windows = maximum(x -> length(x[2]), byte_seqs) - wnw_size + 1
-
-    @info seq_windows
     priors = Dict{String,Float64}()
     class_string_probs = Dict{String,Dict{String,Vector{Float64}}}()
 
     total_samples = sum(x -> x[2], meta_data)
 
     for (class, seq_total) in meta_data
-        get_class_appearences = Base.Fix1(def_kmer_classes_probs, byte_seqs[class])
 
-        create_kmer_distribution = [Base.Fix1(get_class_appearences, kmer) for kmer in collect(kmerset)]
+        println("Calculating $class probabilities")
 
-        kmer_distribution = Dict{String,Vector{Float64}}([(kmer, Vector{Float64}(undef, seq_windows)) for kmer in kmerset])
-        @floop for get_appearences in create_kmer_distribution
-            kmer, seq_histogram = get_appearences()
+        get_class_appearences = Base.Fix1(def_kmer_classes_probs, (wnw_size, max_seq_windows, byte_seqs[class]))
+
+        kmer_distribution = Dict{String,Vector{Float64}}([(kmer, Vector{Float64}(undef, max_seq_windows)) for kmer in kmerset])
+
+        @floop for kmer in collect(kmerset)
+            kmer, seq_histogram = get_class_appearences(kmer)
             kmer_distribution[kmer] = seq_histogram ./ seq_total
         end
         class_string_probs[class] = seq_total / total_samples
@@ -44,19 +44,19 @@ function fitMulticlassNB(
 end
 
 function def_kmer_classes_probs(
-    seq_data::Tuple{Int,Vector{Base.CodeUnits}},
+    seq_data::Tuple{Int,Int,Vector{Base.CodeUnits}},
     kmer::String)::Tuple{String,Vector{UInt64}}
 
-    seq_windows, sequences = seq_data
+    wnw_size, max_seq_windows, sequences = seq_data
 
     fn_occursin = Base.Fix1(Model.occursinKmerBit, codeunits(kmer))
-    seq_histogram = zeros(UInt64, seq_windows)
+    seq_histogram = zeros(UInt64, max_seq_windows)
 
-    for seq in sequences
-        seq_windows = length(seq) - data.wnw_size + 1
+    @floop for seq in sequences
+        seq_windows = length(seq) - wnw_size + 1
 
         for initPos in 1:seq_windows
-            endPos = initPos + data.wnw_size - 1
+            endPos = initPos + wnw_size - 1
             wndw_buffer = @view seq[initPos:endPos]
 
             if fn_occursin(wndw_buffer)

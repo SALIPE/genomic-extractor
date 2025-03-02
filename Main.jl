@@ -343,6 +343,7 @@ begin
         meta_data = Dict{String,Int}()
         byte_seqs = Dict{String,Vector{Base.CodeUnits}}()
         wnw_size = one(Int)
+        max_seq_len = one(Int)
 
         for variant in variantDirs
             byte_seqs[variant] = Vector{Base.CodeUnits}()
@@ -352,20 +353,33 @@ begin
             end
 
             minSeqLength::Int = minimum(map(length, byte_seqs[variant]))
-            if (wnw_size == one(Int) || wnw_size > minSeqLength)
-                wnw_size = ceil(Int, minSeqLength * wnwPercent)
+            maxSeqLength::Int = maximum(map(length, byte_seqs[variant]))
+
+            class_wnw_size = ceil(Int, minSeqLength * wnwPercent)
+
+            if (wnw_size == one(Int) || wnw_size > class_wnw_size)
+                wnw_size = class_wnw_size
             end
+
+            if (max_seq_len == one(Int) || maxSeqLength > max_seq_len)
+                max_seq_len = maxSeqLength
+            end
+
 
             meta_data[variant] = length(byte_seqs[variant])
         end
 
         @info "Window size value: $wnw_size"
 
+        max_seq_windows = max_seq_len - wnw_size + 1
+        @info "Prob log vector length: $max_seq_windows"
+
         distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
             kmerset,
             meta_data,
             byte_seqs,
-            wnw_size)
+            wnw_size,
+            max_seq_windows)
 
         DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
     end
