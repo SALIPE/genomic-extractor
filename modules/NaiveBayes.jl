@@ -42,7 +42,7 @@ function fitMulticlassNB(
         priors[class] = seq_total / total_samples
     end
 
-    return MultiClassNaiveBayes(keys(meta_data), priors, class_string_probs)
+    return MultiClassNaiveBayes([class for (class, _) in meta_data], priors, class_string_probs)
 end
 
 function def_kmer_classes_probs(
