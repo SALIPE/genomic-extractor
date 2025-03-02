@@ -37,7 +37,9 @@ function fitMulticlassNB(
             kmer, seq_histogram = get_class_appearences(kmer)
             kmer_distribution[kmer] = seq_histogram ./ seq_total
         end
-        class_string_probs[class] = seq_total / total_samples
+
+        class_string_probs[class] = kmer_distribution
+        priors[class] = seq_total / total_samples
     end
 
     return MultiClassNaiveBayes(keys(meta_data), priors, class_string_probs)
