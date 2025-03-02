@@ -332,9 +332,6 @@ begin
 
         confMatrix = Dict{String,Tuple{Int,Int}}()
 
-        wnw_size::Int = 119
-        max_seq_windows::Int = 29789
-
         classify = Base.Fix1(NaiveBayes.predict, model)
 
         for class in model.classes
@@ -348,9 +345,9 @@ begin
             classifications = String[]
             for seq in classeqs
 
-                kmer_distribution = Dict{String,BitArray}([(kmer, falses(max_seq_windows)) for kmer in kmers])
+                kmer_distribution = Dict{String,BitArray}([(kmer, falses(model.max_seq_windows)) for kmer in kmers])
 
-                get_appearences = Base.Fix1(NaiveBayes.def_kmer_presence, (wnw_size, max_seq_windows, seq))
+                get_appearences = Base.Fix1(NaiveBayes.def_kmer_presence, (model.wnw_size, model.max_seq_windows, seq))
 
                 @floop for kmer in kmers
                     kmer, seq_presence = get_appearences(kmer)
@@ -362,7 +359,6 @@ begin
                 push!(classifications, cl)
             end
             confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
-            break
         end
         @info confMatrix
     end
@@ -608,13 +604,12 @@ begin
 
     function handle_benchmark(args)
         @info "Starting benchmark" args
-        Model.extractFeaturesTemplate(
+        getKmersDistributinPerClass(
             args["window"],
-            nothing,
             args["train-dir"]
         )
 
-        sequencesClassification(
+        naiveBayesClassification(
             args["test-dir"],
             nothing,
             args["window"]

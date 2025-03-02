@@ -9,6 +9,8 @@ struct MultiClassNaiveBayes
     classes::Vector{String}
     priors::Dict{String,Float64}
     class_string_probs::Dict{String,Dict{String,Vector{Float64}}}
+    wnw_size::Int
+    max_seq_windows::Int
 end
 
 function fitMulticlassNB(
@@ -42,7 +44,7 @@ function fitMulticlassNB(
         priors[class] = seq_total / total_samples
     end
 
-    return MultiClassNaiveBayes([class for (class, _) in meta_data], priors, class_string_probs)
+    return MultiClassNaiveBayes([class for (class, _) in meta_data], priors, class_string_probs, wnw_size, max_seq_windows)
 end
 
 function def_kmer_classes_probs(
