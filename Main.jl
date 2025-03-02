@@ -344,6 +344,7 @@ begin
                 push!(classeqs, codeunits(seq))
             end
 
+            @info "Classyfing $class sequences:"
             classifications = String[]
             for seq in classeqs
 
