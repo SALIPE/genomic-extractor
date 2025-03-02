@@ -71,12 +71,37 @@ function def_kmer_classes_probs(
     return (kmer, seq_histogram)
 end
 
+function def_kmer_presence(
+    seq_data::Tuple{Int,Int,Base.CodeUnits},
+    kmer::String
+)::Tuple{String,BitArray}
+
+    wnw_size, max_seq_windows, seq = seq_data
+
+    fn_occursin = Base.Fix1(Model.occursinKmerBit, codeunits(kmer))
+    seq_presence = falses(max_seq_windows)
+
+    seq_windows = length(seq) - wnw_size + 1
+
+    for initPos in 1:seq_windows
+        endPos = initPos + wnw_size - 1
+        wndw_buffer = @view seq[initPos:endPos]
+
+        if fn_occursin(wndw_buffer)
+            seq_histogram[initPos] = 1
+        end
+    end
+
+    return (kmer, seq_presence)
+
+end
+
 
 function predict(
     model::MultiClassNaiveBayes,
-    X::Dict{String,Vector{Float64}}  # Input: Probabilities for each string
-)
-    log_probs = Dict{Any,Float64}()
+    X::Dict{String,BitArray}
+)::String
+    log_probs = Dict{String,Float64}()
 
     for c in model.classes
         log_prob = log(model.priors[c])  # Log prior

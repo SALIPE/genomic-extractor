@@ -316,7 +316,54 @@ begin
             @error "Model not found in cached files!"
         end
 
+    end
 
+    function naiveBayesClassification(
+        folderPath::String,
+        outputdir::Union{Nothing,String},
+        wnwPercent::Float32,
+    )
+
+        modelCachedFile = "$(pwd())/.project_cache/$wnwPercent/kmers_distribution.dat"
+
+        model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache(modelCachedFile)
+
+        kmers = keys(model.class_string_probs[model.classes[1]])
+
+        confMatrix = Dict{String,Tuple{Int,Int}}()
+
+        wnw_size::Int = 119
+        max_seq_windows::Int = 29789
+
+        classify = Base.Fix1(NaiveBayes.predict, model)
+
+        for class in model.classes
+            classeqs = Vector{Base.CodeUnits}()
+            for record in open(FASTAReader, "$folderPath/$class.fasta")
+                seq::String = sequence(String, record)
+                push!(classeqs, codeunits(seq))
+            end
+
+            classifications = String[]
+            for seq in classeqs
+
+                kmer_distribution = Dict{String,BitArray}([(kmer, falses(max_seq_windows)) for kmer in kmers])
+
+                get_appearences = Base.Fix1(NaiveBayes.def_kmer_presence, (wnw_size, max_seq_windows, seq))
+
+                @floop for kmer in kmers
+                    kmer, seq_presence = get_appearences(kmer)
+                    kmer_distribution[kmer] = seq_presence
+                end
+
+                cl = classify(kmer_distribution)
+                @show cl
+                push!(classifications, cl)
+            end
+            confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
+            break
+        end
+        @info confMatrix
     end
 
     function getKmersDistributinPerClass(
@@ -551,7 +598,7 @@ begin
 
     function handle_classify(args)
         @info "Starting classification" args
-        sequencesClassification(
+        naiveBayesClassification(
             args["test-dir"],
             nothing,
             args["window"]
