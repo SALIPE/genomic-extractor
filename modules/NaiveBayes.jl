@@ -88,7 +88,7 @@ function def_kmer_presence(
         wndw_buffer = @view seq[initPos:endPos]
 
         if fn_occursin(wndw_buffer)
-            seq_histogram[initPos] = 1
+            seq_presence[initPos] = 1
         end
     end
 
