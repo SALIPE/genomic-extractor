@@ -325,12 +325,11 @@ begin
     )
 
         modelCachedFile = "$(pwd())/.project_cache/$wnwPercent/kmers_distribution.dat"
-
         model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache(modelCachedFile)
-
         kmers = keys(model.class_string_probs[model.classes[1]])
 
-        confMatrix = Dict{String,Tuple{Int,Int}}()
+        # confMatrix = Dict{String,Tuple{Int,Int}}()
+        classification_probs = Dict{String,Vector{Dict{String,Float64}}}()
 
         classify = Base.Fix1(NaiveBayes.predict, model)
 
@@ -342,8 +341,8 @@ begin
             end
 
             @info "Classyfing $class sequences:"
-            classifications = String[]
-            for seq in classeqs
+            classifications = Vector{Dict{String,Float64}}(undef, length(classeqs))
+            for (i, seq) in enumerate(classeqs)
 
                 kmer_distribution = Dict{String,BitArray}([(kmer, falses(model.max_seq_windows)) for kmer in kmers])
 
@@ -354,13 +353,21 @@ begin
                     kmer_distribution[kmer] = seq_presence
                 end
 
-                cl = classify(kmer_distribution)
-                @show cl
-                push!(classifications, cl)
+                classifications[i] = classify(kmer_distribution)
             end
-            confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
+            classification_probs[class] = classifications
+            # confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
         end
-        @info confMatrix
+
+        open("$(pwd())/classification_logprobs.txt", "w") do file
+            for (var, classifications) in classification_probs
+                write(file, "\n\n########### $(uppercase(var)) ############")
+                write(file, "\n####################################\n")
+                for (class, prob) in classifications
+                    write(file, "\n\t$class prob: $prob")
+                end
+            end
+        end
     end
 
     function getKmersDistributinPerClass(
@@ -594,7 +601,7 @@ begin
     end
 
     function handle_classify(args)
-        @info "Starting classification" args
+        @info "Starting classification"
         naiveBayesClassification(
             args["test-dir"],
             nothing,

@@ -102,35 +102,42 @@ end
 function predict(
     model::MultiClassNaiveBayes,
     X::Dict{String,BitArray}
-)::String
-    log_probs = Dict{String,Float64}()
+)::Dict{String,Float64}
+    log_probs = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
+
+    likelihood_fns = [Base.Fix1(getLikelihood, (string, input_probs)) for (string, input_probs) in X]
 
     for c in model.classes
-        log_prob = log(model.priors[c])  # Log prior
+        log_prob = log(model.priors[c])
 
-        for (string, input_probs) in X
-            # Get the class's precomputed probabilities for this string
-            class_probs = model.class_string_probs[c][string]
-
-            # Compute the dot product between input probabilities and class probabilities
-            likelihood = sum(input_probs .* class_probs)
-
-            # Avoid log(0) by adding a small epsilon (e.g., 1e-9)
-            likelihood = max(likelihood, 1e-9)
-
-            log_prob += log(likelihood)
+        @floop for get_likelihood in likelihood_fns
+            likelihood = get_likelihood(model.class_string_probs[c])
+            @reduce log_prob += log(likelihood)
         end
 
         log_probs[c] = log_prob
     end
 
     # Return the class with the highest log probability
-    return argmax(log_probs)
+    # return argmax(log_probs), log_probs
+    return log_probs
 end
 
+function getLikelihood(
+    input::Tuple{String,BitArray},
+    class_string_probs
+)
+    (string, input_probs) = input
+    # Get the class's precomputed probabilities for this string
+    class_probs = class_string_probs[string]
 
+    # Compute the dot product between input probabilities and class probabilities
+    likelihood = sum(input_probs .* class_probs)
+    # Avoid log(0) by adding a small epsilon (e.g., 1e-9)
+    likelihood = max(likelihood, 1e-9)
 
-
+    return likelihood
+end
 
 
 end
