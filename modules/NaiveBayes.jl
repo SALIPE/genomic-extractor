@@ -102,7 +102,7 @@ end
 function predict(
     model::MultiClassNaiveBayes,
     X::Dict{String,BitArray}
-)::Dict{String,Float64}
+)::Tuple{String,Dict{String,Float64}}
     log_probs = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
 
     likelihood_fns = [Base.Fix1(getLikelihood, (string, input_probs)) for (string, input_probs) in X]
@@ -119,8 +119,8 @@ function predict(
     end
 
     # Return the class with the highest log probability
-    # return argmax(log_probs), log_probs
-    return log_probs
+    return argmax(log_probs), log_probs
+    # return log_probs
 end
 
 function getLikelihood(

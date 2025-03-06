@@ -341,7 +341,7 @@ begin
             end
 
             @info "Classyfing $class sequences:"
-            classifications = Vector{Dict{String,Float64}}(undef, length(classeqs))
+            classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
             for (i, seq) in enumerate(classeqs)
 
                 kmer_distribution = Dict{String,BitArray}([(kmer, falses(model.max_seq_windows)) for kmer in kmers])
@@ -363,8 +363,12 @@ begin
             for (var, classifications) in classification_probs
                 write(file, "\n\n########### $(uppercase(var)) ############")
                 write(file, "\n####################################\n")
-                for (class, prob) in classifications
-                    write(file, "\n\t$class prob: $prob")
+                @inbounds for i in eachindex(classifications)
+                    cl, probs = classifications[i]
+                    write(file, "\n#### Sample $i - Classified: $cl #####")
+                    for (class, prob) in probs
+                        write(file, "\n\t$class prob: $prob")
+                    end
                 end
             end
         end
