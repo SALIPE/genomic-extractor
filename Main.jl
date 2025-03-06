@@ -329,7 +329,7 @@ begin
         kmers = keys(model.class_string_probs[model.classes[1]])
 
         # confMatrix = Dict{String,Tuple{Int,Int}}()
-        classification_probs = Dict{String,Vector{Dict{String,Float64}}}()
+        classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
 
         classify = Base.Fix1(NaiveBayes.predict, model)
 
