@@ -54,19 +54,22 @@ function def_kmer_classes_probs(
     wnw_size, max_seq_windows, sequences = seq_data
 
     fn_occursin = Base.Fix1(Model.occursinKmerBit, codeunits(kmer))
-    seq_histogram = zeros(UInt64, max_seq_windows)
 
     @floop for seq in sequences
         seq_windows = length(seq) - wnw_size + 1
-
+        local_seq_histogram = zeros(UInt64, max_seq_windows)
         for initPos in 1:seq_windows
             endPos = initPos + wnw_size - 1
             wndw_buffer = @view seq[initPos:endPos]
 
             if fn_occursin(wndw_buffer)
-                seq_histogram[initPos] += 1
+                local_seq_histogram[initPos] += 1
             end
         end
+
+        @reduce(
+            seq_histogram = zeros(UInt64, max_seq_windows) .+ local_seq_histogram
+        )
 
     end
 
