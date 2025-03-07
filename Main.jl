@@ -358,6 +358,7 @@ begin
             # classification_probs[class] = classifications
             confMatrix[class] = (count(x -> x[1] == class, classifications), length(classifications))
         end
+        @show confMatrix
 
         # open("$(pwd())/classification_logprobs.txt", "w") do file
         #     for (var, classifications) in classification_probs
