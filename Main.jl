@@ -328,8 +328,8 @@ begin
         model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache(modelCachedFile)
         kmers = keys(model.class_string_probs[model.classes[1]])
 
-        # confMatrix = Dict{String,Tuple{Int,Int}}()
-        classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
+        confMatrix = Dict{String,Tuple{Int,Int}}()
+        # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
 
         classify = Base.Fix1(NaiveBayes.predict, model)
 
@@ -355,23 +355,23 @@ begin
 
                 classifications[i] = classify(kmer_distribution)
             end
-            classification_probs[class] = classifications
-            # confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
+            # classification_probs[class] = classifications
+            confMatrix[class] = (count(x -> x[1] == class, classifications), length(classifications))
         end
 
-        open("$(pwd())/classification_logprobs.txt", "w") do file
-            for (var, classifications) in classification_probs
-                write(file, "\n\n########### $(uppercase(var)) ############")
-                write(file, "\n####################################\n")
-                @inbounds for i in eachindex(classifications)
-                    cl, probs = classifications[i]
-                    write(file, "\n#### Sample $i - Classified: $cl #####")
-                    for (class, prob) in probs
-                        write(file, "\n\t$class prob: $prob")
-                    end
-                end
-            end
-        end
+        # open("$(pwd())/classification_logprobs.txt", "w") do file
+        #     for (var, classifications) in classification_probs
+        #         write(file, "\n\n########### $(uppercase(var)) ############")
+        #         write(file, "\n####################################\n")
+        #         @inbounds for i in eachindex(classifications)
+        #             cl, probs = classifications[i]
+        #             write(file, "\n#### Sample $i - Classified: $cl #####")
+        #             for (class, prob) in probs
+        #                 write(file, "\n\t$class prob: $prob")
+        #             end
+        #         end
+        #     end
+        # end
     end
 
     function getKmersDistributinPerClass(
