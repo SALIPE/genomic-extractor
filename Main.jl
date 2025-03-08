@@ -343,8 +343,8 @@ begin
             classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
             for (i, seq) in enumerate(classeqs)
 
-
-                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.wnw_size, model.max_seq_windows, [seq]))
+                input::Vector{Base.CodeUnits} = [seq]
+                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.wnw_size, model.max_seq_windows, input))
 
                 @floop for kmer in collect(model.kmerset)
                     kmer_seq_histogram = get_appearences(kmer)
