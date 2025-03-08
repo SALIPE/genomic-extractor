@@ -399,9 +399,11 @@ begin
             variantDirs::Vector{String} = readdir(variantDirPath)
 
             kmerset = Set{String}()
+            kmers_dist = Dict{String,Int}()
 
             @simd for variant in variantDirs
                 variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
+                kmers_dist[variant] = length(variantKmers)
                 union!(kmerset, Set(variantKmers))
             end
 
@@ -441,6 +443,7 @@ begin
 
             distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
                 kmerset,
+                kmers_dist,
                 meta_data,
                 byte_seqs,
                 wnw_size,

@@ -16,6 +16,7 @@ end
 
 function fitMulticlassNB(
     kmerset::Set{String},
+    kmers_dist::Dict{String,Int},
     meta_data::Dict{String,Int},
     byte_seqs::Dict{String,Vector{Base.CodeUnits}},
     wnw_size::Int,
@@ -25,9 +26,9 @@ function fitMulticlassNB(
     priors = Dict{String,Float64}()
     class_string_probs = Dict{String,Vector{Float64}}()
 
-    total_samples = sum(x -> x[2], meta_data)
+    total_samples = sum(x -> x[2], kmers_dist)
 
-    for (class, seq_total) in meta_data
+    for (class, _) in meta_data
 
         println("Calculating $class probabilities")
 
@@ -43,7 +44,7 @@ function fitMulticlassNB(
 
         # Process Overall Frequence
         class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
-        priors[class] = seq_total / total_samples
+        priors[class] = kmers_dist[class] / total_samples
     end
 
     return MultiClassNaiveBayes(
