@@ -326,7 +326,6 @@ begin
 
         modelCachedFile = "$(pwd())/.project_cache/$wnwPercent/kmers_distribution.dat"
         model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache(modelCachedFile)
-        kmers = keys(model.class_string_probs[model.classes[1]])
 
         confMatrix = Dict{String,Tuple{Int,Int}}()
         # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
@@ -344,16 +343,19 @@ begin
             classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
             for (i, seq) in enumerate(classeqs)
 
-                kmer_distribution = Dict{String,BitArray}([(kmer, falses(model.max_seq_windows)) for kmer in kmers])
 
-                get_appearences = Base.Fix1(NaiveBayes.def_kmer_presence, (model.wnw_size, model.max_seq_windows, seq))
+                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.wnw_size, model.max_seq_windows, [seq]))
 
-                @floop for kmer in kmers
-                    kmer, seq_presence = get_appearences(kmer)
-                    kmer_distribution[kmer] = seq_presence
+                @floop for kmer in collect(model.kmerset)
+                    kmer_seq_histogram = get_appearences(kmer)
+
+                    @reduce(
+                        kmer_distribution = zeros(UInt64, model.max_seq_windows) .+ kmer_seq_histogram
+                    )
                 end
 
-                classifications[i] = classify(kmer_distribution)
+                seq_distribution = kmer_distribution ./ length(model.kmerset)
+                classifications[i] = classify(seq_distribution)
             end
             # classification_probs[class] = classifications
             confMatrix[class] = (count(x -> x[1] == class, classifications), length(classifications))
@@ -387,57 +389,64 @@ begin
             @error "create cache directory failed" exception = (e, catch_backtrace())
         end
 
-        variantDirs::Vector{String} = readdir(variantDirPath)
+        model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
 
-        kmerset = Set{String}()
+        if !isnothing(model)
+            @info "Model already processed from cached data from $cachdir"
+        else
 
-        @simd for variant in variantDirs
-            variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
-            union!(kmerset, Set(variantKmers))
+            variantDirs::Vector{String} = readdir(variantDirPath)
+
+            kmerset = Set{String}()
+
+            @simd for variant in variantDirs
+                variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
+                union!(kmerset, Set(variantKmers))
+            end
+
+            meta_data = Dict{String,Int}()
+            byte_seqs = Dict{String,Vector{Base.CodeUnits}}()
+            wnw_size = one(Int)
+            max_seq_len = one(Int)
+
+            for variant in variantDirs
+                byte_seqs[variant] = Vector{Base.CodeUnits}()
+
+                for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
+                    push!(byte_seqs[variant], codeunits(sequence(String, record)))
+                end
+
+                minSeqLength::Int = minimum(map(length, byte_seqs[variant]))
+                maxSeqLength::Int = maximum(map(length, byte_seqs[variant]))
+
+                class_wnw_size = ceil(Int, minSeqLength * wnwPercent)
+
+                if (wnw_size == one(Int) || wnw_size > class_wnw_size)
+                    wnw_size = class_wnw_size
+                end
+
+                if (max_seq_len == one(Int) || maxSeqLength > max_seq_len)
+                    max_seq_len = maxSeqLength
+                end
+
+
+                meta_data[variant] = length(byte_seqs[variant])
+            end
+
+            @info "Window size value: $wnw_size"
+
+            max_seq_windows = max_seq_len - wnw_size + 1
+            @info "Prob log vector length: $max_seq_windows"
+
+            distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
+                kmerset,
+                meta_data,
+                byte_seqs,
+                wnw_size,
+                max_seq_windows)
+
+            DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
         end
-
-        meta_data = Dict{String,Int}()
-        byte_seqs = Dict{String,Vector{Base.CodeUnits}}()
-        wnw_size = one(Int)
-        max_seq_len = one(Int)
-
-        for variant in variantDirs
-            byte_seqs[variant] = Vector{Base.CodeUnits}()
-
-            for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
-                push!(byte_seqs[variant], codeunits(sequence(String, record)))
-            end
-
-            minSeqLength::Int = minimum(map(length, byte_seqs[variant]))
-            maxSeqLength::Int = maximum(map(length, byte_seqs[variant]))
-
-            class_wnw_size = ceil(Int, minSeqLength * wnwPercent)
-
-            if (wnw_size == one(Int) || wnw_size > class_wnw_size)
-                wnw_size = class_wnw_size
-            end
-
-            if (max_seq_len == one(Int) || maxSeqLength > max_seq_len)
-                max_seq_len = maxSeqLength
-            end
-
-
-            meta_data[variant] = length(byte_seqs[variant])
-        end
-
-        @info "Window size value: $wnw_size"
-
-        max_seq_windows = max_seq_len - wnw_size + 1
-        @info "Prob log vector length: $max_seq_windows"
-
-        distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
-            kmerset,
-            meta_data,
-            byte_seqs,
-            wnw_size,
-            max_seq_windows)
-
-        DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
     end
 
 
