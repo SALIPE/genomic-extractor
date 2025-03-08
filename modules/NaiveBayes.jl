@@ -8,7 +8,7 @@ export NaiveBayes
 struct MultiClassNaiveBayes
     classes::Vector{String}
     priors::Dict{String,Float64}
-    class_string_probs::Dict{String,Dict{String,Vector{Float64}}}
+    class_string_probs::Dict{String,Vector{Float64}}
     wnw_size::Int
     max_seq_windows::Int
 end
@@ -21,9 +21,8 @@ function fitMulticlassNB(
     max_seq_windows::Int
 )::MultiClassNaiveBayes
 
-
     priors = Dict{String,Float64}()
-    class_string_probs = Dict{String,Dict{String,Vector{Float64}}}()
+    class_string_probs = Dict{String,Vector{Float64}}()
 
     total_samples = sum(x -> x[2], meta_data)
 
@@ -33,23 +32,27 @@ function fitMulticlassNB(
 
         get_class_appearences = Base.Fix1(def_kmer_classes_probs, (wnw_size, max_seq_windows, byte_seqs[class]))
 
-        kmer_distribution = Dict{String,Vector{Float64}}([(kmer, Vector{Float64}(undef, max_seq_windows)) for kmer in kmerset])
-
         @floop for kmer in collect(kmerset)
-            kmer, seq_histogram = get_class_appearences(kmer)
-            kmer_distribution[kmer] = seq_histogram ./ seq_total
+            kmer_seq_histogram = get_class_appearences(kmer)
+
+            @reduce(
+                kmer_distribution = zeros(UInt64, max_seq_windows) .+ kmer_seq_histogram
+            )
         end
 
-        class_string_probs[class] = kmer_distribution
+        # Process Overall Frequence
+        class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
         priors[class] = seq_total / total_samples
     end
 
     return MultiClassNaiveBayes([class for (class, _) in meta_data], priors, class_string_probs, wnw_size, max_seq_windows)
 end
 
+
+
 function def_kmer_classes_probs(
     seq_data::Tuple{Int,Int,Vector{Base.CodeUnits}},
-    kmer::String)::Tuple{String,Vector{UInt64}}
+    kmer::String)::Vector{UInt64}
 
     wnw_size, max_seq_windows, sequences = seq_data
 
@@ -73,7 +76,7 @@ function def_kmer_classes_probs(
 
     end
 
-    return (kmer, seq_histogram)
+    return seq_histogram
 end
 
 function def_kmer_presence(
