@@ -8,7 +8,7 @@ export NaiveBayes
 struct MultiClassNaiveBayes
     classes::Vector{String}
     priors::Dict{String,Float64}
-    class_string_probs::Dict{String,Vector{Float64}}
+    class_string_probs::Dict{String,Vector{Int}}
     wnw_size::Int
     max_seq_windows::Int
     kmerset::Set{String}
@@ -23,7 +23,7 @@ function fitMulticlassNB(
 )::MultiClassNaiveBayes
 
     priors = Dict{String,Float64}()
-    class_string_probs = Dict{String,Vector{Float64}}()
+    class_string_probs = Dict{String,Vector{Int}}()
 
     total_samples = sum(x -> x[2], meta_data)
 
@@ -41,8 +41,10 @@ function fitMulticlassNB(
             )
         end
 
+        class_string_probs[class] = kmer_distribution
+
         # Process Overall Frequence
-        class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
+        # class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
         priors[class] = seq_total / total_samples
     end
 
