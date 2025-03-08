@@ -8,7 +8,7 @@ export NaiveBayes
 struct MultiClassNaiveBayes
     classes::Vector{String}
     priors::Dict{String,Float64}
-    class_string_probs::Dict{String,Vector{Int}}
+    class_string_probs::Dict{String,Vector{Float64}}
     wnw_size::Int
     max_seq_windows::Int
     kmerset::Set{String}
@@ -23,7 +23,7 @@ function fitMulticlassNB(
 )::MultiClassNaiveBayes
 
     priors = Dict{String,Float64}()
-    class_string_probs = Dict{String,Vector{Int}}()
+    class_string_probs = Dict{String,Vector{Float64}}()
 
     total_samples = sum(x -> x[2], meta_data)
 
@@ -41,10 +41,8 @@ function fitMulticlassNB(
             )
         end
 
-        class_string_probs[class] = kmer_distribution
-
         # Process Overall Frequence
-        # class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
+        class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
         priors[class] = seq_total / total_samples
     end
 
@@ -69,7 +67,7 @@ function def_kmer_classes_probs(
 
     @floop for seq in sequences
         seq_windows = length(seq) - wnw_size + 1
-        local_seq_histogram = zeros(UInt64, max_seq_windows)
+        local_seq_histogram = ones(UInt64, max_seq_windows)
         for initPos in 1:seq_windows
             endPos = initPos + wnw_size - 1
             wndw_buffer = @view seq[initPos:endPos]
@@ -80,7 +78,7 @@ function def_kmer_classes_probs(
         end
 
         @reduce(
-            seq_histogram = zeros(UInt64, max_seq_windows) .+ local_seq_histogram
+            seq_histogram = ones(UInt64, max_seq_windows) .+ local_seq_histogram
         )
 
     end
