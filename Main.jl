@@ -385,6 +385,7 @@ begin
 
         try
             mkpath(cachdir)
+            @info "Cache dir created"
         catch e
             @error "create cache directory failed" exception = (e, catch_backtrace())
         end
