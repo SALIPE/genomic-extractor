@@ -344,7 +344,7 @@ begin
             for (i, seq) in enumerate(classeqs)
 
 
-                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.wnw_size, model.max_seq_windows, Vector{Base.CodeUnits}(seq, 1)))
+                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.wnw_size, model.max_seq_windows, [seq]))
 
                 @floop for kmer in collect(model.kmerset)
                     kmer_seq_histogram = get_appearences(kmer)
