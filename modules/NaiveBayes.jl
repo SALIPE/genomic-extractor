@@ -68,7 +68,7 @@ function def_kmer_classes_probs(
 
     @floop for seq in sequences
         seq_windows = length(seq) - wnw_size + 1
-        local_seq_histogram = ones(UInt64, max_seq_windows)
+        local_seq_histogram = zeros(UInt64, max_seq_windows)
         for initPos in 1:seq_windows
             endPos = initPos + wnw_size - 1
             wndw_buffer = @view seq[initPos:endPos]
@@ -79,7 +79,7 @@ function def_kmer_classes_probs(
         end
 
         @reduce(
-            seq_histogram = ones(UInt64, max_seq_windows) .+ local_seq_histogram
+            seq_histogram = zeros(UInt64, max_seq_windows) .+ local_seq_histogram
         )
 
     end
