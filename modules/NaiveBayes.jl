@@ -12,6 +12,7 @@ struct MultiClassNaiveBayes
     wnw_size::Int
     max_seq_windows::Int
     kmerset::Set{String}
+    regions::Vector{Tuple{Int,Int}}
 end
 
 
@@ -21,25 +22,26 @@ function fitMulticlassNB(
     meta_data::Dict{String,Int},
     byte_seqs::Dict{String,Vector{Base.CodeUnits}},
     wnw_size::Int,
-    max_seq_windows::Int
+    max_seq_windows::Int,
+    regions::Vector{Tuple{Int,Int}}
 )::MultiClassNaiveBayes
 
     priors = Dict{String,Float64}()
     class_string_probs = Dict{String,Vector{Float64}}()
 
     total_samples = sum(x -> x[2], kmers_dist)
-
+    regions_len = length(regions)
     for (class, _) in meta_data
 
         println("Calculating $class probabilities")
 
-        get_class_appearences = Base.Fix1(def_kmer_classes_probs, (wnw_size, max_seq_windows, byte_seqs[class]))
+        get_class_appearences = Base.Fix1(def_kmer_classes_probs, (regions, byte_seqs[class]))
 
         @floop for kmer in collect(kmerset)
             kmer_seq_histogram = get_class_appearences(kmer)
 
             @reduce(
-                kmer_distribution = zeros(UInt64, max_seq_windows) .+ kmer_seq_histogram
+                kmer_distribution = zeros(UInt64, regions_len) .+ kmer_seq_histogram
             )
         end
 
@@ -54,33 +56,41 @@ function fitMulticlassNB(
         class_string_probs,
         wnw_size,
         max_seq_windows,
-        kmerset)
+        kmerset,
+        regions)
 end
 
 
 
 function def_kmer_classes_probs(
-    seq_data::Tuple{Int,Int,Vector{Base.CodeUnits}},
+    seq_data::Tuple{Vector{Tuple{Int,Int}},Vector{Base.CodeUnits}},
     kmer::String)::Vector{UInt64}
 
-    wnw_size, max_seq_windows, sequences = seq_data
+    regions, sequences = seq_data
 
+    regions_len = length(regions)
     fn_occursin = Base.Fix1(Model.occursinKmerBit, codeunits(kmer))
 
     @floop for seq in sequences
-        seq_windows = length(seq) - wnw_size + 1
-        local_seq_histogram = zeros(UInt64, max_seq_windows)
-        for initPos in 1:seq_windows
-            endPos = initPos + wnw_size - 1
-            wndw_buffer = @view seq[initPos:endPos]
+        local_seq_histogram = zeros(UInt64, regions_len)
+        seq_len = length(seq)
+
+        for i in eachindex(regions)
+            init_pos, end_pos = regions[i]
+
+            if (end_pos > seq_len)
+                end_pos = seq_len
+            end
+
+            wndw_buffer = @view seq[init_pos:end_pos]
 
             if fn_occursin(wndw_buffer)
-                local_seq_histogram[initPos] += 1
+                local_seq_histogram[i] += 1
             end
         end
 
         @reduce(
-            seq_histogram = zeros(UInt64, max_seq_windows) .+ local_seq_histogram
+            seq_histogram = zeros(UInt64, regions_len) .+ local_seq_histogram
         )
 
     end

@@ -124,7 +124,62 @@ function trainModel(
 end
 
 
-# Functio to extract discriminatives features from each class
+function regionsConjuction(
+    variantDirPath::String,
+    wnwPercent::Float32
+)::Vector{Tuple{Int,Int}}
+
+    variantDirs::Vector{String} = readdir(variantDirPath)
+    cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
+
+    hit_region::Union{Nothing,BitArray} = nothing
+
+    @inbounds for v in eachindex(variantDirs)
+        variant::String = variantDirs[v]
+        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache("$cachdir/$(variant)_outmask.dat")
+
+        histogram = cache[2][2]
+
+        if (isnothing(hit_region))
+            hit_region = histogram
+        else
+            for i in eachindex(histogram)
+                if (ismissing(hit_region[i]))
+                    hit_region[i] = histogram[i]
+                elseif (histogram[i] && !hit_region[i])
+                    hit_region[i] = true
+                end
+
+            end
+        end
+    end
+
+    extracted_regions = Vector{Tuple{Int,Int}}()
+
+    init_pos = 1
+    current::Bool = false
+
+    for i in eachindex(hit_region)
+        if (hit_region[i] && !current)
+            current = true
+            init_pos = i
+        elseif (!hit_region[i] && current)
+            push!(extracted_regions, (init_pos, i - 1))
+            init_pos = i
+            current = false
+        end
+    end
+
+    if (current)
+        push!(extracted_regions, (init_pos, length(hit_region)))
+    end
+
+    return extracted_regions
+
+end
+
+
+# Function to extract discriminatives features from each class
 function extractFeaturesTemplate(
     wnwPercent::Float32,
     outputDir::Union{Nothing,String},

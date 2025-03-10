@@ -443,13 +443,16 @@ begin
 
             @info meta_data
 
+
+
             distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
                 kmerset,
                 kmers_dist,
                 meta_data,
                 byte_seqs,
                 wnw_size,
-                max_seq_windows)
+                max_seq_windows,
+                Model.regionsConjuction(variantDirPath, wnwPercent))
 
             DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
         end
@@ -461,7 +464,7 @@ begin
             description="Genome Regions Extractor and Classifier",
             version="0.1",
             add_version=true,
-            prog="greac"
+            prog="grec"
         )
 
         # Create subcommand structure
