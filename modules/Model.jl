@@ -24,62 +24,6 @@ mutable struct ModelClassBlockStruct
 end
 
 #=
-Extract kmers appearance frequence in all the data and create the dataset for clasification
-=#
-function createWndModelData(
-    wnwPercent::Float32,
-    variantDirPath::String
-)
-
-    cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
-
-    try
-        mkpath(cachdir)
-    catch e
-        @error "create cache direcotry failed" exception = (e, catch_backtrace())
-    end
-
-    variantDirs::Vector{String} = readdir(variantDirPath)
-    kmerset = Set{String}()
-
-    @simd for variant in variantDirs
-        variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
-        union!(kmerset, Set(variantKmers))
-    end
-
-    input_data = Vector{Tuple{String,Vector{Vector{UInt64}}}}(undef, length(variantDirs))
-
-    @inbounds for v in eachindex(variantDirs)
-        variant::String = variantDirs[v]
-        println("Processing $variant")
-        cache_path = "$cachdir/$(variant)_wndfreqsignals.dat"
-
-        cache::Union{Nothing,Vector{Vector{UInt64}}} = DataIO.load_cache(cache_path)
-
-        if !isnothing(cache)
-            @info "Using cached data from $cache_path"
-            input_data[v] = (variant, cache)
-        else
-
-            sequences = String[]
-            for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
-                push!(sequences, sequence(String, record))
-            end
-            minSeqLength::UInt16 = minimum(map(length, sequences))
-            wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
-
-            data = Model.wndwSequencesKmersHistogram(kmerset, wnwSize, sequences)
-            DataIO.save_cache(cache_path, data)
-
-            input_data[v] = (variant, data)
-
-        end
-        println("Finish Processing $variant")
-    end
-
-end
-
-#=
 Create blocks for region classification for each class and mask pre-extracted data structure
 =#
 function createModelBlock(

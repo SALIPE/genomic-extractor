@@ -14,6 +14,7 @@ struct MultiClassNaiveBayes
     kmerset::Set{String}
 end
 
+
 function fitMulticlassNB(
     kmerset::Set{String},
     kmers_dist::Dict{String,Int},

@@ -441,6 +441,8 @@ begin
             max_seq_windows = max_seq_len - wnw_size + 1
             @info "Prob log vector length: $max_seq_windows"
 
+            @info meta_data
+
             distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
                 kmerset,
                 kmers_dist,
@@ -604,18 +606,18 @@ begin
     function handle_extract_model(args)
         @info "Starting model extraction" args
 
+        Model.extractFeaturesTemplate(
+            args["window"],
+            nothing,
+            args["files-directory"]
+        )
+
         getKmersDistributinPerClass(
             args["window"],
             args["files-directory"]
         )
-        # Model.createWndModelData(
-        #     args["window"],
-        #     args["files-directory"])
-        # Model.extractFeaturesTemplate(
-        #     args["window"],
-        #     args["output-directory"],
-        #     args["files-directory"]
-        # )
+
+
     end
 
     function handle_classify(args)
