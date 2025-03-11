@@ -2,7 +2,7 @@ module NaiveBayes
 
 include("Model.jl")
 
-using FLoops, .Model
+using FLoops, .Model, LinearAlgebra
 export NaiveBayes
 
 struct MultiClassNaiveBayes
@@ -128,8 +128,8 @@ function predict(
     model::MultiClassNaiveBayes,
     X::Vector{Float64}
 )::Tuple{String,Dict{String,Float64}}
-    log_probs = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
 
+    log_probs = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
 
     for c in model.classes
         log_prob = log(model.priors[c])
@@ -152,6 +152,29 @@ function predict(
     # return log_probs
 end
 
+function predict_raw(
+    model::MultiClassNaiveBayes,
+    X::Vector{Float64}
+)::Tuple{String,Dict{String,Float64}}
+
+    probs = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
+
+    for c in model.classes
+
+        # Get the class's precomputed conditional probs
+        class_freqs = model.class_string_probs[c]
+
+        # Chi-squared distance
+        # epsilon = 1e-9  # Small value to avoid division by zero
+        # distance = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ epsilon))
+
+        #Manhattan distance
+        distance = sum(abs.(X - class_freqs))
+        probs[c] = distance
+    end
+
+    return argmin(probs), probs
+end
 
 
 

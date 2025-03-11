@@ -19,6 +19,7 @@ include("modules/NaiveBayes.jl")
 
 using FLoops,
     FASTX,
+    Plots,
     LinearAlgebra,
     Normalization,
     Statistics,
@@ -328,9 +329,9 @@ begin
         model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache(modelCachedFile)
 
         confMatrix = Dict{String,Tuple{Int,Int}}()
-        # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
+        classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
 
-        classify = Base.Fix1(NaiveBayes.predict, model)
+        classify = Base.Fix1(NaiveBayes.predict_raw, model)
 
         for class in model.classes
             classeqs = Vector{Base.CodeUnits}()
@@ -344,37 +345,37 @@ begin
             for (i, seq) in enumerate(classeqs)
 
                 input::Vector{Base.CodeUnits} = [seq]
-                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.wnw_size, model.max_seq_windows, input))
+                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.regions, input))
 
                 @floop for kmer in collect(model.kmerset)
                     kmer_seq_histogram = get_appearences(kmer)
 
                     @reduce(
-                        kmer_distribution = zeros(UInt64, model.max_seq_windows) .+ kmer_seq_histogram
+                        kmer_distribution = zeros(UInt64, length(model.regions)) .+ kmer_seq_histogram
                     )
                 end
-
                 seq_distribution = kmer_distribution ./ length(model.kmerset)
                 classifications[i] = classify(seq_distribution)
             end
-            # classification_probs[class] = classifications
+            classification_probs[class] = classifications
             confMatrix[class] = (count(x -> x[1] == class, classifications), length(classifications))
+
         end
         @show confMatrix
 
-        # open("$(pwd())/classification_logprobs.txt", "w") do file
-        #     for (var, classifications) in classification_probs
-        #         write(file, "\n\n########### $(uppercase(var)) ############")
-        #         write(file, "\n####################################\n")
-        #         @inbounds for i in eachindex(classifications)
-        #             cl, probs = classifications[i]
-        #             write(file, "\n#### Sample $i - Classified: $cl #####")
-        #             for (class, prob) in probs
-        #                 write(file, "\n\t$class prob: $prob")
-        #             end
-        #         end
-        #     end
-        # end
+        open("$(pwd())/classification_logprobs.txt", "w") do file
+            for (var, classifications) in classification_probs
+                write(file, "\n\n########### $(uppercase(var)) ############")
+                write(file, "\n####################################\n")
+                @inbounds for i in eachindex(classifications)
+                    cl, probs = classifications[i]
+                    write(file, "\n#### Sample $i - Classified: $cl #####")
+                    for (class, prob) in probs
+                        write(file, "\n\t$class prob: $prob")
+                    end
+                end
+            end
+        end
     end
 
     function getKmersDistributinPerClass(
@@ -442,8 +443,6 @@ begin
             @info "Prob log vector length: $max_seq_windows"
 
             @info meta_data
-
-
 
             distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
                 kmerset,
