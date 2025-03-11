@@ -361,21 +361,21 @@ begin
             confMatrix[class] = (count(x -> x[1] == class, classifications), length(classifications))
 
         end
-        @show confMatrix
+        @info confMatrix
 
-        open("$(pwd())/classification_logprobs.txt", "w") do file
-            for (var, classifications) in classification_probs
-                write(file, "\n\n########### $(uppercase(var)) ############")
-                write(file, "\n####################################\n")
-                @inbounds for i in eachindex(classifications)
-                    cl, probs = classifications[i]
-                    write(file, "\n#### Sample $i - Classified: $cl #####")
-                    for (class, prob) in probs
-                        write(file, "\n\t$class prob: $prob")
-                    end
-                end
-            end
-        end
+        # open("$(pwd())/classification_logprobs.txt", "w") do file
+        #     for (var, classifications) in classification_probs
+        #         write(file, "\n\n########### $(uppercase(var)) ############")
+        #         write(file, "\n####################################\n")
+        #         @inbounds for i in eachindex(classifications)
+        #             cl, probs = classifications[i]
+        #             write(file, "\n#### Sample $i - Classified: $cl #####")
+        #             for (class, prob) in probs
+        #                 write(file, "\n\t$class prob: $prob")
+        #             end
+        #         end
+        #     end
+        # end
     end
 
     function getKmersDistributinPerClass(
