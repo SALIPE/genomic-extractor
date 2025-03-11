@@ -633,11 +633,17 @@ begin
 
     function handle_benchmark(args)
         @info "Starting benchmark" args
+        @info "Starting model extraction" args
+        Model.extractFeaturesTemplate(
+            args["window"],
+            nothing,
+            args["train-dir"]
+        )
         getKmersDistributinPerClass(
             args["window"],
             args["train-dir"]
         )
-
+        @info "Starting classification evaluation" args
         naiveBayesClassification(
             args["test-dir"],
             nothing,
