@@ -168,8 +168,12 @@ function predict_raw(
         # epsilon = 1e-9  # Small value to avoid division by zero
         # distance = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ epsilon))
 
-        #Manhattan distance
-        distance = sum(abs.(X - class_freqs))
+        # Manhattan distance
+        # distance = sum(abs.(X - class_freqs))
+
+        # Euclidian distance
+        distance = sqrt(sum((X - class_freqs) .^ 2))
+
         probs[c] = distance
     end
 
