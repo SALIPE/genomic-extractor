@@ -165,14 +165,13 @@ function predict_raw(
         class_freqs = model.class_string_probs[c]
 
         # Chi-squared distance
-        # epsilon = 1e-9  # Small value to avoid division by zero
-        # distance = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ epsilon))
+        distance = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ 1e-9))
 
         # Manhattan distance
         # distance = sum(abs.(X - class_freqs))
 
         # Euclidian distance
-        distance = sqrt(sum((X - class_freqs) .^ 2))
+        # distance = sqrt(sum((X - class_freqs) .^ 2))
 
         probs[c] = distance
     end
