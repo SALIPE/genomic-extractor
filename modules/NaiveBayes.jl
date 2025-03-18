@@ -2,7 +2,7 @@ module NaiveBayes
 
 include("Model.jl")
 
-using FLoops, .Model, LinearAlgebra
+using FLoops, .Model, LinearAlgebra, Statistics
 export NaiveBayes
 
 struct MultiClassNaiveBayes
