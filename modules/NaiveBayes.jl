@@ -159,12 +159,12 @@ function predict_raw(
 
     probs = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
 
-    train_data = hcat([model.class_string_probs[c] for c in model.classes]...)
+    # train_data = hcat([model.class_string_probs[c] for c in model.classes]...)
 
-    covariance = cov(train_data; dims=2)
+    # covariance = cov(train_data; dims=2)
 
     epsilon = 1e-6
-    inv_covariance = inv(covariance + epsilon * I(size(covariance, 1)))
+    # inv_covariance = inv(covariance + epsilon * I(size(covariance, 1)))
 
     for c in model.classes
 
@@ -181,14 +181,26 @@ function predict_raw(
         # distance = sqrt(sum((X - class_freqs) .^ 2))
 
         # Mahalanobis distance requires inverse covariance matrix
-        if inv_covariance === nothing
-            error("Mahalanobis metric requires inverse covariance matrix")
-        end
+        # if inv_covariance === nothing
+        #     error("Mahalanobis metric requires inverse covariance matrix")
+        # end
 
-        delta = X - class_freqs
-        distance = sqrt(delta' * inv_covariance * delta)
+        # delta = X - class_freqs
+        # distance = sqrt(delta' * inv_covariance * delta)
 
-        probs[c] = distance
+        #  Kullback-Leibler (KL) divergence
+        Q_norm = X ./ sum(X)
+        P_norm = class_freqs ./ sum(class_freqs)
+
+        # Smooth to avoid zeros
+        P_smoothed = P_norm .+ epsilon
+        P_smoothed = P_smoothed ./ sum(P_smoothed)
+
+        # Compute KL(Q || P_smoothed)
+        kl_div = sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
+
+
+        probs[c] = kl_div
     end
 
     return argmin(probs), probs
