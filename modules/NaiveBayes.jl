@@ -159,19 +159,34 @@ function predict_raw(
 
     probs = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
 
+    train_data = hcat([model.class_string_probs[c] for c in model.classes]...)
+
+    covariance = cov(train_data; dims=2)
+
+    epsilon = 1e-6
+    inv_covariance = inv(covariance + epsilon * I(size(covariance, 1)))
+
     for c in model.classes
 
         # Get the class's precomputed conditional probs
         class_freqs = model.class_string_probs[c]
 
         # Chi-squared distance
-        distance = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ 1e-9))
+        # distance = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ 1e-9))
 
         # Manhattan distance
         # distance = sum(abs.(X - class_freqs))
 
         # Euclidian distance
         # distance = sqrt(sum((X - class_freqs) .^ 2))
+
+        # Mahalanobis distance requires inverse covariance matrix
+        if inv_covariance === nothing
+            error("Mahalanobis metric requires inverse covariance matrix")
+        end
+
+        delta = X - class_freqs
+        distance = sqrt(delta' * inv_covariance * delta)
 
         probs[c] = distance
     end
