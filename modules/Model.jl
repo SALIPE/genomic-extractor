@@ -336,7 +336,7 @@ function wndwExlcusiveKmersHistogram(
             for pattern in patterns
                 if pattern(seq[initPos:endPos])
                     seq_hist[initPos] += 1
-                    # break
+                    break
                 end
             end
         end
@@ -356,7 +356,7 @@ function wndwExlcusiveKmersHistogram(
 
     # p_idx = one(Int)
     for i in eachindex(histogram)
-        if histogram[i] > 0
+        if histogram[i] / lenght(byte_seqs) > 0.5
             marked[i:i+wndwSize-1] .= true
             # probabilities[p_idx] = countin[i] / length(sequences)
             # p_idx += 1
