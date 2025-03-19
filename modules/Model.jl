@@ -356,7 +356,7 @@ function wndwExlcusiveKmersHistogram(
 
     # p_idx = one(Int)
     for i in eachindex(histogram)
-        if histogram[i] / lenght(byte_seqs) > 0.5
+        if histogram[i] / length(byte_seqs) > 0.5
             marked[i:i+wndwSize-1] .= true
             # probabilities[p_idx] = countin[i] / length(sequences)
             # p_idx += 1
