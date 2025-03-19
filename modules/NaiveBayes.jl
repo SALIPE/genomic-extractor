@@ -175,7 +175,7 @@ function predict_raw(
         # distance = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ 1e-9))
 
         # Manhattan distance
-        # distance = sum(abs.(X - class_freqs))
+        distance = sum(abs.(X - class_freqs))
 
         # Euclidian distance
         # distance = sqrt(sum((X - class_freqs) .^ 2))
@@ -189,18 +189,18 @@ function predict_raw(
         # distance = sqrt(delta' * inv_covariance * delta)
 
         #  Kullback-Leibler (KL) divergence
-        Q_norm = X ./ sum(X)
-        P_norm = class_freqs ./ sum(class_freqs)
+        # Q_norm = X ./ sum(X)
+        # P_norm = class_freqs ./ sum(class_freqs)
 
-        # Smooth to avoid zeros
-        P_smoothed = P_norm .+ epsilon
-        P_smoothed = P_smoothed ./ sum(P_smoothed)
+        # # Smooth to avoid zeros
+        # P_smoothed = P_norm .+ epsilon
+        # P_smoothed = P_smoothed ./ sum(P_smoothed)
 
-        # Compute KL(Q || P_smoothed)
-        kl_div = sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
+        # # Compute KL(Q || P_smoothed)
+        # kl_div = sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
 
 
-        probs[c] = kl_div
+        probs[c] = distance
     end
 
     return argmin(probs), probs

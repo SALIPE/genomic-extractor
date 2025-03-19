@@ -357,6 +357,7 @@ begin
                 seq_distribution = kmer_distribution ./ length(model.kmerset)
                 classifications[i] = classify(seq_distribution)
             end
+
             classification_probs[class] = classifications
             confMatrix[class] = (count(x -> x[1] == class, classifications), length(classifications))
 
