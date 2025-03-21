@@ -200,7 +200,7 @@ function predict_raw(
         # kl_div = sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
 
 
-        probs[c] = (1 - model.priors[c]) / (1 + distance)
+        probs[c] = model.priors[c] / (1 + distance)
     end
 
     return argmax(probs), probs
