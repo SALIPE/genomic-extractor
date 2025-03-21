@@ -137,6 +137,27 @@ function load_cache(cache_path::String)
     end
 end
 
+function loadStringSequences(
+    file::String
+)::Vector{String}
+
+    sequences = String[]
+    for record in open(FASTAReader, file)
+        push!(sequences, sequence(String, record))
+    end
+    return sequences
+end
+
+function loadCodeUnitsSequences(
+    file::String
+)::Vector{Base.CodeUnits}
+
+    sequences = Vector{Base.CodeUnits}()
+    for record in open(FASTAReader, file)
+        push!(sequences, codeunits(sequence(String, record)))
+    end
+    return sequences
+end
 
 
 end

@@ -415,11 +415,7 @@ begin
             max_seq_len = one(Int)
 
             for variant in variantDirs
-                byte_seqs[variant] = Vector{Base.CodeUnits}()
-
-                for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
-                    push!(byte_seqs[variant], codeunits(sequence(String, record)))
-                end
+                byte_seqs[variant] = DataIO.loadCodeUnitsSequences("$variantDirPath/$variant/$variant.fasta")
 
                 minSeqLength::Int = minimum(map(length, byte_seqs[variant]))
                 maxSeqLength::Int = maximum(map(length, byte_seqs[variant]))

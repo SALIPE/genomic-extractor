@@ -136,17 +136,17 @@ function regionsConjuction(
 
     @inbounds for v in eachindex(variantDirs)
         variant::String = variantDirs[v]
-        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache("$cachdir/$(variant)_outmask.dat")
+        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray}}} = DataIO.load_cache("$cachdir/$(variant)_outmask.dat")
 
-        histogram = cache[2][2]
+        _, marked = cache[variant]
 
         if (isnothing(hit_region))
-            hit_region = histogram
+            hit_region = marked
         else
-            for i in eachindex(histogram)
+            for i in eachindex(marked)
                 if (ismissing(hit_region[i]))
-                    hit_region[i] = histogram[i]
-                elseif (histogram[i] && !hit_region[i])
+                    hit_region[i] = marked[i]
+                elseif (marked[i] && !hit_region[i])
                     hit_region[i] = true
                 end
 
@@ -183,7 +183,9 @@ end
 function extractFeaturesTemplate(
     wnwPercent::Float32,
     outputDir::Union{Nothing,String},
-    variantDirPath::String)
+    variantDirPath::String,
+    histogramThreshold::Float16=0.5
+)
 
     cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
 
@@ -211,21 +213,18 @@ function extractFeaturesTemplate(
         println("Processing $variant")
         cache_path = "$cachdir/$(variant)_outmask.dat"
 
-        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
+        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray}}} = DataIO.load_cache(cache_path)
 
         if !isnothing(cache)
             @info "Using cached data from $cache_path"
             outputs[v] = cache
         else
 
-            sequences = String[]
-            for record in open(FASTAReader, "$variantDirPath/$variant/$variant.fasta")
-                push!(sequences, sequence(String, record))
-            end
+            sequences::Vector{String} = DataIO.loadStringSequences("$variantDirPath/$variant/$variant.fasta")
             minSeqLength::UInt16 = minimum(map(length, sequences))
             wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
 
-            data::Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences), sequences)
+            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences, histogramThreshold))
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
@@ -233,26 +232,25 @@ function extractFeaturesTemplate(
     end
 
     #Structure defined as {Variant Name , (Regions Marked, Fourier Coefficients, Exclusive Kmers)}
-    # trainedModel = Dict{String,Tuple{BitArray,Vector{Vector{Float64}},Vector{String}}}()
     trainedModel = Dict([(variant, (BitArray{1}(), Vector{Tuple{Int,Int,Vector{Float64}}}(), String[])) for variant in variantDirs])
 
 
     # the idea here its to create a way to extract a way how the class should be using RRM, this way
     # we well have the windows and the frequence range and it magnitude (0-1) to compare.
 
-    for (variant, (_, marked), sequences) in outputs
+    for (variant, (_, marked)) in outputs
         fourierCoefficients = Vector{Tuple{Int,Int,Vector{Float64}}}()
         #     plt = plot(histogram, title="Exclusive Kmers Histogram - $wnwPercent", dpi=300)
         #     png(plt, "$outputDir/$variant")
         #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
         #     png(plt, "$outputDir/$(variant)_reg")
 
+        sequences::Vector{String} = DataIO.loadStringSequences("$variantDirPath/$variant/$variant.fasta")
         minSeqLength::UInt16 = minimum(map(length, sequences))
-        limitedMark::BitArray = marked[1:minSeqLength]
         start = 0
         current = false
 
-        for (i, bit) in enumerate(limitedMark)
+        for (i, bit) in enumerate(marked[1:minSeqLength])
             if bit && !current
                 start = i
                 current = true
@@ -312,6 +310,7 @@ function wndwExlcusiveKmersHistogram(
     exclusiveKmers::Vector{String},
     wndwSize::UInt16,
     sequences::Vector{String},
+    histogramThreshold::Float16
 )::Tuple{Vector{UInt16},BitArray}
 
     kmer_lengths = length.(exclusiveKmers)
@@ -351,15 +350,9 @@ function wndwExlcusiveKmersHistogram(
     end
 
     marked = falses(maxSeqLen)
-    # regionCount = count(i -> i > 0, histogram)
-    # probabilities = Vector{Float64}(undef, regionCount)
-
-    # p_idx = one(Int)
     for i in eachindex(histogram)
-        if histogram[i] / length(byte_seqs) > 0.5
+        if histogram[i] / length(byte_seqs) > histogramThreshold
             marked[i:i+wndwSize-1] .= true
-            # probabilities[p_idx] = countin[i] / length(sequences)
-            # p_idx += 1
         end
     end
     return histogram, marked
