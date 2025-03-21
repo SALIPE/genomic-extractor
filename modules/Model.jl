@@ -184,8 +184,7 @@ function extractFeaturesTemplate(
     wnwPercent::Float32,
     outputDir::Union{Nothing,String},
     variantDirPath::String,
-    histogramThreshold::Float16=0.5
-)
+    histogramThreshold::Float16=Float16(0.5))
 
     cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
 
@@ -198,7 +197,7 @@ function extractFeaturesTemplate(
     variantDirs::Vector{String} = readdir(variantDirPath)
     @show Threads.nthreads()
 
-    outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}}(undef, length(variantDirs))
+    outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray}}}(undef, length(variantDirs))
     varKmer = Dict{String,Vector{String}}()
 
     @simd for variant in variantDirs
