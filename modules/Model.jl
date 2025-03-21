@@ -138,7 +138,7 @@ function regionsConjuction(
         variant::String = variantDirs[v]
         cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray}}} = DataIO.load_cache("$cachdir/$(variant)_outmask.dat")
 
-        _, marked = cache[variant]
+        marked = cache[2][2]
 
         if (isnothing(hit_region))
             hit_region = marked
