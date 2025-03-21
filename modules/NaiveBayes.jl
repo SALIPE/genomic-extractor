@@ -29,7 +29,7 @@ function fitMulticlassNB(
     priors = Dict{String,Float64}()
     class_string_probs = Dict{String,Vector{Float64}}()
 
-    total_samples = sum(x -> x[2], kmers_dist)
+    total_samples = sum(x -> x[2], meta_data)
     regions_len = length(regions)
     for (class, _) in meta_data
 
@@ -47,7 +47,7 @@ function fitMulticlassNB(
 
         # Process Overall Frequence
         class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
-        priors[class] = kmers_dist[class] / total_samples
+        priors[class] = meta_data[class] / total_samples
     end
 
     return MultiClassNaiveBayes(
@@ -200,10 +200,10 @@ function predict_raw(
         # kl_div = sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
 
 
-        probs[c] = distance
+        probs[c] = (1 - model.priors[c]) / (1 + distance)
     end
 
-    return argmin(probs), probs
+    return argmax(probs), probs
 end
 
 

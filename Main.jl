@@ -437,7 +437,6 @@ begin
             @info "Window size value: $wnw_size"
 
             max_seq_windows = max_seq_len - wnw_size + 1
-            @info "Prob log vector length: $max_seq_windows"
 
             @info meta_data
 
