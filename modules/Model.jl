@@ -244,25 +244,25 @@ function extractFeaturesTemplate(
         #     plt = plot(marked, title="Exclusive Kmers Marked - $wnwPercent", dpi=300)
         #     png(plt, "$outputDir/$(variant)_reg")
 
-        sequences::Vector{String} = DataIO.loadStringSequences("$variantDirPath/$variant/$variant.fasta")
-        minSeqLength::UInt16 = minimum(map(length, sequences))
-        start = 0
-        current = false
+        # sequences::Vector{String} = DataIO.loadStringSequences("$variantDirPath/$variant/$variant.fasta")
+        # minSeqLength::UInt16 = minimum(map(length, sequences))
+        # start = 0
+        # current = false
 
-        for (i, bit) in enumerate(marked[1:minSeqLength])
-            if bit && !current
-                start = i
-                current = true
-            elseif !bit && current
-                cross = TransformUtils.getFourierCoefficient([str[start:i-1] for str in sequences])
-                push!(fourierCoefficients, (start, i - 1, cross))
-                current = false
-            end
-        end
-        if current
-            cross = TransformUtils.getFourierCoefficient([str[start:minSeqLength] for str in sequences])
-            push!(fourierCoefficients, (start, minSeqLength, cross))
-        end
+        # for (i, bit) in enumerate(marked[1:minSeqLength])
+        #     if bit && !current
+        #         start = i
+        #         current = true
+        #     elseif !bit && current
+        #         cross = TransformUtils.getFourierCoefficient([str[start:i-1] for str in sequences])
+        #         push!(fourierCoefficients, (start, i - 1, cross))
+        #         current = false
+        #     end
+        # end
+        # if current
+        #     cross = TransformUtils.getFourierCoefficient([str[start:minSeqLength] for str in sequences])
+        #     push!(fourierCoefficients, (start, minSeqLength, cross))
+        # end
         trainedModel[variant] = (marked, fourierCoefficients, exclusiveKmers[variant])
     end
 
