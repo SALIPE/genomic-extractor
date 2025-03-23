@@ -333,17 +333,16 @@ begin
 
         classify = Base.Fix1(NaiveBayes.predict_raw, model)
 
+        y_true = Vector{String}()
+        y_pred = Vector{String}()
+
         for class in model.classes
-            classeqs = Vector{Base.CodeUnits}()
-            for record in open(FASTAReader, "$folderPath/$class.fasta")
-                seq::String = sequence(String, record)
-                push!(classeqs, codeunits(seq))
-            end
+            classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences("$folderPath/$class.fasta")
 
             @info "Classyfing $class sequences:"
             classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
             for (i, seq) in enumerate(classeqs)
-
+                push!(y_true, class)
                 input::Vector{Base.CodeUnits} = [seq]
                 get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.regions, input))
 
@@ -356,6 +355,7 @@ begin
                 end
                 seq_distribution = kmer_distribution ./ length(model.kmerset)
                 classifications[i] = classify(seq_distribution)
+                push!(y_pred, classifications[i][1])
             end
 
             classification_probs[class] = classifications
@@ -363,6 +363,16 @@ begin
 
         end
         @info confMatrix
+
+
+        open("$(pwd())/classifications.csv", "w") do file
+            write(file, "true,pred\n")
+            @inbounds for i in 1:length(y_true)
+                write(file, "$(y_true[i]),$(y_pred[i])\n")
+            end
+        end
+
+
 
         # open("$(pwd())/classification_logprobs.txt", "w") do file
         #     for (var, classifications) in classification_probs
