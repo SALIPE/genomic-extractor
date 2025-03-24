@@ -365,12 +365,20 @@ begin
         @info confMatrix
 
 
-        open("$(pwd())/classifications.csv", "w") do file
-            write(file, "true,pred\n")
-            @inbounds for i in 1:length(y_true)
-                write(file, "$(y_true[i]),$(y_pred[i])\n")
-            end
+        results = compute_variant_metrics(model.classes, y_true, y_pred)
+
+        # Access results:
+        println("Confusion Matrix:")
+        display(results[:confusion_matrix])
+
+        println("\nPer-Class Metrics:")
+        for (variant, metrics) in results[:per_class]
+            println("$variant: ", metrics)
         end
+
+        println("\nMacro Averages: ", results[:macro])
+        println("Micro Averages: ", results[:micro])
+        println("Weighted Averages: ", results[:weighted])
 
 
 
@@ -387,6 +395,87 @@ begin
         #         end
         #     end
         # end
+    end
+
+    function compute_variant_metrics(
+        variants::Vector{String},
+        y_true::Vector{String},
+        y_pred::Vector{String})
+        n_classes = length(variants)
+
+        # Validate input
+        length(y_true) == length(y_pred) || error("Input vectors must have the same length")
+        all(v in variants for v in y_true) || error("Invalid variant in y_true")
+        all(v in variants for v in y_pred) || error("Invalid variant in y_pred")
+
+        # Create confusion matrix
+        class_idx = Dict(v => i for (i, v) in enumerate(variants))
+        cm = zeros(Int, n_classes, n_classes)
+
+        for (t, p) in zip(y_true, y_pred)
+            i = class_idx[t]
+            j = class_idx[p]
+            cm[i, j] += 1
+        end
+
+        # Calculate per-class metrics
+        metrics = Dict{String,Dict}()
+        total_samples = sum(cm)
+
+        for (i, variant) in enumerate(variants)
+            tp = cm[i, i]
+            fp = sum(cm[:, i]) - tp
+            fn = sum(cm[i, :]) - tp
+            tn = total_samples - (tp + fp + fn)
+
+            precision = (tp + fp) == 0 ? 0.0 : tp / (tp + fp)
+            recall = (tp + fn) == 0 ? 0.0 : tp / (tp + fn)
+            f1 = (precision + recall) ≈ 0.0 ? 0.0 : 2 * (precision * recall) / (precision + recall)
+            support = sum(cm[i, :])
+
+            metrics[variant] = Dict(
+                :precision => round(precision, digits=4),
+                :recall => round(recall, digits=4),
+                :f1 => round(f1, digits=4),
+                :support => support
+            )
+        end
+
+        # Aggregate metrics
+        macro_precision = mean([m[:precision] for m in values(metrics)])
+        macro_recall = mean([m[:recall] for m in values(metrics)])
+        macro_f1 = mean([m[:f1] for m in values(metrics)])
+
+        micro_tp = sum(diag(cm))
+        micro_precision = micro_tp / total_samples
+        micro_recall = micro_precision  # Same as accuracy
+        micro_f1 = micro_precision
+
+        supports = [m[:support] for m in values(metrics)]
+        weighted_precision = sum([m[:precision] * m[:support] for m in values(metrics)]) / total_samples
+        weighted_recall = sum([m[:recall] * m[:support] for m in values(metrics)]) / total_samples
+        weighted_f1 = sum([m[:f1] * m[:support] for m in values(metrics)]) / total_samples
+
+        return Dict(
+            :confusion_matrix => cm,
+            :classes => variants,
+            :per_class => metrics,
+            :macro => Dict(
+                :precision => round(macro_precision, digits=4),
+                :recall => round(macro_recall, digits=4),
+                :f1 => round(macro_f1, digits=4)
+            ),
+            :micro => Dict(
+                :precision => round(micro_precision, digits=4),
+                :recall => round(micro_recall, digits=4),
+                :f1 => round(micro_f1, digits=4)
+            ),
+            :weighted => Dict(
+                :precision => round(weighted_precision, digits=4),
+                :recall => round(weighted_recall, digits=4),
+                :f1 => round(weighted_f1, digits=4)
+            )
+        )
     end
 
     function getKmersDistributinPerClass(
