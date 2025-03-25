@@ -6,7 +6,6 @@ include("TransformUtils.jl")
 using .DataIO,
     .TransformUtils,
     Serialization,
-    DecisionTree,
     FASTX,
     AbstractFFTs,
     FFTW,
@@ -21,7 +20,7 @@ function regionsConjuction(
 )::Vector{Tuple{Int,Int}}
 
     variantDirs::Vector{String} = readdir(variantDirPath)
-    cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
+    cachdir::String = "$(homedir())/.project_cache/$wnwPercent"
 
     hit_region::Union{Nothing,BitArray} = nothing
 
@@ -77,7 +76,7 @@ function extractFeaturesTemplate(
     variantDirPath::String,
     histogramThreshold::Float16=Float16(0.5))
 
-    cachdir::String = "$(pwd())/.project_cache/$wnwPercent"
+    cachdir::String = "$(homedir())/.project_cache/$wnwPercent"
 
     try
         mkpath(cachdir)

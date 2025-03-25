@@ -25,6 +25,7 @@ Manifest.toml
 *.png
 *.fasta
 /.vscode
+/compiled_app
 /.project_cache
 notebooks/.project_cache
 *.zip
