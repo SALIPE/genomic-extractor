@@ -30,4 +30,5 @@ notebooks/.project_cache
 *.zip
 *.svg
 *.csv
+*pdf
 resultados*
