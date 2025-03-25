@@ -14,8 +14,8 @@ include("modules/DataIO.jl")
 include("modules/EntropyUtil.jl")
 include("modules/TransformUtils.jl")
 include("modules/ConvergenceAnalysis.jl")
-include("modules/Model.jl")
-include("modules/NaiveBayes.jl")
+include("modules/RegionExtraction.jl")
+include("modules/ClassificationModel.jl")
 
 using FLoops,
     FASTX,
@@ -27,8 +27,8 @@ using FLoops,
 
 using
     .DataIO,
-    .Model,
-    .NaiveBayes,
+    .RegionExtraction,
+    .ClassificationModel,
     .TransformUtils,
     .EntropyUtil,
     .ConvergenceAnalysis
@@ -270,68 +270,21 @@ begin
     end
 
 
-    function sequencesClassification(
+
+    function greacClassification(
         folderPath::String,
         outputdir::Union{Nothing,String},
         wnwPercent::Float32,
-    )
-        modelCachedFile = "$(pwd())/.project_cache/$wnwPercent/extracted_features.dat"
-
-        model::Union{Nothing,Dict{String,Tuple{BitArray,Vector{Tuple{Int,Int,Vector{Float64}}},Vector{String}}}} = DataIO.load_cache(modelCachedFile)
-
-        if !isnothing(model)
-            @info "Using model from cached data from $modelCachedFile"
-            classes = ["Alpha", "Delta", "Beta", "Gamma", "Omicron"]
-            inputclassdata = Dict{String,Vector{String}}()
-
-            for key in classes
-                cache_path = "$(pwd())/.project_cache/$wnwPercent/$(key)_outmask.dat"
-                vardata::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray},Vector{String}}} = DataIO.load_cache(cache_path)
-                inputclassdata[key] = vardata[3]
-            end
-
-            # mdelstruct = Model.trainModel(inputclassdata, model)
-
-            confMatrix = Dict{String,Tuple{Int,Int}}()
-
-            for class in classes
-                classeqs = Vector{String}()
-                for record in open(FASTAReader, "$folderPath/$class.fasta")
-                    seq::String = sequence(String, record)
-                    push!(classeqs, seq)
-                end
-
-                classifications = String[]
-                for seq in classeqs
-                    # cl, _, _ = Model.classifySequence(mdelstruct, seq)
-                    cl, _, _ = Model.classifyInput(codeunits(seq), model, nothing)
-                    push!(classifications, cl)
-                end
-                confMatrix[class] = (count(x -> x == class, classifications), length(classifications))
-
-            end
-
-            @info confMatrix
-
-        else
-            @error "Model not found in cached files!"
-        end
-
-    end
-
-    function naiveBayesClassification(
-        folderPath::String,
-        outputdir::Union{Nothing,String},
-        wnwPercent::Float32,
+        metric::Union{Nothing,String}
     )
 
         modelCachedFile = "$(pwd())/.project_cache/$wnwPercent/kmers_distribution.dat"
-        model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache(modelCachedFile)
+        model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
 
         confMatrix = Dict{String,Tuple{Int,Int}}()
         classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
 
-        classify = Base.Fix1(NaiveBayes.predict_raw, model)
+        classify = Base.Fix1(ClassificationModel.predict_raw, (model, metric))
 
         y_true = Vector{String}()
         y_pred = Vector{String}()
@@ -344,7 +297,7 @@ begin
             for (i, seq) in enumerate(classeqs)
                 push!(y_true, class)
                 input::Vector{Base.CodeUnits} = [seq]
-                get_appearences = Base.Fix1(NaiveBayes.def_kmer_classes_probs, (model.regions, input))
+                get_appearences = Base.Fix1(ClassificationModel.def_kmer_classes_probs, (model.regions, input))
 
                 @floop for kmer in collect(model.kmerset)
                     kmer_seq_histogram = get_appearences(kmer)
@@ -355,6 +308,7 @@ begin
                 end
                 seq_distribution = kmer_distribution ./ length(model.kmerset)
                 classifications[i] = classify(seq_distribution)
+
                 push!(y_pred, classifications[i][1])
             end
 
@@ -364,9 +318,9 @@ begin
         end
         @info confMatrix
 
-
         results = compute_variant_metrics(model.classes, y_true, y_pred)
 
+        println("######### Results for :$wnwPercent ###########")
         # Access results:
         println("Confusion Matrix:")
         display(results[:confusion_matrix])
@@ -451,7 +405,6 @@ begin
         micro_recall = micro_precision  # Same as accuracy
         micro_f1 = micro_precision
 
-        supports = [m[:support] for m in values(metrics)]
         weighted_precision = sum([m[:precision] * m[:support] for m in values(metrics)]) / total_samples
         weighted_recall = sum([m[:recall] * m[:support] for m in values(metrics)]) / total_samples
         weighted_f1 = sum([m[:f1] * m[:support] for m in values(metrics)]) / total_samples
@@ -491,7 +444,7 @@ begin
             @error "create cache directory failed" exception = (e, catch_backtrace())
         end
 
-        model::Union{Nothing,NaiveBayes.MultiClassNaiveBayes} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
+        model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
 
         if !isnothing(model)
             @info "Model already processed from cached data from $cachdir"
@@ -539,14 +492,14 @@ begin
 
             @info meta_data
 
-            distribution::NaiveBayes.MultiClassNaiveBayes = NaiveBayes.fitMulticlassNB(
+            distribution::ClassificationModel.MultiClassModel = ClassificationModel.fitMulticlass(
                 kmerset,
                 kmers_dist,
                 meta_data,
                 byte_seqs,
                 wnw_size,
                 max_seq_windows,
-                Model.regionsConjuction(variantDirPath, wnwPercent))
+                RegionExtraction.regionsConjuction(variantDirPath, wnwPercent))
 
             DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
         end
@@ -558,7 +511,7 @@ begin
             description="Genome Regions Extractor and Classifier",
             version="0.1",
             add_version=true,
-            prog="grec"
+            prog="greac"
         )
 
         # Create subcommand structure
@@ -642,6 +595,9 @@ begin
             "--test-dir"
             help = "Test dataset path"
             required = true
+            "-m", "--metric"
+            help = "Metric used for classification"
+            required = false
             "-o", "--output-directory"
             help = "Output directory for results"
             arg_type = String
@@ -658,6 +614,9 @@ begin
             "--train-dir"
             help = "Training dataset path"
             required = true
+            "-m", "--metric"
+            help = "Metric used for classification"
+            required = false
             "--test-dir"
             help = "Test dataset path"
             required = true
@@ -719,17 +678,18 @@ begin
 
     function handle_classify(args)
         @info "Starting classification"
-        naiveBayesClassification(
+        greacClassification(
             args["test-dir"],
             nothing,
-            args["window"]
+            args["window"],
+            args["metric"]
         )
     end
 
     function handle_benchmark(args)
         @info "Starting benchmark" args
         @info "Starting model extraction" args
-        Model.extractFeaturesTemplate(
+        RegionExtraction.extractFeaturesTemplate(
             args["window"],
             nothing,
             args["train-dir"]
@@ -739,10 +699,11 @@ begin
             args["train-dir"]
         )
         @info "Starting classification evaluation" args
-        naiveBayesClassification(
+        greacClassification(
             args["test-dir"],
             nothing,
-            args["window"]
+            args["window"],
+            args["metric"]
         )
     end
 
