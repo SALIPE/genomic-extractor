@@ -658,7 +658,7 @@ end
 function handle_extract_model(args)
     @info "Starting model extraction" args
 
-    Model.extractFeaturesTemplate(
+    RegionExtraction.extractFeaturesTemplate(
         args["window"],
         nothing,
         args["files-directory"]

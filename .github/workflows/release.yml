@@ -1,0 +1,45 @@
+name: Release Compiled Executable and Source
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: "1.11.3"
+
+      - name: Install dependencies
+        run: julia --project=@. -e 'using Pkg; Pkg.instantiate(); Pkg.add("PackageCompiler")'
+
+      - name: Build project with PackageCompiler
+        run: |
+          # Replace paths with your project's entry point and output directory
+          julia --project=@. -e '
+            using PackageCompiler
+            create_app(
+              "GREAC/",                       
+              "greac";              
+              force=true
+            )
+          '
+
+      - name: Create compiled app tarball
+        run: tar -czvf greac.tar.gz greac/
+
+      - name: Upload artifacts to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            source.tar.gz
+            greac.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
