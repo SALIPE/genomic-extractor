@@ -265,10 +265,11 @@ function greacClassification(
     folderPath::String,
     outputdir::Union{Nothing,String},
     wnwPercent::Float32,
+    groupName::String,
     metric::Union{Nothing,String}
 )
 
-    modelCachedFile = "$(homedir())/.project_cache/$wnwPercent/kmers_distribution.dat"
+    modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
     model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
 
     confMatrix = Dict{String,Tuple{Int,Int}}()
@@ -324,21 +325,6 @@ function greacClassification(
     println("Micro Averages: ", results[:micro])
     println("Weighted Averages: ", results[:weighted])
 
-
-
-    # open("$(homedir())/classification_logprobs.txt", "w") do file
-    #     for (var, classifications) in classification_probs
-    #         write(file, "\n\n########### $(uppercase(var)) ############")
-    #         write(file, "\n####################################\n")
-    #         @inbounds for i in eachindex(classifications)
-    #             cl, probs = classifications[i]
-    #             write(file, "\n#### Sample $i - Classified: $cl #####")
-    #             for (class, prob) in probs
-    #                 write(file, "\n\t$class prob: $prob")
-    #             end
-    #         end
-    #     end
-    # end
 end
 
 function compute_variant_metrics(
@@ -423,9 +409,10 @@ end
 
 function getKmersDistributinPerClass(
     wnwPercent::Float32,
+    groupName::String,
     variantDirPath::String
 )
-    cachdir::String = "$(homedir())/.project_cache/$wnwPercent"
+    cachdir::String = "$(homedir())/.project_cache/$groupName/$wnwPercent"
 
     try
         mkpath(cachdir)
@@ -489,7 +476,7 @@ function getKmersDistributinPerClass(
             byte_seqs,
             wnw_size,
             max_seq_windows,
-            RegionExtraction.regionsConjuction(variantDirPath, wnwPercent))
+            RegionExtraction.regionsConjuction(variantDirPath, wnwPercent, groupName))
 
         DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
     end
@@ -509,6 +496,11 @@ function main()
         "--no-cache"
         help = "Remove cached files"
         action = :store_true
+        "--group-name"
+        help = "Process Group Name"
+        required = true
+        arg_type = String
+
     end
 
     # Create subcommand structure
@@ -534,10 +526,11 @@ function main()
 
     parsed_args = parse_args(settings)
 
+
     try
 
         if parsed_args["no-cache"]
-            rm("$(homedir())/.project_cache"; recursive=true, force=true)
+            rm("$(homedir())/.project_cache/$(parsed_args["group-name"])"; recursive=true, force=true)
         end
 
         if parsed_args["%COMMAND%"] == "convergence-analysis"
@@ -547,7 +540,7 @@ function main()
         elseif parsed_args["%COMMAND%"] == "classify"
             handle_classify(parsed_args["classify"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
-            handle_benchmark(parsed_args["benchmark"])
+            handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"])
         elseif parsed_args["%COMMAND%"] == "region-validation"
             handle_region_validation(parsed_args["region-validation"])
         end
@@ -620,7 +613,7 @@ function add_benchmark_args!(settings)
         "-m", "--metric"
         help = "Metric used for classification"
         required = false
-        range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis"])
+        range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"])
         "--test-dir"
         help = "Test dataset path"
         required = true
@@ -686,20 +679,23 @@ function handle_classify(args)
         args["test-dir"],
         nothing,
         args["window"],
+        args["group-name"],
         args["metric"]
     )
 end
 
-function handle_benchmark(args)
+function handle_benchmark(args, groupName::String)
     @info "Starting benchmark" args
     @info "Starting model extraction" args
     RegionExtraction.extractFeaturesTemplate(
         args["window"],
+        groupName,
         nothing,
         args["train-dir"]
     )
     getKmersDistributinPerClass(
         args["window"],
+        groupName,
         args["train-dir"]
     )
     @info "Starting classification evaluation" args
@@ -707,6 +703,7 @@ function handle_benchmark(args)
         args["test-dir"],
         nothing,
         args["window"],
+        groupName,
         args["metric"]
     )
 end

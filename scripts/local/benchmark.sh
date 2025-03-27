@@ -6,8 +6,9 @@ PROJECTHOME=~/Desktop/rrm-genomic-extractor/GREAC
 
 TESTDIR=~/Desktop/datasets/denv_eq/test
 TRAIN=~/Desktop/datasets/denv_eq/kmers
+GROUPNAME=denv
 
-cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache benchmark -w $1 --train-dir $TRAIN --test-dir $TESTDIR -m $2 
+cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME benchmark -w $1 --train-dir $TRAIN --test-dir $TESTDIR 
 
 
 

@@ -16,11 +16,12 @@ export RegionExtraction
 
 function regionsConjuction(
     variantDirPath::String,
-    wnwPercent::Float32
+    wnwPercent::Float32,
+    groupName::String
 )::Vector{Tuple{Int,Int}}
 
     variantDirs::Vector{String} = readdir(variantDirPath)
-    cachdir::String = "$(homedir())/.project_cache/$wnwPercent"
+    cachdir::String = "$(homedir())/.project_cache/$groupName/$wnwPercent"
 
     hit_region::Union{Nothing,BitArray} = nothing
 
@@ -72,11 +73,12 @@ end
 # Function to extract discriminatives features from each class
 function extractFeaturesTemplate(
     wnwPercent::Float32,
+    groupName::String,
     outputDir::Union{Nothing,String},
     variantDirPath::String,
     histogramThreshold::Float16=Float16(0.5))
 
-    cachdir::String = "$(homedir())/.project_cache/$wnwPercent"
+    cachdir::String = "$(homedir())/.project_cache/$groupName/$wnwPercent"
 
     try
         mkpath(cachdir)
@@ -117,7 +119,6 @@ function extractFeaturesTemplate(
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
-        println("Finish Processing $variant")
     end
 
 end
