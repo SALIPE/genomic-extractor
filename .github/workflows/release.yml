@@ -25,12 +25,7 @@ jobs:
           # Replace paths with your project's entry point and output directory
           julia --project=@. -e '
             using PackageCompiler
-            create_app(
-              "GREAC/",                       
-              "greac";              
-              force=true
-            )
-          '
+            create_app("GREAC/","greac";force=true)'
 
       - name: Create compiled app tarball
         run: tar -czvf greac.tar.gz greac/
@@ -38,8 +33,6 @@ jobs:
       - name: Upload artifacts to release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            source.tar.gz
-            greac.tar.gz
+          files: greac.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

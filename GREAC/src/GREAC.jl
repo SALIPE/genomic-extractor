@@ -1,10 +1,5 @@
 
 module GREAC
-using Pkg
-Pkg.activate(".")
-Pkg.resolve()
-Pkg.instantiate()
-
 
 include("modules/DataIO.jl")
 include("modules/EntropyUtil.jl")
@@ -19,9 +14,7 @@ using FLoops,
     LinearAlgebra,
     Normalization,
     Statistics,
-    ArgParse
-
-using
+    ArgParse,
     .DataIO,
     .RegionExtraction,
     .ClassificationModel,
@@ -30,6 +23,7 @@ using
     .ConvergenceAnalysis
 
 
+export FastaSplitter
 
 function findPosWndw(
     positions::Vector{Int},
@@ -510,6 +504,13 @@ function main()
         prog="greac"
     )
 
+    # Global options (apply to all commands)
+    @add_arg_table! settings begin
+        "--no-cache"
+        help = "Remove cached files"
+        action = :store_true
+    end
+
     # Create subcommand structure
     @add_arg_table! settings begin
         ("convergence-analysis", action=:command,
@@ -534,6 +535,11 @@ function main()
     parsed_args = parse_args(settings)
 
     try
+
+        if parsed_args["no-cache"]
+            rm("$(homedir())/.project_cache"; recursive=true, force=true)
+        end
+
         if parsed_args["%COMMAND%"] == "convergence-analysis"
             handle_convergence_analysis(parsed_args["convergence-analysis"])
         elseif parsed_args["%COMMAND%"] == "extract-model"
@@ -607,12 +613,14 @@ function add_benchmark_args!(settings)
         help = "Sliding window percent size"
         arg_type = Float32
         required = true
+        range_tester = (x -> 0.001 < x < 0.5)
         "--train-dir"
         help = "Training dataset path"
         required = true
         "-m", "--metric"
         help = "Metric used for classification"
         required = false
+        range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis"])
         "--test-dir"
         help = "Test dataset path"
         required = true
