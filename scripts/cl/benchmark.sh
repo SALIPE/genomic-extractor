@@ -7,12 +7,12 @@ source /home/a61491/.bashrc
 
 PROJECTHOME=/home/a61491/rrm-genomic-extractor/GREAC
 
-#TRAIN=/home/a61491/datasets/test_voc/train/kmers
-#TESTDIR=/home/a61491/datasets/test_voc/test
-# GROUPNAME=covid
+TRAIN=/home/a61491/datasets/test_voc/train/kmers
+TESTDIR=/home/a61491/datasets/test_voc/test
+GROUPNAME=covid
 
-TRAIN=/home/a61491/datasets/denv/kmers
-TESTDIR=/home/a61491/datasets/denv/test
+# TRAIN=/home/a61491/datasets/denv/kmers
+# TESTDIR=/home/a61491/datasets/denv/test
 # GROUPNAME=denv
 
 
