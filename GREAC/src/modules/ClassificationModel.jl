@@ -61,7 +61,6 @@ function fitMulticlass(
 end
 
 
-
 function def_kmer_classes_probs(
     seq_data::Tuple{Vector{Tuple{Int,Int}},Vector{Base.CodeUnits}},
     kmer::String)::Vector{UInt64}
@@ -122,7 +121,6 @@ function def_kmer_presence(
     return (kmer, seq_presence)
 
 end
-
 
 
 function predict_raw(

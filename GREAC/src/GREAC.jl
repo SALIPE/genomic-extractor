@@ -23,29 +23,9 @@ using FLoops,
     .ConvergenceAnalysis
 
 
-export FastaSplitter
+export GREAC
 
-function findPosWndw(
-    positions::Vector{Int},
-    wndwSize::Int,
-    entropyX::Vector{Float64})::Vector{Float64}
 
-    regions = zeros(Float64, length(entropyX))
-
-    for pos in positions
-        initIdx::Int = pos + 1 - wndwSize
-        initIdx = initIdx <= 0 ? 1 : initIdx
-
-        endIdx::Int = initIdx + wndwSize - 1
-        endIdx = endIdx > length(entropyX) ? length(entropyX) : endIdx
-        regions[initIdx:endIdx] .= 1
-    end
-    # como cada ponto representa uma região e queremos ver as regiões que conteem aquela posição
-    # precisamos analisae da seguinte maneira: um ponto em X = pos->pos+wndwSize - 1
-    # portanto precisamos selecionar os indices que tem o ponto, do que terminam com aquele ponto
-    # ate os que começam naquele ponto, vulgo a intersecção das regiões que tem a posição
-    return regions
-end
 
 function histogramPosWndw(
     positions::Vector{Int16},
@@ -113,12 +93,7 @@ function computeEntropySignal(
     wnwPercent::Float32,
 )::Vector{Vector{Float64}}
 
-    sequences::Array{String} = []
-
-    for record in open(FASTAReader, filePath)
-        seq::String = sequence(String, record)
-        push!(sequences, seq)
-    end
+    sequences::Vector{String} = DataIO.loadStringSequences(filePath)
 
     num_sequences = length(sequences)
     entropy_signals = Vector{Vector{Float64}}(undef, num_sequences)
@@ -157,10 +132,9 @@ function compareVariantClassPerDistance(
 
     consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, length(files))
 
-    @show Threads.nthreads()
-
     @floop ThreadedEx() for (i, file) in enumerate(files)
-        println("Processing $file")
+
+        @info "Processing $file"
 
         entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
 
@@ -172,30 +146,31 @@ function compareVariantClassPerDistance(
             consensusSignals[i] = (file, distances)
         end
 
-        println("Finish Processing $file")
-
+        @info "Finish Processing $file"
     end
 
-    # plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
+    # -------------------- SIGNAL COMPARISON --------------------------------------------
+    plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
+    for (fastaFile, distances) in consensusSignals
+        plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
+    end
+    savefig(plt, "$output/euclidian_consensus.pdf")
+    # -----------------------------------------------------------------------------------
 
-    # for (fastaFile, distances) in consensusSignals
-    #     plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
-    # end
 
-    #png(plt, "$output/euclidian_consensus")
-
-    filteredEntropy = TransformUtils.RRMEntropySignal(consensusSignals)
+    # -------------------- SIGNAL FILTERING --------------------------------------------
+    # filteredEntropy = TransformUtils.RRMEntropySignal(consensusSignals)
     # plt = plot(title="Signals Filtered using RRM - $wnwPercent", dpi=300)
 
-    ylen::Int32 = minimum(map(x -> length(x[2]), filteredEntropy))
-    x = range(1, ylen)
-    lim = [0, ylen]
+    # ylen::Int32 = minimum(map(x -> length(x[2]), filteredEntropy))
+    # x = range(1, ylen)
+    # lim = [0, ylen]
 
     # for (class, f) in filteredEntropy
     #     plot!(x, f[1:ylen], label=class, xlims=lim)
     # end
 
-    regions::Vector{Int16} = Vector{Int16}()
+    # regions::Vector{Int16} = Vector{Int16}()
 
     # if valPositions
 
@@ -209,7 +184,7 @@ function compareVariantClassPerDistance(
     # end
     # png(plt, "$output/iffts")
 
-    _, _, norm = findPeaksBetweenClasses(map(x -> x[2], consensusSignals))
+    # _, _, norm = findPeaksBetweenClasses(map(x -> x[2], consensusSignals))
 
 
     # plt = plot(title="Signal distances between points classes - $wnwPercent", dpi=300)
@@ -223,11 +198,12 @@ function compareVariantClassPerDistance(
     #     xlims=lim)
 
     # png(plt, "$output/distances")
+    # -----------------------------------------------------------------------------------
 
 end
 
 
-#Função para achar quais são os picos de distancia entre as classes, a aprtir do consensus de distancia gerado 
+#Função para achar quais são os picos de distancia entre as classes, a partir do consensus de distancia gerado 
 function findPeaksBetweenClasses(signals::Vector{Vector{Float64}})
     n_classes = length(signals)
 
@@ -272,7 +248,6 @@ function greacClassification(
     modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
     model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
 
-    confMatrix = Dict{String,Tuple{Int,Int}}()
     classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
 
     classify = Base.Fix1(ClassificationModel.predict_raw, (model, metric))
@@ -304,14 +279,12 @@ function greacClassification(
         end
 
         classification_probs[class] = classifications
-        confMatrix[class] = (count(x -> x[1] == class, classifications), length(classifications))
 
     end
-    @info confMatrix
 
     results = compute_variant_metrics(model.classes, y_true, y_pred)
 
-    println("######### Results for :$wnwPercent ###########")
+    println("######### Results for :$wnwPercent  - $metric ###########")
     # Access results:
     println("Confusion Matrix:")
     display(results[:confusion_matrix])
@@ -323,7 +296,6 @@ function greacClassification(
 
     println("\nMacro Averages: ", results[:macro])
     println("Micro Averages: ", results[:micro])
-    println("Weighted Averages: ", results[:weighted])
 
 end
 
@@ -333,7 +305,6 @@ function compute_variant_metrics(
     y_pred::Vector{String})
     n_classes = length(variants)
 
-    # Validate input
     length(y_true) == length(y_pred) || error("Input vectors must have the same length")
     all(v in variants for v in y_true) || error("Invalid variant in y_true")
     all(v in variants for v in y_pred) || error("Invalid variant in y_pred")
@@ -348,7 +319,6 @@ function compute_variant_metrics(
         cm[i, j] += 1
     end
 
-    # Calculate per-class metrics
     metrics = Dict{String,Dict}()
     total_samples = sum(cm)
 
@@ -465,6 +435,12 @@ function getKmersDistributinPerClass(
 
         @info "Window size value: $wnw_size"
 
+        #=
+        This values was used to have the total number of features when working
+        with the sliding window at the entire sequences, and the sequences in dataset
+        have different lengths, this way we always work with a fixed feature array, 
+        considering all the information independently of the input length
+        =#
         max_seq_windows = max_seq_len - wnw_size + 1
 
         @info meta_data
@@ -507,10 +483,6 @@ function main()
     @add_arg_table! settings begin
         ("convergence-analysis", action=:command,
             help="Perform convergence analysis between sequences")
-        ("extract-model", action=:command,
-            help="Extract discriminative features for classification")
-        ("classify", action=:command,
-            help="Classify sequences using a pre-trained model")
         ("benchmark", action=:command,
             help="Benchmark extract features model and classify creating and print confusion matrix")
         ("region-validation", action=:command,
@@ -519,8 +491,6 @@ function main()
 
     # Add arguments for each subcommand
     add_convergence_analysis_args!(settings)
-    add_extract_model_args!(settings)
-    add_classify_args!(settings)
     add_benchmark_args!(settings)
     add_region_validation_args!(settings)
 
@@ -535,10 +505,6 @@ function main()
 
         if parsed_args["%COMMAND%"] == "convergence-analysis"
             handle_convergence_analysis(parsed_args["convergence-analysis"])
-        elseif parsed_args["%COMMAND%"] == "extract-model"
-            handle_extract_model(parsed_args["extract-model"])
-        elseif parsed_args["%COMMAND%"] == "classify"
-            handle_classify(parsed_args["classify"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
             handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"])
         elseif parsed_args["%COMMAND%"] == "region-validation"
@@ -563,41 +529,6 @@ function add_convergence_analysis_args!(settings)
     end
 end
 
-function add_extract_model_args!(settings)
-    s = settings["extract-model"]
-    @add_arg_table! s begin
-        "-d", "--files-directory"
-        help = "Variant directory with organisms Fasta file"
-        required = true
-        arg_type = String
-        "-w", "--window"
-        help = "Slide window percent size to apply"
-        arg_type = Float32
-        default = 0.004
-        "-o", "--output-directory"
-        help = "Output directory for the model"
-        arg_type = String
-    end
-end
-
-function add_classify_args!(settings)
-    s = settings["classify"]
-    @add_arg_table! s begin
-        "-w", "--window"
-        help = "Sliding window percent size"
-        arg_type = Float32
-        required = true
-        "--test-dir"
-        help = "Test dataset path"
-        required = true
-        "-m", "--metric"
-        help = "Metric used for classification"
-        required = false
-        "-o", "--output-directory"
-        help = "Output directory for results"
-        arg_type = String
-    end
-end
 
 function add_benchmark_args!(settings)
     s = settings["benchmark"]
@@ -656,37 +587,10 @@ function handle_convergence_analysis(args)
     )
 end
 
-function handle_extract_model(args)
-    @info "Starting model extraction" args
-
-    RegionExtraction.extractFeaturesTemplate(
-        args["window"],
-        nothing,
-        args["files-directory"]
-    )
-
-    getKmersDistributinPerClass(
-        args["window"],
-        args["files-directory"]
-    )
-
-
-end
-
-function handle_classify(args)
-    @info "Starting classification"
-    greacClassification(
-        args["test-dir"],
-        nothing,
-        args["window"],
-        args["group-name"],
-        args["metric"]
-    )
-end
 
 function handle_benchmark(args, groupName::String)
     @info "Starting benchmark" args
-    @info "Starting model extraction" args
+    @info "Starting model extraction"
     RegionExtraction.extractFeaturesTemplate(
         args["window"],
         groupName,
@@ -698,7 +602,7 @@ function handle_benchmark(args, groupName::String)
         groupName,
         args["train-dir"]
     )
-    @info "Starting classification evaluation" args
+    @info "Starting classification evaluation"
     greacClassification(
         args["test-dir"],
         nothing,
