@@ -72,8 +72,6 @@ function sequence2NumericalSerie(
 end
 
 
-
-
 function readRegionsFromBed(
     bedFilePath::String
 )::Vector{Tuple{String,Int,Int}}
@@ -107,11 +105,6 @@ end
 
 
 function read_pickle_data(file_name::AbstractString)
-    # file_content = read("$variantDirPath/$variant/$(variant)_ExclusiveKmers.txt", String)
-    # content_inside_brackets = strip(file_content, ['[', ']'])
-    # exclusiveKmers::Vector{String} = strip.(strip.(split(content_inside_brackets, ",")), '\'')
-    # data::Vector{String} = pickle.load(open(file_name, "r"), encoding="latin1")
-
     load_pickle = Pickle.load(file_name)
     return load_pickle
 end

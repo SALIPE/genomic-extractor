@@ -1,4 +1,3 @@
-
 module GREAC
 
 include("modules/DataIO.jl")
@@ -23,9 +22,7 @@ using FLoops,
     .ConvergenceAnalysis
 
 
-export GREAC
-
-
+export main
 
 function histogramPosWndw(
     positions::Vector{Int16},
@@ -134,8 +131,6 @@ function compareVariantClassPerDistance(
 
     @floop ThreadedEx() for (i, file) in enumerate(files)
 
-        @info "Processing $file"
-
         entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
 
         # Signifca que é um arquivo consensus (pelo menos deveria ser)
@@ -145,8 +140,6 @@ function compareVariantClassPerDistance(
             distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
             consensusSignals[i] = (file, distances)
         end
-
-        @info "Finish Processing $file"
     end
 
     # -------------------- SIGNAL COMPARISON --------------------------------------------
@@ -586,7 +579,6 @@ function handle_convergence_analysis(args)
         args["files-directory"]
     )
 end
-
 
 function handle_benchmark(args, groupName::String)
     @info "Starting benchmark" args
