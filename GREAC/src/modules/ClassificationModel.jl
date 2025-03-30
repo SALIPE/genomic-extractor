@@ -45,7 +45,7 @@ function fitMulticlass(
             )
         end
 
-        # Process Overall Frequence
+        # Process Overall Frequency
         class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
         priors[class] = meta_data[class] / total_samples
     end
@@ -169,6 +169,10 @@ function predict_raw(
             # Chi-squared distance
             dists[c] = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ 1e-9))
 
+        elseif metric == "rrm"
+            # Think in another approach to use RRM, this cross-spectrum approach don't work
+            dists[c] = sum(dot(X, class_freqs))
+
         elseif metric == "kld"
 
             #  Kullback-Leibler (KL) divergence
@@ -187,7 +191,7 @@ function predict_raw(
 
     end
 
-    return argmin(dists), dists
+    return argmax(dists), dists
 end
 
 

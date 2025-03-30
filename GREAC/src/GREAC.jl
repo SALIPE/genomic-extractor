@@ -254,7 +254,7 @@ function greacClassification(
         @info "Classyfing $class sequences:"
         classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
         for (i, seq) in enumerate(classeqs)
-            push!(y_true, class)
+
             input::Vector{Base.CodeUnits} = [seq]
             get_appearences = Base.Fix1(ClassificationModel.def_kmer_classes_probs, (model.regions, input))
 
@@ -265,10 +265,17 @@ function greacClassification(
                     kmer_distribution = zeros(UInt64, length(model.regions)) .+ kmer_seq_histogram
                 )
             end
-            seq_distribution = kmer_distribution ./ length(model.kmerset)
-            classifications[i] = classify(seq_distribution)
 
-            push!(y_pred, classifications[i][1])
+            seq_distribution::Vector{Float64} = kmer_distribution ./ length(model.kmerset)
+
+            # in case of non appearences
+            if !iszero(sum(seq_distribution))
+
+                classifications[i] = classify(seq_distribution)
+                push!(y_true, class)
+                push!(y_pred, classifications[i][1])
+            end
+
         end
 
         classification_probs[class] = classifications
@@ -537,7 +544,7 @@ function add_benchmark_args!(settings)
         "-m", "--metric"
         help = "Metric used for classification"
         required = false
-        range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"])
+        range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld", "rrm"])
         "--test-dir"
         help = "Test dataset path"
         required = true
