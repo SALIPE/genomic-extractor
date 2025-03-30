@@ -45,7 +45,7 @@ function fitMulticlass(
             )
         end
 
-        # Process Overall Frequency
+        # Process F_wr
         class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
         priors[class] = meta_data[class] / total_samples
     end
@@ -191,7 +191,7 @@ function predict_raw(
 
     end
 
-    return argmax(dists), dists
+    return argmin(dists), dists
 end
 
 
