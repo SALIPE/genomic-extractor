@@ -544,7 +544,7 @@ function add_benchmark_args!(settings)
         "-m", "--metric"
         help = "Metric used for classification"
         required = false
-        range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld", "rrm"])
+        range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"])
         "--test-dir"
         help = "Test dataset path"
         required = true
