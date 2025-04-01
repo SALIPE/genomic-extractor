@@ -112,8 +112,8 @@ function extractFeaturesTemplate(
         else
 
             sequences::Vector{String} = DataIO.loadStringSequences("$variantDirPath/$variant/$variant.fasta")
-            minSeqLength::UInt16 = minimum(map(length, sequences))
-            wnwSize::UInt16 = ceil(UInt16, minSeqLength * wnwPercent)
+            minSeqLength::UInt64 = minimum(map(length, sequences))
+            wnwSize::UInt64 = ceil(UInt64, minSeqLength * wnwPercent)
 
             data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences, histogramThreshold))
             outputs[v] = data
@@ -160,7 +160,7 @@ end
 =#
 function wndwExlcusiveKmersHistogram(
     exclusiveKmers::Vector{String},
-    wndwSize::UInt16,
+    wndwSize::UInt64,
     sequences::Vector{String},
     histogramThreshold::Float16
 )::Tuple{Vector{UInt16},BitArray}
