@@ -22,7 +22,7 @@ GROUPNAME=bees
 
 
 
-cd $PROJECTHOME && julia --project=. src/GREAC.jl --group-name $GROUPNAME benchmark -w $1 --train-dir $TRAIN --test-dir $TESTDIR #-m $2
+cd $PROJECTHOME && julia --project src/GREAC.jl --group-name $GROUPNAME benchmark -w $1 --train-dir $TRAIN --test-dir $TESTDIR #-m $2
 
 
 
