@@ -8,7 +8,7 @@ source /home/a61491/.bashrc
 PROJECT=/home/a61491/rrm-genomic-extractor/scripts/cl/benchmark.sh
 
 
-for metric in kld; do
+for metric in manhattan euclidian chisquared mahalanobis kld; do
     $PROJECT 0.002 $metric
     $PROJECT 0.004 $metric
     $PROJECT 0.006 $metric
