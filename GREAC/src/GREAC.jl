@@ -1,8 +1,4 @@
 module GREAC
-using Pkg
-
-Pkg.activate(".")
-Pkg.instantiate()
 
 include("modules/DataIO.jl")
 include("modules/EntropyUtil.jl")
