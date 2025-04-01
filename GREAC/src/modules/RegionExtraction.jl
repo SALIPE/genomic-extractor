@@ -168,7 +168,7 @@ function wndwExlcusiveKmersHistogram(
     kmer_lengths = length.(exclusiveKmers)
     @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
 
-    patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in exclusiveKmers]
+    patterns = [Base.Fix1(occursinKmer, kmer) for kmer in exclusiveKmers]
 
     byte_seqs = [codeunits(s) for s in sequences]
     maxSeqLen = maximum(length, sequences)
@@ -221,7 +221,7 @@ function wndwSequencesKmersHistogram(
     kmer_lengths = length.(kmerset)
     @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
 
-    patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in kmerset]
+    patterns = [Base.Fix1(occursinKmer, kmer) for kmer in kmerset]
 
     byte_seqs = [codeunits(s) for s in sequences]
     maxSeqLen = maximum(length, sequences)
@@ -260,7 +260,7 @@ function countPatterns(
     seqWindow::SubArray,
     kmers::Vector{String})::UInt16
 
-    patterns = [Base.Fix1(occursinKmerBit, codeunits(kmer)) for kmer in kmers]
+    patterns = [Base.Fix1(occursinKmer, kmer) for kmer in kmers]
     count::UInt16 = 0
 
     @floop for pattern in patterns
@@ -271,6 +271,15 @@ function countPatterns(
     return count
 end
 
+
+function occursinKmer(
+    kmer::String,
+    windowBuffer::Union{SubArray,Vector{UInt8}}
+)::Bool
+    window_str = String(windowBuffer)
+
+    return occursin(Regex(escape(kmer_str)), window_str)
+end
 
 #=
 Codeunits "regex", beacuse is a byte comparison 
