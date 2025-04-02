@@ -77,7 +77,7 @@ function extractFeaturesTemplate(
     outputDir::Union{Nothing,String},
     variantDirPath::String,
     histogramThreshold::Float16=Float16(0.5))
-    @info Threads.nthreads()
+    @info "Threads:" Threads.nthreads()
     cachdir::String = "$(homedir())/.project_cache/$groupName/$wnwPercent"
 
     try
@@ -218,26 +218,27 @@ function _wndwExlcusiveKmersHistogram(
 
     @assert all(≤(wndwSize), length.(exclusiveKmers)) "All k-mers must be ≤ window size"
 
-    k_len = length(exclusiveKmers[1])
+    k_len::Int = length(exclusiveKmers[1])
     byte_seqs = [codeunits(s) for s in sequences]
     maxSeqLen = maximum(length, sequences)
     total_windows = maxSeqLen - wndwSize + 1
 
     @floop for seq in byte_seqs
-        padded_hist = zeros(UInt16, total_windows)
+        padded_hist = zeros(UInt32, total_windows)
 
         positions = getOccursin(String(seq), exclusiveKmers)
 
         for i in positions
 
-            iniPos::Int = i - (wndwSize - k_len)
+            iniPos::Int = i - (Int(wndwSize) - k_len)
             iniPos = iniPos > 1 ? iniPos : 1
-            endPos = i > total_windows ? total_windows : i
-            padded_hist[iniPos:endPos] = ones(UInt16, endPos - iniPos + 1)
+            endPos::Int = i > total_windows ? total_windows : i
+            padded_hist[iniPos:endPos] = ones(UInt32, endPos - iniPos + 1)
+
         end
 
         @reduce(
-            histogram = zeros(UInt16, total_windows) .+ padded_hist
+            histogram = zeros(UInt32, total_windows) .+ padded_hist
         )
     end
 

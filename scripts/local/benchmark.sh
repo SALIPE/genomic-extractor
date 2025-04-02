@@ -3,7 +3,7 @@
 PROJECTHOME=~/Desktop/rrm-genomic-extractor/GREAC
 
 TESTDIR=~/Desktop/datasets/test_voc/test
-TRAIN=~/Desktop/datasets/tutorial_data/kmers
+TRAIN=~/Desktop/datasets/test_voc/train/kmers
 GROUPNAME=covid
 
 # TESTDIR=~/Desktop/datasets/bees/test
