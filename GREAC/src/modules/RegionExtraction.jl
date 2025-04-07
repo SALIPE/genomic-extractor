@@ -77,7 +77,7 @@ function extractFeaturesTemplate(
     outputDir::Union{Nothing,String},
     variantDirPath::String,
     histogramThreshold::Float16=Float16(0.5))
-
+    @info "Threads:" Threads.nthreads()
     cachdir::String = "$(homedir())/.project_cache/$groupName/$wnwPercent"
 
     try
@@ -87,7 +87,7 @@ function extractFeaturesTemplate(
     end
 
     variantDirs::Vector{String} = readdir(variantDirPath)
-    @show Threads.nthreads()
+
 
     outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray}}}(undef, length(variantDirs))
     varKmer = Dict{String,Vector{String}}()
@@ -96,7 +96,7 @@ function extractFeaturesTemplate(
         varKmer[variant] = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
     end
 
-    exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
+    # exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
 
     @inbounds for v in eachindex(variantDirs)
@@ -115,7 +115,7 @@ function extractFeaturesTemplate(
             minSeqLength::UInt64 = minimum(map(length, sequences))
             wnwSize::UInt64 = ceil(UInt64, minSeqLength * wnwPercent)
 
-            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences, histogramThreshold))
+            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, _wndwExlcusiveKmersHistogram(varKmer[variant], wnwSize, sequences, histogramThreshold))
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
@@ -165,8 +165,7 @@ function wndwExlcusiveKmersHistogram(
     histogramThreshold::Float16
 )::Tuple{Vector{UInt16},BitArray}
 
-    kmer_lengths = length.(exclusiveKmers)
-    @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
+    @assert all(≤(wndwSize), length.(exclusiveKmers)) "All k-mers must be ≤ window size"
 
     patterns = [Base.Fix1(occursinKmer, kmer) for kmer in exclusiveKmers]
 
@@ -208,7 +207,48 @@ function wndwExlcusiveKmersHistogram(
         end
     end
     return histogram, marked
+end
 
+function _wndwExlcusiveKmersHistogram(
+    exclusiveKmers::Vector{String},
+    wndwSize::UInt64,
+    sequences::Vector{String},
+    histogramThreshold::Float16
+)::Tuple{Vector{UInt16},BitArray}
+
+    @assert all(≤(wndwSize), length.(exclusiveKmers)) "All k-mers must be ≤ window size"
+
+    k_len::Int = length(exclusiveKmers[1])
+    byte_seqs = [codeunits(s) for s in sequences]
+    maxSeqLen = maximum(length, sequences)
+    total_windows = maxSeqLen - wndwSize + 1
+
+    @floop for seq in byte_seqs
+        padded_hist = zeros(UInt32, total_windows)
+
+        positions = getOccursin(String(seq), exclusiveKmers)
+
+        for i in positions
+
+            iniPos::Int = i - (Int(wndwSize) - k_len)
+            iniPos = iniPos > 1 ? iniPos : 1
+            endPos::Int = i > total_windows ? total_windows : i
+            padded_hist[iniPos:endPos] = ones(UInt32, endPos - iniPos + 1)
+
+        end
+
+        @reduce(
+            histogram = zeros(UInt32, total_windows) .+ padded_hist
+        )
+    end
+
+    marked = falses(maxSeqLen)
+    for i in eachindex(histogram)
+        if histogram[i] / length(byte_seqs) > histogramThreshold
+            marked[i:i+wndwSize-1] .= true
+        end
+    end
+    return histogram, marked
 end
 
 
@@ -271,14 +311,24 @@ function countPatterns(
     return count
 end
 
+function getOccursin(
+    sequence::String,
+    kmerset::Vector{String})::Vector{Int}
+
+    occurrences_pos = Set{Int}()
+    @inbounds for i in eachindex(kmerset)
+        regex = Regex("\\Q$(kmerset[i])\\E")
+        match_positions = [m.offset for m in eachmatch(regex, sequence, overlap=true)]
+        union!(occurrences_pos, Set(match_positions))
+    end
+    return collect(occurrences_pos)
+end
 
 function occursinKmer(
     kmer::String,
     windowBuffer::Union{SubArray,Vector{UInt8}}
 )::Bool
-    window_str = String(windowBuffer)
-
-    return occursin(Regex(escape(kmer_str)), window_str)
+    return occursin(Regex("\\Q$kmer\\E"), String(windowBuffer))
 end
 
 #=

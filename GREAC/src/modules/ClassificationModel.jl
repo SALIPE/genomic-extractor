@@ -68,7 +68,7 @@ function def_kmer_classes_probs(
     regions, sequences = seq_data
 
     regions_len = length(regions)
-    fn_occursin = Base.Fix1(RegionExtraction.occursinKmer, kmer)
+    fn_occursin = Base.Fix1(RegionExtraction.occursinKmerBit, codeunits(kmer))
 
     @floop for seq in sequences
         local_seq_histogram = zeros(UInt64, regions_len)
@@ -104,7 +104,7 @@ function def_kmer_presence(
 
     wnw_size, max_seq_windows, seq = seq_data
 
-    fn_occursin = Base.Fix1(RegionExtraction.occursinKmer, kmer)
+    fn_occursin = Base.Fix1(RegionExtraction.occursinKmerBit, codeunits(kmer))
     seq_presence = falses(max_seq_windows)
 
     seq_windows = length(seq) - wnw_size + 1
