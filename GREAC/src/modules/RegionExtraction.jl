@@ -96,7 +96,7 @@ function extractFeaturesTemplate(
         varKmer[variant] = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
     end
 
-    exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
+    # exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
 
     @inbounds for v in eachindex(variantDirs)
@@ -115,7 +115,7 @@ function extractFeaturesTemplate(
             minSeqLength::UInt64 = minimum(map(length, sequences))
             wnwSize::UInt64 = ceil(UInt64, minSeqLength * wnwPercent)
 
-            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, _wndwExlcusiveKmersHistogram(exclusiveKmers[variant], wnwSize, sequences, histogramThreshold))
+            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, _wndwExlcusiveKmersHistogram(varKmer[variant], wnwSize, sequences, histogramThreshold))
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
@@ -318,7 +318,7 @@ function getOccursin(
     occurrences_pos = Set{Int}()
     @inbounds for i in eachindex(kmerset)
         regex = Regex("\\Q$(kmerset[i])\\E")
-        match_positions = [m.offset for m in eachmatch(regex, sequence)]
+        match_positions = [m.offset for m in eachmatch(regex, sequence, overlap=true)]
         union!(occurrences_pos, Set(match_positions))
     end
     return collect(occurrences_pos)

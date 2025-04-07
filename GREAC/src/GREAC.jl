@@ -249,53 +249,82 @@ function greacClassification(
     y_pred = Vector{String}()
 
     for class in model.classes
-        classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences("$folderPath/$class.fasta")
 
-        @info "Classyfing $class sequences:"
-        classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
-        for (i, seq) in enumerate(classeqs)
+        try
+            classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences("$folderPath/$class.fasta")
 
-            input::Vector{Base.CodeUnits} = [seq]
-            get_appearences = Base.Fix1(ClassificationModel.def_kmer_classes_probs, (model.regions, input))
+            @info "Classyfing $class sequences:"
+            classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
+            for (i, seq) in enumerate(classeqs)
 
-            @floop for kmer in collect(model.kmerset)
-                kmer_seq_histogram = get_appearences(kmer)
+                input::Vector{Base.CodeUnits} = [seq]
+                get_appearences = Base.Fix1(ClassificationModel.def_kmer_classes_probs, (model.regions, input))
 
-                @reduce(
-                    kmer_distribution = zeros(UInt64, length(model.regions)) .+ kmer_seq_histogram
-                )
+                @floop for kmer in collect(model.kmerset)
+                    kmer_seq_histogram = get_appearences(kmer)
+
+                    @reduce(
+                        kmer_distribution = zeros(UInt64, length(model.regions)) .+ kmer_seq_histogram
+                    )
+                end
+
+                seq_distribution::Vector{Float64} = kmer_distribution ./ length(model.kmerset)
+
+                # in case of non appearences
+                if !iszero(sum(seq_distribution))
+
+                    classifications[i] = classify(seq_distribution)
+                    push!(y_true, class)
+                    push!(y_pred, classifications[i][1])
+                end
+
             end
 
-            seq_distribution::Vector{Float64} = kmer_distribution ./ length(model.kmerset)
-
-            # in case of non appearences
-            if !iszero(sum(seq_distribution))
-
-                classifications[i] = classify(seq_distribution)
-                push!(y_true, class)
-                push!(y_pred, classifications[i][1])
-            end
-
+            classification_probs[class] = classifications
+        catch e
+            @error e
         end
 
-        classification_probs[class] = classifications
 
     end
 
     results = compute_variant_metrics(model.classes, y_true, y_pred)
+    RESULTS_CSV = "benchmark_results_$groupName.csv"
 
-    println("######### Results for :$wnwPercent  - $metric ###########")
-    # Access results:
-    println("Confusion Matrix:")
-    display(results[:confusion_matrix])
+    open(RESULTS_CSV, "a") do io
+        # Write header if file is empty/new
+        if filesize(RESULTS_CSV) == 0
+            write(io, "wndwPercent,metric,confusion_matrix,macro_avg,micro_avg\n")
+        end
 
-    println("\nPer-Class Metrics:")
-    for (variant, metrics) in results[:per_class]
-        println("$variant: ", metrics)
+        # Format data components
+        cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
+        per_class = join(["$k:$(v)" for (k, v) in results[:per_class]], "; ")
+
+        # Create CSV line
+        line = join([
+                escape_string(string(wnwPercent)),
+                escape_string(string(metric)),
+                escape_string(cm),
+                results[:macro][:f1],
+                results[:micro][:f1]
+            ], ",")
+
+        write(io, line * "\n")
     end
 
-    println("\nMacro Averages: ", results[:macro])
-    println("Micro Averages: ", results[:micro])
+    # println("######### Results for :$wnwPercent  - $metric ###########")
+    # # Access results:
+    # println("Confusion Matrix:")
+    # display(results[:confusion_matrix])
+
+    # println("\nPer-Class Metrics:")
+    # for (variant, metrics) in results[:per_class]
+    #     println("$variant: ", metrics)
+    # end
+
+    # println("\nMacro Averages: ", results[:macro])
+    # println("Micro Averages: ", results[:micro])
 
 end
 
@@ -476,6 +505,11 @@ function main()
         help = "Process Group Name"
         required = true
         arg_type = String
+        "-w", "--window"
+        help = "Sliding window percent size"
+        arg_type = Float32
+        required = true
+        range_tester = (x -> 0.001 < x < 0.5)
 
     end
 
@@ -500,13 +534,13 @@ function main()
     try
 
         if parsed_args["no-cache"]
-            rm("$(homedir())/.project_cache/$(parsed_args["group-name"])"; recursive=true, force=true)
+            rm("$(homedir())/.project_cache/$(parsed_args["group-name"])/$(parsed_args["window"])"; recursive=true, force=true)
         end
 
         if parsed_args["%COMMAND%"] == "convergence-analysis"
             handle_convergence_analysis(parsed_args["convergence-analysis"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
-            handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"])
+            handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "region-validation"
             handle_region_validation(parsed_args["region-validation"])
         end
@@ -522,10 +556,7 @@ function add_convergence_analysis_args!(settings)
         help = "Variant directory with organisms Fasta file"
         required = true
         arg_type = String
-        "-w", "--window"
-        help = "Slide window percent size to apply"
-        arg_type = Float32
-        default = 0.004
+
     end
 end
 
@@ -533,11 +564,6 @@ end
 function add_benchmark_args!(settings)
     s = settings["benchmark"]
     @add_arg_table! s begin
-        "-w", "--window"
-        help = "Sliding window percent size"
-        arg_type = Float32
-        required = true
-        range_tester = (x -> 0.001 < x < 0.5)
         "--train-dir"
         help = "Training dataset path"
         required = true
@@ -587,17 +613,19 @@ function handle_convergence_analysis(args)
     )
 end
 
-function handle_benchmark(args, groupName::String)
-    @info "Starting benchmark" args
+function handle_benchmark(args,
+    groupName::String,
+    window::Float32)
+    @info "Starting benchmark" args window groupName
     @info "Starting model extraction"
     RegionExtraction.extractFeaturesTemplate(
-        args["window"],
+        window,
         groupName,
         nothing,
         args["train-dir"]
     )
     getKmersDistributinPerClass(
-        args["window"],
+        window,
         groupName,
         args["train-dir"]
     )
@@ -605,7 +633,7 @@ function handle_benchmark(args, groupName::String)
     greacClassification(
         args["test-dir"],
         nothing,
-        args["window"],
+        window,
         groupName,
         args["metric"]
     )
