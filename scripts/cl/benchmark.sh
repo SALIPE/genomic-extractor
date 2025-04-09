@@ -24,9 +24,5 @@ GROUPNAME=covid_2
 # TESTDIR=/$HOME/denv/test
 # GROUPNAME=denv
 
-
-cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME benchmark -w $1 --train-dir $TRAIN --test-dir $TESTDIR #-m $2
-
-
-
+cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME -w $1 benchmark  --train-dir $TRAIN --test-dir $TESTDIR -m $2
 
