@@ -294,20 +294,24 @@ function greacClassification(
     open(RESULTS_CSV, "a") do io
         # Write header if file is empty/new
         if filesize(RESULTS_CSV) == 0
-            write(io, "wndwPercent,metric,confusion_matrix,macro_avg,micro_avg\n")
+            types = join(model.classes, ",")
+            write(io, "wndwPercent,metric," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
         end
 
         # Format data components
-        cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
-        per_class = join(["$k:$(v)" for (k, v) in results[:per_class]], "; ")
-
+        # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
+        perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
         # Create CSV line
         line = join([
                 escape_string(string(wnwPercent)),
                 escape_string(string(metric)),
-                escape_string(cm),
+                perclass,
                 results[:macro][:f1],
-                results[:micro][:f1]
+                results[:macro][:precision],
+                results[:macro][:recall],
+                results[:micro][:f1],
+                results[:micro][:precision],
+                results[:micro][:recall]
             ], ",")
 
         write(io, line * "\n")
@@ -331,7 +335,8 @@ end
 function compute_variant_metrics(
     variants::Vector{String},
     y_true::Vector{String},
-    y_pred::Vector{String})
+    y_pred::Vector{String}
+)
     n_classes = length(variants)
 
     length(y_true) == length(y_pred) || error("Input vectors must have the same length")
@@ -351,15 +356,23 @@ function compute_variant_metrics(
     metrics = Dict{String,Dict}()
     total_samples = sum(cm)
 
+    total_tp = 0
+    total_fp = 0
+    total_fn = 0
+
     for (i, variant) in enumerate(variants)
         tp = cm[i, i]
         fp = sum(cm[:, i]) - tp
         fn = sum(cm[i, :]) - tp
-        tn = total_samples - (tp + fp + fn)
+
+        # For micro metrics
+        total_tp += tp
+        total_fp += fp
+        total_fn += fn
 
         precision = (tp + fp) == 0 ? 0.0 : tp / (tp + fp)
         recall = (tp + fn) == 0 ? 0.0 : tp / (tp + fn)
-        f1 = (precision + recall) ≈ 0.0 ? 0.0 : 2 * (precision * recall) / (precision + recall)
+        f1 = (precision + recall) ≈ 0.0 ? 0.0 : 2 * ((precision * recall) / (precision + recall))
         support = sum(cm[i, :])
 
         metrics[variant] = Dict(
@@ -370,19 +383,14 @@ function compute_variant_metrics(
         )
     end
 
-    # Aggregate metrics
     macro_precision = mean([m[:precision] for m in values(metrics)])
     macro_recall = mean([m[:recall] for m in values(metrics)])
     macro_f1 = mean([m[:f1] for m in values(metrics)])
 
-    micro_tp = sum(diag(cm))
-    micro_precision = micro_tp / total_samples
-    micro_recall = micro_precision  # Same as accuracy
-    micro_f1 = micro_precision
-
-    weighted_precision = sum([m[:precision] * m[:support] for m in values(metrics)]) / total_samples
-    weighted_recall = sum([m[:recall] * m[:support] for m in values(metrics)]) / total_samples
-    weighted_f1 = sum([m[:f1] * m[:support] for m in values(metrics)]) / total_samples
+    micro_precision = (total_tp + total_fp) == 0 ? 0.0 : total_tp / (total_tp + total_fp)
+    micro_recall = (total_tp + total_fn) == 0 ? 0.0 : total_tp / (total_tp + total_fn)
+    micro_f1 = (micro_precision + micro_recall) ≈ 0.0 ? 0.0 :
+               2 * ((micro_precision * micro_recall) / (micro_precision + micro_recall))
 
     return Dict(
         :confusion_matrix => cm,
@@ -397,14 +405,10 @@ function compute_variant_metrics(
             :precision => round(micro_precision, digits=4),
             :recall => round(micro_recall, digits=4),
             :f1 => round(micro_f1, digits=4)
-        ),
-        :weighted => Dict(
-            :precision => round(weighted_precision, digits=4),
-            :recall => round(weighted_recall, digits=4),
-            :f1 => round(weighted_f1, digits=4)
         )
     )
 end
+
 
 function getKmersDistributinPerClass(
     wnwPercent::Float32,
