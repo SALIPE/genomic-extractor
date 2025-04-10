@@ -295,7 +295,7 @@ function greacClassification(
         # Write header if file is empty/new
         if filesize(RESULTS_CSV) == 0
             types = join(model.classes, ",")
-            write(io, "wndwPercent,metric," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
+            write(io, "wndwPercent,metric,windows,window_size,max_seq_windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
         end
 
         # Format data components
@@ -305,6 +305,10 @@ function greacClassification(
         line = join([
                 escape_string(string(wnwPercent)),
                 escape_string(string(metric)),
+                length(model.regions),
+                length(model.kmerset),
+                model.wnw_size,
+                model.max_seq_windows,
                 perclass,
                 results[:macro][:f1],
                 results[:macro][:precision],
