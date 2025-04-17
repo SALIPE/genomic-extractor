@@ -97,6 +97,36 @@ function def_kmer_classes_probs(
     return seq_histogram
 end
 
+function sequence_kmer_distribution(
+    regions::Vector{Tuple{Int,Int}},
+    seq::AbstractArray,
+    kmerset::Vector{String}
+)::Vector{UInt64}
+
+    @floop for kmer in kmerset
+        local_seq_histogram = zeros(UInt64, length(regions))
+        seq_len = length(seq)
+
+        for i in eachindex(regions)
+            init_pos, end_pos = regions[i]
+
+            if (end_pos > seq_len)
+                end_pos = seq_len
+            end
+
+            wndw_buffer = @view seq[init_pos:end_pos]
+
+            if RegionExtraction.occursinKmerBit(codeunits(kmer), wndw_buffer)
+                local_seq_histogram[i] += 1
+            end
+        end
+
+        @reduce(
+            kmer_distribution = zeros(UInt64, length(regions)) .+ local_seq_histogram
+        )
+    end
+    return kmer_distribution
+end
 function def_kmer_presence(
     seq_data::Tuple{Int,Int,Base.CodeUnits},
     kmer::String

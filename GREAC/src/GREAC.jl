@@ -9,7 +9,6 @@ include("modules/ClassificationModel.jl")
 
 using FLoops,
     FASTX,
-    Plots,
     LinearAlgebra,
     Normalization,
     Statistics,
@@ -143,11 +142,11 @@ function compareVariantClassPerDistance(
     end
 
     # -------------------- SIGNAL COMPARISON --------------------------------------------
-    plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
-    for (fastaFile, distances) in consensusSignals
-        plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
-    end
-    savefig(plt, "$output/euclidian_consensus.pdf")
+    # plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
+    # for (fastaFile, distances) in consensusSignals
+    #     plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
+    # end
+    # savefig(plt, "$output/euclidian_consensus.pdf")
     # -----------------------------------------------------------------------------------
 
 
@@ -247,79 +246,71 @@ function greacClassification(
 
     y_true = Vector{String}()
     y_pred = Vector{String}()
+    kmerset::Vector{String} = collect(model.kmerset)
 
     for class in model.classes
 
-        try
-            classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences("$folderPath/$class.fasta")
+        classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences("$folderPath/$class.fasta")
+        num_seqs = length(classeqs)
 
-            @info "Classyfing $class sequences:"
-            classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, length(classeqs))
-            for (i, seq) in enumerate(classeqs)
+        @info "Classyfing $class $num_seqs sequences:"
+        classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, num_seqs)
 
-                input::Vector{Base.CodeUnits} = [seq]
-                get_appearences = Base.Fix1(ClassificationModel.def_kmer_classes_probs, (model.regions, input))
+        local_y_pred = Vector{String}(undef, num_seqs)
 
-                @floop for kmer in collect(model.kmerset)
-                    kmer_seq_histogram = get_appearences(kmer)
-
-                    @reduce(
-                        kmer_distribution = zeros(UInt64, length(model.regions)) .+ kmer_seq_histogram
-                    )
-                end
-
-                seq_distribution::Vector{Float64} = kmer_distribution ./ length(model.kmerset)
-
-                # in case of non appearences
-                if !iszero(sum(seq_distribution))
-
-                    classifications[i] = classify(seq_distribution)
-                    push!(y_true, class)
-                    push!(y_pred, classifications[i][1])
-                end
-
+        @floop for i in 1:num_seqs
+            seq = @view classeqs[i]
+            kmer_distribution = ClassificationModel.sequence_kmer_distribution(model.regions, seq, kmerset)
+            seq_distribution::Vector{Float64} = kmer_distribution ./ length(model.kmerset)
+            # in case of non appearences
+            if !iszero(sum(seq_distribution))
+                cl = classify(seq_distribution)
+                classifications[i] = cl
+                local_y_pred[i] = cl[1]
+            else
+                local_y_pred[i] = ""
             end
-
-            classification_probs[class] = classifications
-        catch e
-            @error e
         end
 
+        # append!(y_pred, local_y_pred)
+        # append!(y_true, [class for i in num_seqs])
+        # classification_probs[class] = classifications
 
     end
 
-    results = compute_variant_metrics(model.classes, y_true, y_pred)
-    RESULTS_CSV = "benchmark_results_$groupName.csv"
+    # results = compute_variant_metrics(model.classes, y_true, y_pred)
+    @info y_pred
+    # RESULTS_CSV = "benchmark_results_$groupName.csv"
 
-    open(RESULTS_CSV, "a") do io
-        # Write header if file is empty/new
-        if filesize(RESULTS_CSV) == 0
-            types = join(model.classes, ",")
-            write(io, "wndwPercent,metric,windows,window_size,max_seq_windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
-        end
+    # open(RESULTS_CSV, "a") do io
+    #     # Write header if file is empty/new
+    #     if filesize(RESULTS_CSV) == 0
+    #         types = join(model.classes, ",")
+    #         write(io, "wndwPercent,metric,windows,window_size,max_seq_windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
+    #     end
 
-        # Format data components
-        # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
-        perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
-        # Create CSV line
-        line = join([
-                escape_string(string(wnwPercent)),
-                escape_string(string(metric)),
-                length(model.regions),
-                length(model.kmerset),
-                model.wnw_size,
-                model.max_seq_windows,
-                perclass,
-                results[:macro][:f1],
-                results[:macro][:precision],
-                results[:macro][:recall],
-                results[:micro][:f1],
-                results[:micro][:precision],
-                results[:micro][:recall]
-            ], ",")
+    #     # Format data components
+    #     # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
+    #     perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
+    #     # Create CSV line
+    #     line = join([
+    #             escape_string(string(wnwPercent)),
+    #             escape_string(string(metric)),
+    #             length(model.regions),
+    #             model.wnw_size,
+    #             model.max_seq_windows,
+    #             length(model.kmerset),
+    #             perclass,
+    #             results[:macro][:f1],
+    #             results[:macro][:precision],
+    #             results[:macro][:recall],
+    #             results[:micro][:f1],
+    #             results[:micro][:precision],
+    #             results[:micro][:recall]
+    #         ], ",")
 
-        write(io, line * "\n")
-    end
+    #     write(io, line * "\n")
+    # end
 
     # println("######### Results for :$wnwPercent  - $metric ###########")
     # # Access results:

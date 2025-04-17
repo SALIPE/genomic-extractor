@@ -25,7 +25,7 @@ jobs:
           # Replace paths with your project's entry point and output directory
           julia --project=@. -e '
             using PackageCompiler
-            create_app("GREAC/","greac"; cpu_target="generic", force=true)'
+            create_app("GREAC/","greac"; cpu_target="x86-64", include_transitive=true, force=true)'
 
       - name: Create compiled app tarball
         run: tar -czvf greac.tar.gz greac/
