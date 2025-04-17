@@ -240,46 +240,68 @@ function greacClassification(
     modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
     model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
 
-    classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
+    # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
 
     classify = Base.Fix1(ClassificationModel.predict_raw, (model, metric))
 
-    y_true = Vector{String}()
-    y_pred = Vector{String}()
+    y_true = String[]
+    y_pred = String[]
     kmerset::Vector{String} = collect(model.kmerset)
 
     for class in model.classes
+        file_path::String = "$folderPath/$class.fasta"
+        total = DataIO.countSequences(file_path)
 
-        classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences("$folderPath/$class.fasta")
-        num_seqs = length(classeqs)
+        chunk_size = 10000
+        chunk_init::Int = 1
 
-        @info "Classyfing $class $num_seqs sequences:"
-        classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, num_seqs)
+        @info "Classyfing $class $total sequences:"
+        # classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, total)
+        local_y_pred = Vector{String}(undef, total)
+        local_y_true = Vector{String}(undef, total)
+        fill!(local_y_true, class)
 
-        local_y_pred = Vector{String}(undef, num_seqs)
+        while chunk_init <= total
 
-        @floop for i in 1:num_seqs
-            seq = @view classeqs[i]
-            kmer_distribution = ClassificationModel.sequence_kmer_distribution(model.regions, seq, kmerset)
-            seq_distribution::Vector{Float64} = kmer_distribution ./ length(model.kmerset)
-            # in case of non appearences
-            if !iszero(sum(seq_distribution))
-                cl = classify(seq_distribution)
-                classifications[i] = cl
-                local_y_pred[i] = cl[1]
-            else
-                local_y_pred[i] = ""
+            chunk_end = min(chunk_init + chunk_size - 1, total)
+            current_chunk_size = chunk_end - chunk_init + 1
+
+            classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences(file_path, chunk_init, chunk_end)
+
+            # inner_classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, current_chunk_size)
+            inner_y_pred = Vector{String}(undef, current_chunk_size)
+
+            @floop for local_idx in 1:current_chunk_size
+                seq::Base.CodeUnits = classeqs[local_idx]
+
+                kmer_distribution = ClassificationModel.sequence_kmer_distribution(
+                    model.regions, seq, kmerset
+                )
+                seq_distribution = kmer_distribution ./ length(model.kmerset)
+
+                if !iszero(sum(seq_distribution))
+                    cl = classify(seq_distribution)
+                    # inner_classifications[local_idx] = cl
+                    inner_y_pred[local_idx] = cl[1]
+                end
             end
+
+            # classifications[chunk_init:chunk_end] = inner_classifications
+            local_y_pred[chunk_init:chunk_end] = inner_y_pred
+            GC.gc(false)
+
+            @info "Chunk processed $chunk_init - $chunk_end"
+            chunk_init = chunk_end + 1
         end
 
-        # append!(y_pred, local_y_pred)
-        # append!(y_true, [class for i in num_seqs])
+        append!(y_pred, local_y_pred)
+        append!(y_true, local_y_true)
         # classification_probs[class] = classifications
 
     end
 
-    # results = compute_variant_metrics(model.classes, y_true, y_pred)
-    @info y_pred
+    results = compute_variant_metrics(model.classes, y_true, y_pred)
+    @info results
     # RESULTS_CSV = "benchmark_results_$groupName.csv"
 
     # open(RESULTS_CSV, "a") do io

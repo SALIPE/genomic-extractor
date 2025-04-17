@@ -151,6 +151,31 @@ function loadCodeUnitsSequences(
     end
     return sequences
 end
+function loadCodeUnitsSequences(
+    file::String,
+    chunk_init::Int,
+    chunk_end::Int
+)::Vector{Base.CodeUnits}
+
+    sequences = Vector{Base.CodeUnits}()
+    for (i, record) in enumerate(open(FASTAReader, file))
+        if i >= chunk_init && i <= chunk_end
+            push!(sequences, codeunits(sequence(String, record)))
+        end
+    end
+    return sequences
+end
+
+function countSequences(
+    file::String
+)::Int
+
+    count = 0
+    for record in open(FASTAReader, file)
+        count += 1
+    end
+    return count
+end
 
 
 end

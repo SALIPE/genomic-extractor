@@ -99,7 +99,7 @@ end
 
 function sequence_kmer_distribution(
     regions::Vector{Tuple{Int,Int}},
-    seq::AbstractArray,
+    seq::Base.CodeUnits,
     kmerset::Vector{String}
 )::Vector{UInt64}
 
