@@ -301,38 +301,38 @@ function greacClassification(
     end
 
     results = compute_variant_metrics(model.classes, y_true, y_pred)
-    @info results
-    # RESULTS_CSV = "benchmark_results_$groupName.csv"
+    # @info results
+    RESULTS_CSV = "benchmark_results_$groupName.csv"
 
-    # open(RESULTS_CSV, "a") do io
-    #     # Write header if file is empty/new
-    #     if filesize(RESULTS_CSV) == 0
-    #         types = join(model.classes, ",")
-    #         write(io, "wndwPercent,metric,windows,window_size,max_seq_windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
-    #     end
+    open(RESULTS_CSV, "a") do io
+        # Write header if file is empty/new
+        if filesize(RESULTS_CSV) == 0
+            types = join(model.classes, ",")
+            write(io, "wndwPercent,metric,windows,window_size,max_seq_windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
+        end
 
-    #     # Format data components
-    #     # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
-    #     perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
-    #     # Create CSV line
-    #     line = join([
-    #             escape_string(string(wnwPercent)),
-    #             escape_string(string(metric)),
-    #             length(model.regions),
-    #             model.wnw_size,
-    #             model.max_seq_windows,
-    #             length(model.kmerset),
-    #             perclass,
-    #             results[:macro][:f1],
-    #             results[:macro][:precision],
-    #             results[:macro][:recall],
-    #             results[:micro][:f1],
-    #             results[:micro][:precision],
-    #             results[:micro][:recall]
-    #         ], ",")
+        # Format data components
+        # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
+        perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
+        # Create CSV line
+        line = join([
+                escape_string(string(wnwPercent)),
+                escape_string(string(metric)),
+                length(model.regions),
+                model.wnw_size,
+                model.max_seq_windows,
+                length(model.kmerset),
+                perclass,
+                results[:macro][:f1],
+                results[:macro][:precision],
+                results[:macro][:recall],
+                results[:micro][:f1],
+                results[:micro][:precision],
+                results[:micro][:recall]
+            ], ",")
 
-    #     write(io, line * "\n")
-    # end
+        write(io, line * "\n")
+    end
 
     # println("######### Results for :$wnwPercent  - $metric ###########")
     # # Access results:
