@@ -283,6 +283,8 @@ function greacClassification(
                     cl = classify(seq_distribution)
                     # inner_classifications[local_idx] = cl
                     inner_y_pred[local_idx] = cl[1]
+                else
+                    inner_y_pred[local_idx] = ""
                 end
             end
 
