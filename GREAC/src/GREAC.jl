@@ -13,6 +13,7 @@ using FLoops,
     Normalization,
     Statistics,
     ArgParse,
+    BenchmarkTools,
     .DataIO,
     .RegionExtraction,
     .ClassificationModel,
@@ -335,20 +336,6 @@ function greacClassification(
 
         write(io, line * "\n")
     end
-
-    # println("######### Results for :$wnwPercent  - $metric ###########")
-    # # Access results:
-    # println("Confusion Matrix:")
-    # display(results[:confusion_matrix])
-
-    # println("\nPer-Class Metrics:")
-    # for (variant, metrics) in results[:per_class]
-    #     println("$variant: ", metrics)
-    # end
-
-    # println("\nMacro Averages: ", results[:macro])
-    # println("Micro Averages: ", results[:micro])
-
 end
 
 function compute_variant_metrics(
@@ -429,7 +416,7 @@ function compute_variant_metrics(
 end
 
 
-function getKmersDistributinPerClass(
+function getKmersDistributionPerClass(
     wnwPercent::Float32,
     groupName::String,
     variantDirPath::String
@@ -443,7 +430,7 @@ function getKmersDistributinPerClass(
         @error "create cache directory failed" exception = (e, catch_backtrace())
     end
 
-    model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
+    model::Union{Nothing,ClassificationModel.MultiClassModel} = nothing # DataIO.load_cache("$cachdir/kmers_distribution.dat")
 
     if !isnothing(model)
         @info "Model already processed from cached data from $cachdir"
@@ -544,10 +531,13 @@ function main()
             help="Benchmark extract features model and classify creating and print confusion matrix")
         ("region-validation", action=:command,
             help="Validate genomic regions with various parameters")
+        ("performance-evaluation", action=:command,
+            help="Evaluate function performance using bechmark tools")
     end
 
     # Add arguments for each subcommand
     add_convergence_analysis_args!(settings)
+    add_performance_args!(settings)
     add_benchmark_args!(settings)
     add_region_validation_args!(settings)
 
@@ -564,6 +554,8 @@ function main()
             handle_convergence_analysis(parsed_args["convergence-analysis"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
             handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
+        elseif parsed_args["%COMMAND%"] == "performance-evaluation"
+            handle_performance_evaluation(parsed_args["performance-evaluation"], parsed_args["group-name"])
         elseif parsed_args["%COMMAND%"] == "region-validation"
             handle_region_validation(parsed_args["region-validation"])
         end
@@ -596,6 +588,15 @@ function add_benchmark_args!(settings)
         range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"])
         "--test-dir"
         help = "Test dataset path"
+        required = true
+    end
+end
+
+function add_performance_args!(settings)
+    s = settings["performance-evaluation"]
+    @add_arg_table! s begin
+        "--train-dir"
+        help = "Training dataset path"
         required = true
     end
 end
@@ -647,7 +648,7 @@ function handle_benchmark(args,
         nothing,
         args["train-dir"]
     )
-    getKmersDistributinPerClass(
+    getKmersDistributionPerClass(
         window,
         groupName,
         args["train-dir"]
@@ -660,6 +661,72 @@ function handle_benchmark(args,
         groupName,
         args["metric"]
     )
+end
+
+function handle_performance_evaluation(args, groupName::String)
+    @info "Starting performance evaluation"
+
+    # Configure benchmark parameters
+    params = BenchmarkTools.DEFAULT_PARAMETERS
+    params.seconds = 60      # Longer time budget for stable results
+    params.evals = 1         # Better for multithreaded functions
+    params.gcsample = true   # Collect GC statistics
+
+    train_dir = args["train-dir"]
+    windows = Float32[0.002, 0.004, 0.006, 0.008]
+
+    # Storage for results
+    results = Dict{String,Any}()
+
+    # Benchmark each window configuration
+    for (i, window) in enumerate(windows)
+
+        # Feature extraction benchmark
+        bench_feat = @benchmarkable(
+                         RegionExtraction.extractFeaturesTemplate(w, $groupName, nothing, $train_dir),
+                         setup = (GC.gc(); w = $window),  # Ensure clean state and fixed window
+                         teardown = (GC.gc()),
+                         evals = 1
+                     ) |> tune! |> run
+
+        # Model fitting benchmark
+        bench_model = @benchmarkable(
+                          getKmersDistributionPerClass(w, $groupName, $train_dir),
+                          setup = (GC.gc(); w = $window),
+                          teardown = (GC.gc()),
+                          evals = 1
+                      ) |> tune! |> run
+
+        results["window_$i"] = Dict(
+            :window => window,
+            :feature => bench_feat,
+            :model => bench_model
+        )
+    end
+
+    open("benchmark_summary_$(groupName).txt", "w") do io
+        println(io, "Performance Evaluation Report")
+        println(io, "Group: ", groupName)
+        println(io, "Threads Available: ", Threads.nthreads(), "\n")
+
+        for (k, v) in results
+            println(io, "\n", "-"^50)
+            println(io, "Window: ", v[:window])
+
+            println(io, "\nFeature Extraction:")
+            show(io, MIME"text/plain"(), v[:feature])
+
+            println(io, "\n\nModel Fitting:")
+            show(io, MIME"text/plain"(), v[:model])
+
+            println(io, "\nMemory Summary:")
+            println(io, "  Feature - Allocs: ", v[:feature].allocs)
+            println(io, "  Model - Allocs: ", v[:model].allocs)
+        end
+    end
+
+    @info "Benchmark results saved to benchmark_summary_$(groupName).txt"
+    return results
 end
 
 function handle_region_validation(args)
