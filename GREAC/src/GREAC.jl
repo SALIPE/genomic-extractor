@@ -258,9 +258,8 @@ function greacClassification(
 
         @info "Classyfing $class $total sequences:"
         # classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, total)
-        local_y_pred = Vector{String}(undef, total)
-        local_y_true = Vector{String}(undef, total)
-        fill!(local_y_true, class)
+        local_y_pred = String[]
+        local_y_true = String[]
 
         while chunk_init <= total
 
@@ -284,12 +283,17 @@ function greacClassification(
                     cl = classify(seq_distribution)
                     # inner_classifications[local_idx] = cl
                     inner_y_pred[local_idx] = cl[1]
-                else
-                    inner_y_pred[local_idx] = ""
                 end
             end
 
             # classifications[chunk_init:chunk_end] = inner_classifications
+
+            for pred in inner_y_pred
+                if !ismissing(pred)
+                    push!(local_y_pred, pred)
+                    push!(local_y_true, class)
+                end
+            end
             local_y_pred[chunk_init:chunk_end] = inner_y_pred
             GC.gc(false)
 
