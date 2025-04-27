@@ -283,18 +283,19 @@ function greacClassification(
                     cl = classify(seq_distribution)
                     # inner_classifications[local_idx] = cl
                     inner_y_pred[local_idx] = cl[1]
+                else
+                    inner_y_pred[local_idx] = ""
                 end
             end
 
             # classifications[chunk_init:chunk_end] = inner_classifications
 
             for pred in inner_y_pred
-                if !ismissing(pred)
+                if !(pred == "")
                     push!(local_y_pred, pred)
                     push!(local_y_true, class)
                 end
             end
-            local_y_pred[chunk_init:chunk_end] = inner_y_pred
             GC.gc(false)
 
             @info "Chunk processed $chunk_init - $chunk_end"
@@ -434,7 +435,7 @@ function getKmersDistributionPerClass(
         @error "create cache directory failed" exception = (e, catch_backtrace())
     end
 
-    model::Union{Nothing,ClassificationModel.MultiClassModel} = nothing # DataIO.load_cache("$cachdir/kmers_distribution.dat")
+    model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
 
     if !isnothing(model)
         @info "Model already processed from cached data from $cachdir"

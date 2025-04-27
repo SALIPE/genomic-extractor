@@ -104,7 +104,7 @@ function extractFeaturesTemplate(
         println("Processing $variant")
         cache_path = "$cachdir/$(variant)_outmask.dat"
 
-        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray}}} = nothing #DataIO.load_cache(cache_path)
+        cache::Union{Nothing,Tuple{String,Tuple{Vector{UInt16},BitArray}}} = DataIO.load_cache(cache_path)
 
         if !isnothing(cache)
             @info "Using cached data from $cache_path"
