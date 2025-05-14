@@ -435,7 +435,7 @@ function getKmersDistributionPerClass(
         @error "create cache directory failed" exception = (e, catch_backtrace())
     end
 
-    model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
+    model::Union{Nothing,ClassificationModel.MultiClassModel} = nothing # DataIO.load_cache("$cachdir/kmers_distribution.dat")
 
     if !isnothing(model)
         @info "Model already processed from cached data from $cachdir"
@@ -691,7 +691,8 @@ function handle_performance_evaluation(args, groupName::String)
                          RegionExtraction.extractFeaturesTemplate(w, $groupName, nothing, $train_dir),
                          setup = (GC.gc(); w = $window),  # Ensure clean state and fixed window
                          teardown = (GC.gc()),
-                         evals = 1
+                         evals = 1,
+                         samples = 20
                      ) |> tune! |> run
 
         # Model fitting benchmark
@@ -699,7 +700,8 @@ function handle_performance_evaluation(args, groupName::String)
                           getKmersDistributionPerClass(w, $groupName, $train_dir),
                           setup = (GC.gc(); w = $window),
                           teardown = (GC.gc()),
-                          evals = 1
+                          evals = 1,
+                          samples = 20
                       ) |> tune! |> run
 
         results["window_$i"] = Dict(

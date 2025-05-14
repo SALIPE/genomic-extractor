@@ -7,118 +7,118 @@ Threads Available: 1
 Window: 0.008
 
 Feature Extraction:
-BenchmarkTools.Trial: 19 samples with 1 evaluation per sample.
- Range (min … max):  2.592 s …   2.647 s  ┊ GC (min … max): 0.89% … 0.89%
- Time  (median):     2.621 s              ┊ GC (median):    0.89%
- Time  (mean ± σ):   2.621 s ± 14.855 ms  ┊ GC (mean ± σ):  0.92% ± 0.06%
+BenchmarkTools.Trial: 10 samples with 1 evaluation per sample.
+ Range (min … max):  2.587 s …  2.619 s  ┊ GC (min … max): 0.91% … 1.11%
+ Time  (median):     2.597 s             ┊ GC (median):    0.92%
+ Time  (mean ± σ):   2.598 s ± 8.589 ms  ┊ GC (mean ± σ):  0.95% ± 0.07%
 
-                                              █              
-  ▇▁▁▁▁▁▇▁▁▁▁▁▇▁▁▁▇▁▇▇▁▇▁▇▁▁▁▇▁▇▁▁▁▁▁▁▇▇▁▇▇▁▁▇█▁▁▁▁▁▁▁▁▁▁▁▇ ▁
-  2.59 s         Histogram: frequency by time        2.65 s <
+  ▁     ▁       ▁▁ ▁▁ ▁   █                              ▁  
+  █▁▁▁▁▁█▁▁▁▁▁▁▁██▁██▁█▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  2.59 s        Histogram: frequency by time        2.62 s <
 
  Memory estimate: 448.18 MiB, allocs estimate: 2745413.
 
 Model Fitting:
 BenchmarkTools.Trial: 3 samples with 1 evaluation per sample.
- Range (min … max):  22.083 s …   22.296 s  ┊ GC (min … max): 0.08% … 0.09%
- Time  (median):     22.220 s               ┊ GC (median):    0.08%
- Time  (mean ± σ):   22.200 s ± 107.704 ms  ┊ GC (mean ± σ):  0.08% ± 0.00%
+ Range (min … max):  21.768 s …  21.868 s  ┊ GC (min … max): 0.09% … 0.08%
+ Time  (median):     21.782 s              ┊ GC (median):    0.08%
+ Time  (mean ± σ):   21.806 s ± 54.239 ms  ┊ GC (mean ± σ):  0.08% ± 0.00%
 
-  █                                     █                   █  
-  █▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
-  22.1 s          Histogram: frequency by time         22.3 s <
+  █      █                                                 █  
+  █▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  21.8 s         Histogram: frequency by time         21.9 s <
 
- Memory estimate: 308.83 MiB, allocs estimate: 3818915.
+ Memory estimate: 308.83 MiB, allocs estimate: 3818916.
 Memory Summary:
   Feature - Allocs: 2745413
-  Model - Allocs: 3818915
+  Model - Allocs: 3818916
 
 --------------------------------------------------
 Window: 0.004
 
 Feature Extraction:
-BenchmarkTools.Trial: 19 samples with 1 evaluation per sample.
- Range (min … max):  2.599 s …   2.638 s  ┊ GC (min … max): 0.87% … 0.85%
- Time  (median):     2.612 s              ┊ GC (median):    0.87%
- Time  (mean ± σ):   2.612 s ± 10.148 ms  ┊ GC (mean ± σ):  0.87% ± 0.02%
+BenchmarkTools.Trial: 10 samples with 1 evaluation per sample.
+ Range (min … max):  2.568 s …   2.611 s  ┊ GC (min … max): 0.88% … 0.87%
+ Time  (median):     2.580 s              ┊ GC (median):    0.88%
+ Time  (mean ± σ):   2.581 s ± 11.997 ms  ┊ GC (mean ± σ):  0.88% ± 0.03%
 
-  ▁  ▁▁▁█▁▁         █▁ █▁  ▁  ▁      ▁     ▁              ▁  
-  █▁▁██████▁▁▁▁▁▁▁▁▁██▁██▁▁█▁▁█▁▁▁▁▁▁█▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
-  2.6 s          Histogram: frequency by time        2.64 s <
+  █    ██  █  █    ██ █  █                                █  
+  █▁▁▁▁██▁▁█▁▁█▁▁▁▁██▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  2.57 s         Histogram: frequency by time        2.61 s <
 
- Memory estimate: 408.40 MiB, allocs estimate: 2697893.
+ Memory estimate: 408.40 MiB, allocs estimate: 2697892.
 
 Model Fitting:
 BenchmarkTools.Trial: 4 samples with 1 evaluation per sample.
- Range (min … max):  15.049 s …  15.232 s  ┊ GC (min … max): 0.19% … 0.19%
- Time  (median):     15.163 s              ┊ GC (median):    0.19%
- Time  (mean ± σ):   15.152 s ± 82.039 ms  ┊ GC (mean ± σ):  0.19% ± 0.00%
+ Range (min … max):  14.877 s …  14.922 s  ┊ GC (min … max): 0.19% … 0.18%
+ Time  (median):     14.899 s              ┊ GC (median):    0.19%
+ Time  (mean ± σ):   14.899 s ± 20.470 ms  ┊ GC (mean ± σ):  0.19% ± 0.00%
 
-  █                       █                      █         █  
-  █▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁█ ▁
-  15 s           Histogram: frequency by time         15.2 s <
+  █              █                           █             █  
+  █▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  14.9 s         Histogram: frequency by time         14.9 s <
 
- Memory estimate: 440.23 MiB, allocs estimate: 3818924.
+ Memory estimate: 440.23 MiB, allocs estimate: 3818928.
 Memory Summary:
-  Feature - Allocs: 2697893
-  Model - Allocs: 3818924
+  Feature - Allocs: 2697892
+  Model - Allocs: 3818928
 
 --------------------------------------------------
 Window: 0.006
 
 Feature Extraction:
-BenchmarkTools.Trial: 19 samples with 1 evaluation per sample.
- Range (min … max):  2.613 s …  2.636 s  ┊ GC (min … max): 0.90% … 0.91%
- Time  (median):     2.621 s             ┊ GC (median):    0.91%
- Time  (mean ± σ):   2.623 s ± 7.670 ms  ┊ GC (mean ± σ):  0.91% ± 0.03%
+BenchmarkTools.Trial: 10 samples with 1 evaluation per sample.
+ Range (min … max):  2.575 s …  2.594 s  ┊ GC (min … max): 0.90% … 0.87%
+ Time  (median):     2.584 s             ┊ GC (median):    0.90%
+ Time  (mean ± σ):   2.585 s ± 7.196 ms  ┊ GC (mean ± σ):  0.91% ± 0.05%
 
-  █ ▁          ▁▁▁▁▁▁▁▁   ▁      ▁       ▁ ▁         █▁  ▁  
-  █▁█▁▁▁▁▁▁▁▁▁▁████████▁▁▁█▁▁▁▁▁▁█▁▁▁▁▁▁▁█▁█▁▁▁▁▁▁▁▁▁██▁▁█ ▁
-  2.61 s        Histogram: frequency by time        2.64 s <
+  ▁ ▁            █         ▁▁                  ▁     ▁ ▁ ▁  
+  █▁█▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁██▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁█▁█▁█ ▁
+  2.58 s        Histogram: frequency by time        2.59 s <
 
  Memory estimate: 427.42 MiB, allocs estimate: 2722473.
 
 Model Fitting:
 BenchmarkTools.Trial: 4 samples with 1 evaluation per sample.
- Range (min … max):  19.086 s …   19.334 s  ┊ GC (min … max): 0.13% … 0.12%
- Time  (median):     19.188 s               ┊ GC (median):    0.12%
- Time  (mean ± σ):   19.199 s ± 124.603 ms  ┊ GC (mean ± σ):  0.12% ± 0.01%
+ Range (min … max):  18.852 s …  18.894 s  ┊ GC (min … max): 0.11% … 0.11%
+ Time  (median):     18.865 s              ┊ GC (median):    0.12%
+ Time  (mean ± σ):   18.869 s ± 18.188 ms  ┊ GC (mean ± σ):  0.12% ± 0.00%
 
-  █  █                                        █             █  
-  █▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
-  19.1 s          Histogram: frequency by time         19.3 s <
+  █           █           █                                █  
+  █▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  18.9 s         Histogram: frequency by time         18.9 s <
 
- Memory estimate: 358.10 MiB, allocs estimate: 3818911.
+ Memory estimate: 358.10 MiB, allocs estimate: 3818915.
 Memory Summary:
   Feature - Allocs: 2722473
-  Model - Allocs: 3818911
+  Model - Allocs: 3818915
 
 --------------------------------------------------
 Window: 0.002
 
 Feature Extraction:
-BenchmarkTools.Trial: 19 samples with 1 evaluation per sample.
- Range (min … max):  2.572 s …   2.652 s  ┊ GC (min … max): 0.83% … 0.84%
- Time  (median):     2.601 s              ┊ GC (median):    0.81%
- Time  (mean ± σ):   2.604 s ± 17.699 ms  ┊ GC (mean ± σ):  0.82% ± 0.04%
+BenchmarkTools.Trial: 10 samples with 1 evaluation per sample.
+ Range (min … max):  2.582 s …   2.778 s  ┊ GC (min … max): 0.80% … 0.77%
+ Time  (median):     2.614 s              ┊ GC (median):    0.80%
+ Time  (mean ± σ):   2.634 s ± 59.818 ms  ┊ GC (mean ± σ):  0.81% ± 0.04%
 
-  ▁            ██▁▁█  ▁  █▁█    ▁       ▁  ▁              ▁  
-  █▁▁▁▁▁▁▁▁▁▁▁▁█████▁▁█▁▁███▁▁▁▁█▁▁▁▁▁▁▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
-  2.57 s         Histogram: frequency by time        2.65 s <
+  █  ▁ ▁▁     ▁    ▁  ▁       ▁                           ▁  
+  █▁▁█▁██▁▁▁▁▁█▁▁▁▁█▁▁█▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  2.58 s         Histogram: frequency by time        2.78 s <
 
- Memory estimate: 387.85 MiB, allocs estimate: 2671436.
+ Memory estimate: 387.85 MiB, allocs estimate: 2671439.
 
 Model Fitting:
 BenchmarkTools.Trial: 7 samples with 1 evaluation per sample.
- Range (min … max):  8.888 s …   9.014 s  ┊ GC (min … max): 0.40% … 0.40%
- Time  (median):     8.922 s              ┊ GC (median):    0.40%
- Time  (mean ± σ):   8.938 s ± 50.316 ms  ┊ GC (mean ± σ):  0.40% ± 0.00%
+ Range (min … max):  8.768 s …   8.839 s  ┊ GC (min … max): 0.39% … 0.39%
+ Time  (median):     8.791 s              ┊ GC (median):    0.39%
+ Time  (mean ± σ):   8.794 s ± 22.990 ms  ┊ GC (mean ± σ):  0.39% ± 0.01%
 
-  ██  █          █                      █  █              █  
-  ██▁▁█▁▁▁▁▁▁▁▁▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█▁▁█▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
-  8.89 s         Histogram: frequency by time        9.01 s <
+  █       █   █     █      ██                             █  
+  █▁▁▁▁▁▁▁█▁▁▁█▁▁▁▁▁█▁▁▁▁▁▁██▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁█ ▁
+  8.77 s         Histogram: frequency by time        8.84 s <
 
- Memory estimate: 653.76 MiB, allocs estimate: 3818927.
+ Memory estimate: 653.76 MiB, allocs estimate: 3818929.
 Memory Summary:
-  Feature - Allocs: 2671436
-  Model - Allocs: 3818927
+  Feature - Allocs: 2671439
+  Model - Allocs: 3818929
