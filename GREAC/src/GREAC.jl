@@ -524,7 +524,7 @@ function main()
         help = "Sliding window percent size"
         arg_type = Float32
         required = true
-        range_tester = (x -> 0.001 < x < 0.5)
+        range_tester = (x -> 0.0001 < x < 0.5)
 
     end
 

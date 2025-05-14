@@ -14,9 +14,13 @@ PROJECTHOME=~/Desktop/rrm-genomic-extractor/GREAC
 # TRAIN=~/Desktop/datasets/bees/kmers
 # GROUPNAME=bees
 
-TESTDIR=~/Desktop/datasets/denv_eq/test
-TRAIN=~/Desktop/datasets/denv_eq/train/kmers
-GROUPNAME=denv_eq
+# TESTDIR=~/Desktop/datasets/denv_eq/test
+# TRAIN=~/Desktop/datasets/denv_eq/train/kmers
+# GROUPNAME=denv_eq
+
+TESTDIR=~/Desktop/rrm-genomic-extractor/comparison_scripts/castor_hiv_data/variants/test
+TRAIN=~/Desktop/rrm-genomic-extractor/comparison_scripts/castor_hiv_data/variants/train/kmers
+GROUPNAME=hiv
 
 cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME -w $1 benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $2
 

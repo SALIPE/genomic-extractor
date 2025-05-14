@@ -20,8 +20,9 @@ def gather_input_files(paths):
         else:
             print(f"Warning: '{p}' not found, skipping.")
     return fasta_files
+
 def split_fasta_by_class(input_files, output_dir):
-    # Create output directory if needed
+    # Create base output directory if needed
     os.makedirs(output_dir, exist_ok=True)
 
     # Keep file handles open for each class
@@ -35,14 +36,12 @@ def split_fasta_by_class(input_files, output_dir):
                 for line in f:
                     line = line.rstrip('\n')
                     if line.startswith('>'):
-                        # When encountering a new record, write the previous one
                         if header:
                             write_record(header, seq_lines, handles, output_dir)
                         header = line
                         seq_lines = []
                     else:
                         seq_lines.append(line)
-                # Write the last record
                 if header:
                     write_record(header, seq_lines, handles, output_dir)
     finally:
@@ -62,11 +61,16 @@ def extract_class_from_header(header):
 
 def write_record(header, seq_lines, handles, output_dir):
     cl = extract_class_from_header(header)
-    # Open handle if not already
+    # Prepare directory for this class
+    class_dir = os.path.join(output_dir, cl)
+    os.makedirs(class_dir, exist_ok=True)
+
+    # Open handle for this class if not already
     if cl not in handles:
-        out_path = os.path.join(output_dir, f"{cl}.fasta")
+        out_path = os.path.join(class_dir, f"{cl}.fasta")
         handles[cl] = open(out_path, 'a')
     h = handles[cl]
+
     # Write record
     h.write(header + '\n')
     h.write('\n'.join(seq_lines) + '\n')
