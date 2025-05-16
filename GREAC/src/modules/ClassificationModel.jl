@@ -67,9 +67,6 @@ function fitMulticlass(
         )
     end
 
-
-
-
     return MultiClassModel(
         [class for (class, _) in meta_data],
         priors,
@@ -80,6 +77,54 @@ function fitMulticlass(
         regions)
 end
 
+function trapezoidal_membership(
+    stats::Dict{Symbol,Any},
+    d::Float64)
+
+    p5, p95 = stats[:percentiles]
+
+    if d <= p5
+        0.0
+    elseif p5 < d <= p95
+        1.0
+    else
+        max(0.0, 1 - (d - p95) / (p95 - p5))
+    end
+end
+
+function gaussian_membership(
+    stats::Dict{Symbol,Any},
+    d::Float64
+)
+    μ = stats[:mu]
+    σ = stats[:sigma]
+    exp(-((d - μ)^2) / (2 * σ^2))
+end
+
+function predict_membership(
+    model::MultiClassModel,
+    X::Vector{Float64},
+    normalize::Bool=false)
+
+    memberships = Dict{String,Float64}()
+
+    for c in model.classes
+        class_freqs = model.class_string_probs[c]
+        stats = model.variant_stats[c]
+        # d = sum(abs.(X - class_freqs))
+        d = sqrt(sum((X - class_freqs) .^ 2))
+        memberships[c] = gaussian_membership(stats, d)
+    end
+
+    if normalize
+        total = sum(values(memberships))
+        total > 0 || return memberships
+        for variant in keys(memberships)
+            memberships[variant] /= total
+        end
+    end
+    return argmax(memberships), memberships
+end
 
 function def_kmer_classes_probs(
     seq_data::Tuple{Vector{Tuple{Int,Int}},Vector{Base.CodeUnits}},
@@ -149,9 +194,10 @@ function sequence_kmer_distribution(
 end
 
 
+
 function predict_raw(
     parameters::Tuple{MultiClassModel,Union{Nothing,String}},
-    X::Vector{Float64},)::Tuple{String,Dict{String,Float64}}
+    X::Vector{Float64})::Tuple{String,Dict{String,Float64}}
 
     model, metric = parameters
 
