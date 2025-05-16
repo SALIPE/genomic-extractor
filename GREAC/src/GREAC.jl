@@ -316,7 +316,7 @@ function greacClassification(
         # Write header if file is empty/new
         if filesize(RESULTS_CSV) == 0
             types = join(model.classes, ",")
-            write(io, "wndwPercent,metric,windows,window_size,max_seq_windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
+            write(io, "wndwPercent,metric,windows,window_size,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
         end
 
         # Format data components
@@ -328,7 +328,6 @@ function greacClassification(
                 escape_string(string(metric)),
                 length(model.regions),
                 model.wnw_size,
-                model.max_seq_windows,
                 length(model.kmerset),
                 perclass,
                 results[:macro][:f1],
@@ -444,11 +443,9 @@ function getKmersDistributionPerClass(
         variantDirs::Vector{String} = readdir(variantDirPath)
 
         kmerset = Set{String}()
-        kmers_dist = Dict{String,Int}()
 
         @simd for variant in variantDirs
             variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
-            kmers_dist[variant] = length(variantKmers)
             union!(kmerset, Set(variantKmers))
         end
 
@@ -478,24 +475,13 @@ function getKmersDistributionPerClass(
         end
 
         @info "Window size value: $wnw_size"
-
-        #=
-        This values was used to have the total number of features when working
-        with the sliding window at the entire sequences, and the sequences in dataset
-        have different lengths, this way we always work with a fixed feature array, 
-        considering all the information independently of the input length
-        =#
-        max_seq_windows = max_seq_len - wnw_size + 1
-
         @info meta_data
 
         distribution::ClassificationModel.MultiClassModel = ClassificationModel.fitMulticlass(
             kmerset,
-            kmers_dist,
             meta_data,
             byte_seqs,
             wnw_size,
-            max_seq_windows,
             RegionExtraction.regionsConjuction(variantDirPath, wnwPercent, groupName))
 
         DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)

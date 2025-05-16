@@ -2,15 +2,15 @@ module ClassificationModel
 
 include("RegionExtraction.jl")
 
-using FLoops, .RegionExtraction, LinearAlgebra, Statistics
+using FLoops, .RegionExtraction, LinearAlgebra, Statistics, StatsBase
 export ClassificationModel
 
 struct MultiClassModel
     classes::Vector{String}
     priors::Dict{String,Float64}
     class_string_probs::Dict{String,Vector{Float64}}
+    variant_stats::Dict{String,Dict{Symbol,Any}}
     wnw_size::Int
-    max_seq_windows::Int
     kmerset::Set{String}
     regions::Vector{Tuple{Int,Int}}
 end
@@ -18,24 +18,24 @@ end
 
 function fitMulticlass(
     kmerset::Set{String},
-    kmers_dist::Dict{String,Int},
     meta_data::Dict{String,Int},
     byte_seqs::Dict{String,Vector{Base.CodeUnits}},
     wnw_size::Int,
-    max_seq_windows::Int,
     regions::Vector{Tuple{Int,Int}}
 )::MultiClassModel
 
     priors = Dict{String,Float64}()
     class_string_probs = Dict{String,Vector{Float64}}()
+    variant_stats = Dict{String,Dict{Symbol,Any}}()
+
 
     total_samples = sum(x -> x[2], meta_data)
     regions_len = length(regions)
     for (class, _) in meta_data
 
+        class_seqs::Vector{Base.CodeUnits} = byte_seqs[class]
         println("Calculating $class probabilities")
-
-        get_class_appearences = Base.Fix1(def_kmer_classes_probs, (regions, byte_seqs[class]))
+        get_class_appearences = Base.Fix1(def_kmer_classes_probs, (regions, class_seqs))
 
         @floop for kmer in collect(kmerset)
             kmer_seq_histogram = get_class_appearences(kmer)
@@ -46,16 +46,36 @@ function fitMulticlass(
         end
 
         # Process F_wr
-        class_string_probs[class] = kmer_distribution ./ (length(kmerset) * length(byte_seqs[class]))
+        class_freq = kmer_distribution ./ (length(kmerset) * length(class_seqs))
+        class_string_probs[class] = class_freq
         priors[class] = meta_data[class] / total_samples
+
+        in_group = Vector{Float64}(undef, length(class_seqs))
+        @floop for s in eachindex(class_seqs)
+            seq::Base.CodeUnits = class_seqs[s]
+
+            seq_distribution = sequence_kmer_distribution(regions, seq, collect(kmerset)) ./ length(kmerset)
+
+            in_group[s] = sum(abs.(seq_distribution - class_freq))
+
+        end
+
+        variant_stats[class] = Dict(
+            :mu => mean(in_group),
+            :sigma => std(in_group),
+            :percentiles => quantile(in_group, [0.05, 0.95])
+        )
     end
+
+
+
 
     return MultiClassModel(
         [class for (class, _) in meta_data],
         priors,
         class_string_probs,
+        variant_stats,
         wnw_size,
-        max_seq_windows,
         kmerset,
         regions)
 end
@@ -126,30 +146,6 @@ function sequence_kmer_distribution(
         )
     end
     return kmer_distribution
-end
-function def_kmer_presence(
-    seq_data::Tuple{Int,Int,Base.CodeUnits},
-    kmer::String
-)::Tuple{String,BitArray}
-
-    wnw_size, max_seq_windows, seq = seq_data
-
-    fn_occursin = Base.Fix1(RegionExtraction.occursinKmerBit, codeunits(kmer))
-    seq_presence = falses(max_seq_windows)
-
-    seq_windows = length(seq) - wnw_size + 1
-
-    for initPos in 1:seq_windows
-        endPos = initPos + wnw_size - 1
-        wndw_buffer = @view seq[initPos:endPos]
-
-        if fn_occursin(wndw_buffer)
-            seq_presence[initPos] = 1
-        end
-    end
-
-    return (kmer, seq_presence)
-
 end
 
 
