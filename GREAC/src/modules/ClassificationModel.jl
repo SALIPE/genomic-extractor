@@ -96,9 +96,9 @@ function gaussian_membership(
     stats::Dict{Symbol,Any},
     d::Float64
 )
-    μ = stats[:mu]
-    σ = stats[:sigma]
-    exp(-((d - μ)^2) / (2 * σ^2))
+    mean = stats[:mu]
+    std = stats[:sigma]
+    return exp(-((d - mean)^2) / (2 * std^2))
 end
 
 function predict_membership(
@@ -112,7 +112,8 @@ function predict_membership(
         class_freqs = model.class_string_probs[c]
         stats = model.variant_stats[c]
         # d = sum(abs.(X - class_freqs))
-        d = sqrt(sum((X - class_freqs) .^ 2))
+        # d = sqrt(sum((X - class_freqs) .^ 2))
+        d = kld(class_freqs, X)
         memberships[c] = gaussian_membership(stats, d)
     end
 
@@ -247,16 +248,7 @@ function predict_raw(
 
         elseif metric == "kld"
 
-            #  Kullback-Leibler (KL) divergence
-            Q_norm = X ./ sum(X)
-            P_norm = class_freqs ./ sum(class_freqs)
-
-            # Smooth to avoid zeros
-            P_smoothed = P_norm .+ epsilon
-            P_smoothed = P_smoothed ./ sum(P_smoothed)
-
-            # Compute KL(Q || P_smoothed)
-            dists[c] = sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
+            dists[c] = kld(class_freqs, X)
         else
             error("Unsupported metric: $metric")
         end
@@ -264,6 +256,22 @@ function predict_raw(
     end
 
     return argmin(dists), dists
+end
+
+function kld(
+    class_freqs,
+    X::Vector{Float64}
+)
+    #  Kullback-Leibler (KL) divergence
+    Q_norm = X ./ sum(X)
+    P_norm = class_freqs ./ sum(class_freqs)
+
+    # Smooth to avoid zeros
+    P_smoothed = P_norm .+ 1e-6
+    P_smoothed = P_smoothed ./ sum(P_smoothed)
+
+    # Compute KL(Q || P_smoothed)
+    return sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
 end
 
 
