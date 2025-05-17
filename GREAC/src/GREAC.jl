@@ -243,7 +243,7 @@ function greacClassification(
 
     # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
     # predict_raw (model, metric)
-    classify = Base.Fix1(ClassificationModel.predict_membership, model)
+    classify = Base.Fix1(ClassificationModel.predict_membership, (model, metric))
 
     y_true = String[]
     y_pred = String[]

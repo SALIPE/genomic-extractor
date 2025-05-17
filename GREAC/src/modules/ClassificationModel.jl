@@ -102,18 +102,17 @@ function gaussian_membership(
 end
 
 function predict_membership(
-    model::MultiClassModel,
+    parameters::Tuple{MultiClassModel,Union{Nothing,String}},
     X::Vector{Float64},
     normalize::Bool=false)
 
+    model, metric = parameters
     memberships = Dict{String,Float64}()
 
     for c in model.classes
         class_freqs = model.class_string_probs[c]
         stats = model.variant_stats[c]
-        # d = sum(abs.(X - class_freqs))
-        # d = sqrt(sum((X - class_freqs) .^ 2))
-        d = kld(class_freqs, X)
+        d = metrics_options(metric, class_freqs, X)
         memberships[c] = gaussian_membership(stats, d)
     end
 
@@ -202,57 +201,12 @@ function predict_raw(
 
     model, metric = parameters
 
-    if (isnothing(metric))
-        metric = "manhattan"
-    end
-
     dists = Dict{String,Float64}([(class, zero(Float64)) for class in model.classes])
-    epsilon = 1e-6
-
     for c in model.classes
 
         # Get the class's precomputed conditional frequencies
         class_freqs = model.class_string_probs[c]
-
-        if metric == "manhattan"
-
-            # Manhattan distance
-            dists[c] = sum(abs.(X - class_freqs))
-
-        elseif metric == "euclidian"
-            # Euclidian distance
-            dists[c] = sqrt(sum((X - class_freqs) .^ 2))
-
-        elseif metric == "mahalanobis"
-
-            train_data = hcat([model.class_string_probs[c] for c in model.classes]...)
-
-            covariance = cov(train_data; dims=2)
-            inv_covariance = inv(covariance + epsilon * I(size(covariance, 1)))
-
-            # Mahalanobis distance requires inverse covariance matrix
-            if inv_covariance === nothing
-                error("Mahalanobis metric requires inverse covariance matrix")
-            end
-
-            delta = X - class_freqs
-            dists[c] = sqrt(delta' * inv_covariance * delta)
-
-        elseif metric == "chisquared"
-            # Chi-squared distance
-            dists[c] = sum((X - class_freqs) .^ 2 ./ (class_freqs .+ 1e-9))
-
-        elseif metric == "rrm"
-            # Think in another approach to use RRM, this cross-spectrum approach don't work
-            dists[c] = sum(dot(X, class_freqs))
-
-        elseif metric == "kld"
-
-            dists[c] = kld(class_freqs, X)
-        else
-            error("Unsupported metric: $metric")
-        end
-
+        dists[c] = metrics_options(metric, class_freqs, X)
     end
 
     return argmin(dists), dists
@@ -274,6 +228,52 @@ function kld(
     return sum(q * (log(q) - log(p)) for (q, p) in zip(Q_norm, P_smoothed) if q > 0)
 end
 
+function metrics_options(
+    metric::Union{Nothing,String},
+    class_freqs,
+    X::Vector{Float64}
+)
+
+    if (isnothing(metric))
+        metric = "manhattan"
+    end
+    epsilon = 1e-6
+    if metric == "manhattan"
+
+        # Manhattan distance
+        return sum(abs.(X - class_freqs))
+
+    elseif metric == "euclidian"
+        # Euclidian distance
+        return sqrt(sum((X - class_freqs) .^ 2))
+
+    elseif metric == "mahalanobis"
+
+        train_data = hcat([model.class_string_probs[c] for c in model.classes]...)
+
+        covariance = cov(train_data; dims=2)
+        inv_covariance = inv(covariance + epsilon * I(size(covariance, 1)))
+
+        # Mahalanobis distance requires inverse covariance matrix
+        if inv_covariance === nothing
+            error("Mahalanobis metric requires inverse covariance matrix")
+        end
+
+        delta = X - class_freqs
+        return sqrt(delta' * inv_covariance * delta)
+
+    elseif metric == "chisquared"
+        # Chi-squared distance
+        return sum((X - class_freqs) .^ 2 ./ (class_freqs .+ 1e-9))
+
+    elseif metric == "kld"
+        return kld(class_freqs, X)
+    else
+        error("Unsupported metric: $metric")
+    end
+
+
+end
 
 
 end

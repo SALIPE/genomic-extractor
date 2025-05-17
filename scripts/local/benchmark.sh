@@ -14,13 +14,13 @@ PROJECTHOME=~/Desktop/rrm-genomic-extractor/GREAC
 # TRAIN=~/Desktop/datasets/bees/kmers
 # GROUPNAME=bees
 
-# TESTDIR=~/Desktop/datasets/dengue/test
-# TRAIN=~/Desktop/datasets/dengue/train/kmers
-# GROUPNAME=dengue
+TESTDIR=~/Desktop/datasets/dengue/test
+TRAIN=~/Desktop/datasets/dengue/train/kmers
+GROUPNAME=dengue
 
-TESTDIR=~/Desktop/rrm-genomic-extractor/comparison_scripts/castor_hiv_data/variants/test
-TRAIN=~/Desktop/rrm-genomic-extractor/comparison_scripts/castor_hiv_data/variants/train/kmers
-GROUPNAME=hiv
+# TESTDIR=~/Desktop/rrm-genomic-extractor/comparison_scripts/castor_hiv_data/variants/test
+# TRAIN=~/Desktop/rrm-genomic-extractor/comparison_scripts/castor_hiv_data/variants/train/kmers
+# GROUPNAME=hiv
 
 # TESTDIR=/home/salipe/Desktop/datasets/HBV/data/test
 # TRAIN=/home/salipe/Desktop/datasets/HBV/data/train/kmers
