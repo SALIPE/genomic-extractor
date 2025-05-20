@@ -485,7 +485,74 @@ function getKmersDistributionPerClass(
             RegionExtraction.regionsConjuction(variantDirPath, wnwPercent, groupName))
 
         DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
+        RESULTS_CSV = "regions_val_$groupName.csv"
+
+        open(RESULTS_CSV, "a") do io
+            # Write header if file is empty/new
+            if filesize(RESULTS_CSV) == 0
+                write(io, "wndwPercent,found,finalLength\n")
+            end
+
+            # Create CSV line
+            line = join([
+                    escape_string(string(wnwPercent)),
+                    escape_string(string(sars_pos_val(distribution))),
+                    escape_string(string(count_region_length(distribution.regions)))
+                ], ",")
+
+            write(io, line * "\n")
+        end
     end
+end
+
+function count_region_length(regions)::Int
+    total_length = 0
+    for (i, e) in regions
+        total_length += e - i
+    end
+    return total_length
+end
+function havein(pos, regions)
+
+    for (i, e) in regions
+        if pos >= i && pos <= e
+            return pos, i, e
+        end
+    end
+    return pos, 0, 0
+end
+function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
+    sars_pos = [2790,
+        3037,
+        5386,
+        5648,
+        8393,
+        10029,
+        12880,
+        13195,
+        14408,
+        15714,
+        17410,
+        23403,
+        23525,
+        24424,
+        24469,
+        25088,
+        26060,
+        26149,
+        28512]
+
+    havepos = Base.Fix2(havein, model.regions)
+
+    found = map(havepos, sars_pos)
+    count = 0
+
+    for (pos, i, e) in found
+        if i != 0
+            count += 1
+        end
+    end
+    return count
 end
 
 
@@ -747,7 +814,6 @@ function handle_region_validation(args)
         error("Must specify either --file or --files-directory")
     end
 end
-
 
 
 if abspath(PROGRAM_FILE) == @__FILE__
