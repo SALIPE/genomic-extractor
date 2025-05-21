@@ -522,29 +522,66 @@ function havein(pos, regions)
     return pos, 0, 0
 end
 function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
-    sars_pos = [2790,
+    pos = [670,
+        1059,
+        2790,
         3037,
+        4184,
         5386,
         5648,
+        5730,
         8393,
+        8986,
+        9053,
+        9866,
+        9867,
         10029,
+        10135,
+        10447,
+        10449,
+        11201,
+        11537,
+        11750,
+        12160,
         12880,
         13195,
+        14257,
         14408,
+        15240,
+        15451,
         15714,
+        16466,
+        16935,
+        17039,
+        17236,
         17410,
         23403,
         23525,
+        23599,
+        23604,
         24424,
         24469,
+        24503,
+        25000,
         25088,
+        25416,
+        25469,
+        25563,
+        25584,
         26060,
         26149,
-        28512]
+        26270,
+        26767,
+        28512,
+        28724,
+        28881,
+        28882,
+        28883,
+        28916]
 
     havepos = Base.Fix2(havein, model.regions)
 
-    found = map(havepos, sars_pos)
+    found = map(havepos, pos)
     count = 0
 
     for (pos, i, e) in found
