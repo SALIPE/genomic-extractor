@@ -748,14 +748,14 @@ function handle_benchmark(args,
         groupName,
         args["train-dir"]
     )
-    # @info "Starting classification evaluation"
-    # greacClassification(
-    #     args["test-dir"],
-    #     nothing,
-    #     window,
-    #     groupName,
-    #     args["metric"]
-    # )
+    @info "Starting classification evaluation"
+    greacClassification(
+        args["test-dir"],
+        nothing,
+        window,
+        groupName,
+        args["metric"]
+    )
 end
 
 function handle_performance_evaluation(args, groupName::String)
