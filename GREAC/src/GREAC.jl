@@ -235,12 +235,14 @@ function greacClassification(
     outputdir::Union{Nothing,String},
     wnwPercent::Float32,
     groupName::String,
-    metric::Union{Nothing,String}
+    metric::Union{Nothing,String},
+    model::Union{Nothing,ClassificationModel.MultiClassModel}=nothing
 )
 
-    modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
-    model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
-
+    if isnothing(model)
+        modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
+        model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
+    end
     # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
     # predict_raw (model, metric)
     classify = Base.Fix1(ClassificationModel.predict_membership, (model, metric))
@@ -309,37 +311,40 @@ function greacClassification(
     end
 
     results = compute_variant_metrics(model.classes, y_true, y_pred)
-    # @info results
-    RESULTS_CSV = "benchmark_results_$groupName.csv"
 
-    open(RESULTS_CSV, "a") do io
-        # Write header if file is empty/new
-        if filesize(RESULTS_CSV) == 0
-            types = join(model.classes, ",")
-            write(io, "wndwPercent,metric,windows,window_size,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
+    if !isnothing(outputdir)
+        RESULTS_CSV = "$outputdir/benchmark_results_$groupName.csv"
+
+        open(RESULTS_CSV, "a") do io
+            # Write header if file is empty/new
+            if filesize(RESULTS_CSV) == 0
+                types = join(model.classes, ",")
+                write(io, "wndwPercent,metric,windows,window_size,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
+            end
+
+            # Format data components
+            # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
+            perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
+            # Create CSV line
+            line = join([
+                    escape_string(string(wnwPercent)),
+                    escape_string(string(metric)),
+                    length(model.regions),
+                    model.wnw_size,
+                    length(model.kmerset),
+                    perclass,
+                    results[:macro][:f1],
+                    results[:macro][:precision],
+                    results[:macro][:recall],
+                    results[:micro][:f1],
+                    results[:micro][:precision],
+                    results[:micro][:recall]
+                ], ",")
+
+            write(io, line * "\n")
         end
-
-        # Format data components
-        # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
-        perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
-        # Create CSV line
-        line = join([
-                escape_string(string(wnwPercent)),
-                escape_string(string(metric)),
-                length(model.regions),
-                model.wnw_size,
-                length(model.kmerset),
-                perclass,
-                results[:macro][:f1],
-                results[:macro][:precision],
-                results[:macro][:recall],
-                results[:micro][:f1],
-                results[:micro][:precision],
-                results[:micro][:recall]
-            ], ",")
-
-        write(io, line * "\n")
     end
+    return results[:micro][:f1]
 end
 
 function compute_variant_metrics(
@@ -485,24 +490,30 @@ function getKmersDistributionPerClass(
             RegionExtraction.regionsConjuction(variantDirPath, wnwPercent, groupName))
 
         DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
-        RESULTS_CSV = "regions_val_$groupName.csv"
 
-        open(RESULTS_CSV, "a") do io
-            # Write header if file is empty/new
-            if filesize(RESULTS_CSV) == 0
-                write(io, "wndwPercent,found,finalLength\n")
-            end
-
-            # Create CSV line
-            line = join([
-                    escape_string(string(wnwPercent)),
-                    escape_string(string(sars_pos_val(distribution))),
-                    escape_string(string(count_region_length(distribution.regions)))
-                ], ",")
-
-            write(io, line * "\n")
-        end
     end
+end
+
+function export_sars_pos(
+    groupName::String,
+    wnwPercent::Float32,
+    distribution::ClassificationModel.MultiClassModel)
+
+    RESULTS_CSV = "regions_val_$groupName.csv"
+
+    open(RESULTS_CSV, "a") do io
+        if filesize(RESULTS_CSV) == 0
+            write(io, "wndwPercent,found,finalLength\n")
+        end
+        line = join([
+                escape_string(string(wnwPercent)),
+                escape_string(string(sars_pos_val(distribution))),
+                escape_string(string(count_region_length(distribution.regions)))
+            ], ",")
+
+        write(io, line * "\n")
+    end
+
 end
 
 function count_region_length(regions)::Int
@@ -512,6 +523,7 @@ function count_region_length(regions)::Int
     end
     return total_length
 end
+
 function havein(pos, regions)
 
     for (i, e) in regions
@@ -593,6 +605,59 @@ function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
 end
 
 
+
+function fitParameters(
+    args,
+    groupName::String,
+)
+
+    window::Float32 = 0.001
+    current_f1 = 0
+    current_w = 0
+    current_metric = ""
+
+    while window <= 0.008
+
+        threhold::Float16 = 0.5
+        while threhold <= 0.9
+            rm("$(homedir())/.project_cache/$(groupName)/$window"; recursive=true, force=true)
+
+            RegionExtraction.extractFeaturesTemplate(
+                window,
+                groupName,
+                args["train-dir"],
+                threhold)
+
+            getKmersDistributionPerClass(
+                window,
+                groupName,
+                args["train-dir"]
+            )
+
+            # model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(
+            #     "$(homedir())/.project_cache/$groupName/$window/kmers_distribution.dat"
+            # )
+            f1 = greacClassification(
+                args["test-dir"],
+                nothing,
+                window,
+                groupName,
+                "manhattan"
+            )
+            if f1 > current_f1
+                current_f1 = f1
+                current_w = window
+                current_metric = "manhattan"
+                @info "New Best:" current_f1, current_w, current_metric
+            end
+            threhold += 0.1
+        end
+        window += 0.0005
+    end
+    @info current_f1, current_w, current_metric
+end
+
+
 function main()
     settings = ArgParseSettings(
         description="Genome Regions Extractor and Classifier",
@@ -613,7 +678,7 @@ function main()
         "-w", "--window"
         help = "Sliding window percent size"
         arg_type = Float32
-        required = true
+        required = false
         range_tester = (x -> 0.0001 < x < 0.5)
 
     end
@@ -628,6 +693,8 @@ function main()
             help="Validate genomic regions with various parameters")
         ("performance-evaluation", action=:command,
             help="Evaluate function performance using bechmark tools")
+        ("fit-parameters", action=:command,
+            help="Fit better params")
     end
 
     # Add arguments for each subcommand
@@ -635,7 +702,7 @@ function main()
     add_performance_args!(settings)
     add_benchmark_args!(settings)
     add_region_validation_args!(settings)
-
+    add_fit_parameters_args!(settings)
     parsed_args = parse_args(settings)
 
 
@@ -647,6 +714,8 @@ function main()
 
         if parsed_args["%COMMAND%"] == "convergence-analysis"
             handle_convergence_analysis(parsed_args["convergence-analysis"])
+        elseif parsed_args["%COMMAND%"] == "fit-parameters"
+            fitParameters(parsed_args["fit-parameters"], parsed_args["group-name"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
             handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "performance-evaluation"
@@ -681,6 +750,18 @@ function add_benchmark_args!(settings)
         help = "Metric used for classification"
         required = false
         range_tester = (x -> x in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"])
+        "--test-dir"
+        help = "Test dataset path"
+        required = true
+    end
+end
+
+function add_fit_parameters_args!(settings)
+    s = settings["fit-parameters"]
+    @add_arg_table! s begin
+        "--train-dir"
+        help = "Training dataset path"
+        required = true
         "--test-dir"
         help = "Test dataset path"
         required = true
@@ -740,7 +821,6 @@ function handle_benchmark(args,
     RegionExtraction.extractFeaturesTemplate(
         window,
         groupName,
-        nothing,
         args["train-dir"]
     )
     getKmersDistributionPerClass(
@@ -778,7 +858,7 @@ function handle_performance_evaluation(args, groupName::String)
 
         # Feature extraction benchmark
         bench_feat = @benchmarkable(
-                         RegionExtraction.extractFeaturesTemplate(w, $groupName, nothing, $train_dir),
+                         RegionExtraction.extractFeaturesTemplate(w, $groupName, $train_dir),
                          setup = (GC.gc(); w = $window),  # Ensure clean state and fixed window
                          teardown = (GC.gc()),
                          evals = 1,

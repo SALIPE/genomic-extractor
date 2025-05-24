@@ -248,7 +248,7 @@ function metrics_options(
         return sqrt(sum((X - class_freqs) .^ 2))
 
     elseif metric == "mahalanobis"
-
+        # Need repair, is not receivnig model here
         train_data = hcat([model.class_string_probs[c] for c in model.classes]...)
 
         covariance = cov(train_data; dims=2)

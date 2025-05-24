@@ -74,9 +74,10 @@ end
 function extractFeaturesTemplate(
     wnwPercent::Float32,
     groupName::String,
-    outputDir::Union{Nothing,String},
     variantDirPath::String,
-    histogramThreshold::Float16=Float16(0.9))
+    histogramThreshold::Float16=Float16(0.9)
+)
+
     @info "Threads:" Threads.nthreads()
     cachdir::String = "$(homedir())/.project_cache/$groupName/$wnwPercent"
 
