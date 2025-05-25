@@ -865,11 +865,7 @@ function handle_region_validation(args)
 end
 
 
-function julia_main(ARGS::Vector{String})::Cint
-
-    if isempty(ARGS)
-        return 0
-    end
+function julia_main()::Cint
 
     settings = ArgParseSettings(
         description="Genome Regions Extractor and Classifier",
