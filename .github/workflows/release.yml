@@ -2,12 +2,14 @@ name: Release Compiled Executable and Source
 
 on:
   push:
-    branches:
-      - deploy
+    tags:
+      - 'v*'
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: ./GREAC
@@ -16,23 +18,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Make the script files executable
-        run: chmod +x my-build.sh
+        run: chmod +x build.sh
 
       - name: Set up Julia
         uses: julia-actions/setup-julia@v1
         with:
-          version: "1.11.3"
+          version: "1.11.5"
 
       - name: Build project
         run: |
           ./build.sh
 
       - name: Create compiled app tarball
-        run: tar -czvf greac.tar.gz greac/
+        run: |
+          tar -czf greac.tar.gz ./build/greac/
+          echo "Listing content after tar:"
+          ls -l .
 
       - name: Upload artifacts to release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ github.ref_name }}
           files: greac.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
