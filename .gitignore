@@ -33,3 +33,4 @@ notebooks/.project_cache
 *.csv
 *pdf
 resultados*
+build/

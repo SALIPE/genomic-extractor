@@ -21,8 +21,7 @@ using FLoops,
     .EntropyUtil,
     .ConvergenceAnalysis
 
-
-export main
+export GREAC
 
 function histogramPosWndw(
     positions::Vector{Int16},
@@ -615,11 +614,12 @@ function fitParameters(
     current_f1 = 0
     current_w = 0
     current_metric = ""
+    current_threhold = 0.5
 
-    while window <= 0.008
+    while window <= 0.004
 
         threhold::Float16 = 0.5
-        while threhold <= 0.9
+        while threhold <= 0.8
             rm("$(homedir())/.project_cache/$(groupName)/$window"; recursive=true, force=true)
 
             RegionExtraction.extractFeaturesTemplate(
@@ -648,85 +648,17 @@ function fitParameters(
                 current_f1 = f1
                 current_w = window
                 current_metric = "manhattan"
-                @info "New Best:" current_f1, current_w, current_metric
+                current_threhold = threhold
+                @info "New Best:" current_f1, current_w, current_metric, threhold
             end
-            threhold += 0.1
+            threhold += 0.05
         end
         window += 0.0005
     end
-    @info current_f1, current_w, current_metric
+    @info current_f1, current_w, current_metric, current_threhold
 end
 
 
-function main()
-    settings = ArgParseSettings(
-        description="Genome Regions Extractor and Classifier",
-        version="0.1",
-        add_version=true,
-        prog="greac"
-    )
-
-    # Global options (apply to all commands)
-    @add_arg_table! settings begin
-        "--no-cache"
-        help = "Remove cached files"
-        action = :store_true
-        "--group-name"
-        help = "Process Group Name"
-        required = true
-        arg_type = String
-        "-w", "--window"
-        help = "Sliding window percent size"
-        arg_type = Float32
-        required = false
-        range_tester = (x -> 0.0001 < x < 0.5)
-
-    end
-
-    # Create subcommand structure
-    @add_arg_table! settings begin
-        ("convergence-analysis", action=:command,
-            help="Perform convergence analysis between sequences")
-        ("benchmark", action=:command,
-            help="Benchmark extract features model and classify creating and print confusion matrix")
-        ("region-validation", action=:command,
-            help="Validate genomic regions with various parameters")
-        ("performance-evaluation", action=:command,
-            help="Evaluate function performance using bechmark tools")
-        ("fit-parameters", action=:command,
-            help="Fit better params")
-    end
-
-    # Add arguments for each subcommand
-    add_convergence_analysis_args!(settings)
-    add_performance_args!(settings)
-    add_benchmark_args!(settings)
-    add_region_validation_args!(settings)
-    add_fit_parameters_args!(settings)
-    parsed_args = parse_args(settings)
-
-
-    try
-
-        if parsed_args["no-cache"]
-            rm("$(homedir())/.project_cache/$(parsed_args["group-name"])/$(parsed_args["window"])"; recursive=true, force=true)
-        end
-
-        if parsed_args["%COMMAND%"] == "convergence-analysis"
-            handle_convergence_analysis(parsed_args["convergence-analysis"])
-        elseif parsed_args["%COMMAND%"] == "fit-parameters"
-            fitParameters(parsed_args["fit-parameters"], parsed_args["group-name"])
-        elseif parsed_args["%COMMAND%"] == "benchmark"
-            handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
-        elseif parsed_args["%COMMAND%"] == "performance-evaluation"
-            handle_performance_evaluation(parsed_args["performance-evaluation"], parsed_args["group-name"])
-        elseif parsed_args["%COMMAND%"] == "region-validation"
-            handle_region_validation(parsed_args["region-validation"])
-        end
-    catch e
-        @error "Error processing command" exception = (e, catch_backtrace())
-    end
-end
 
 function add_convergence_analysis_args!(settings)
     s = settings["convergence-analysis"]
@@ -933,8 +865,81 @@ function handle_region_validation(args)
 end
 
 
-if abspath(PROGRAM_FILE) == @__FILE__
-    main()
+function julia_main(ARGS::Vector{String})::Cint
+
+    if isempty(ARGS)
+        return 0
+    end
+
+    settings = ArgParseSettings(
+        description="Genome Regions Extractor and Classifier",
+        version="0.1",
+        add_version=true,
+        prog="greac"
+    )
+
+
+    # Global options (apply to all commands)
+    @add_arg_table! settings begin
+        "--no-cache"
+        help = "Remove cached files"
+        action = :store_true
+        "--group-name"
+        help = "Process Group Name"
+        required = true
+        arg_type = String
+        "-w", "--window"
+        help = "Sliding window percent size"
+        arg_type = Float32
+        required = false
+        range_tester = (x -> 0.0001 < x < 0.5)
+
+    end
+
+    # Create subcommand structure
+    @add_arg_table! settings begin
+        ("convergence-analysis", action=:command,
+            help="Perform convergence analysis between sequences")
+        ("benchmark", action=:command,
+            help="Benchmark extract features model and classify creating and print confusion matrix")
+        ("region-validation", action=:command,
+            help="Validate genomic regions with various parameters")
+        ("performance-evaluation", action=:command,
+            help="Evaluate function performance using bechmark tools")
+        ("fit-parameters", action=:command,
+            help="Fit better params")
+    end
+
+    # Add arguments for each subcommand
+    add_convergence_analysis_args!(settings)
+    add_performance_args!(settings)
+    add_benchmark_args!(settings)
+    add_region_validation_args!(settings)
+    add_fit_parameters_args!(settings)
+    parsed_args = parse_args(settings)
+
+
+    try
+
+        if parsed_args["no-cache"]
+            rm("$(homedir())/.project_cache/$(parsed_args["group-name"])/$(parsed_args["window"])"; recursive=true, force=true)
+        end
+
+        if parsed_args["%COMMAND%"] == "convergence-analysis"
+            handle_convergence_analysis(parsed_args["convergence-analysis"])
+        elseif parsed_args["%COMMAND%"] == "fit-parameters"
+            fitParameters(parsed_args["fit-parameters"], parsed_args["group-name"])
+        elseif parsed_args["%COMMAND%"] == "benchmark"
+            handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
+        elseif parsed_args["%COMMAND%"] == "performance-evaluation"
+            handle_performance_evaluation(parsed_args["performance-evaluation"], parsed_args["group-name"])
+        elseif parsed_args["%COMMAND%"] == "region-validation"
+            handle_region_validation(parsed_args["region-validation"])
+        end
+    catch e
+        @error "Error processing command" exception = (e, catch_backtrace())
+    end
+    return 0
+end
 end
 
-end
