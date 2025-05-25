@@ -10,6 +10,8 @@ RUN apt-get update && \
     wget \
     ca-certificates \
     gnupg \
+    gcc \
+    g++ \
     git \
     && rm -rf /var/lib/apt/lists/*
 
