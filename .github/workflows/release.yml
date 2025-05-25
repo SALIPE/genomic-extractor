@@ -2,6 +2,8 @@ name: Release Compiled Executable and Source
 
 on:
   push:
+    tags:
+      - 'v*'
     branches:
       - deploy
 
