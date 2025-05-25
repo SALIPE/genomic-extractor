@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: ./GREAC
@@ -28,7 +30,10 @@ jobs:
           ./build.sh
 
       - name: Create compiled app tarball
-        run: tar -czvf greac.tar.gz ./build/greac
+        run: |
+          tar -czf greac.tar.gz ./build/greac/
+          echo "Listing content after tar:"
+          ls -l .
 
       - name: Upload artifacts to release
         uses: softprops/action-gh-release@v1
