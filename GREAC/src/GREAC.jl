@@ -610,7 +610,7 @@ function fitParameters(
     groupName::String,
 )
 
-    window::Float32 = 0.001
+    window::Float32 = 0.002
     current_f1 = 0
     current_w = 0
     current_metric = ""
@@ -870,8 +870,7 @@ function julia_main()::Cint
     settings = ArgParseSettings(
         description="Genome Regions Extractor and Classifier",
         version="0.1",
-        add_version=true,
-        prog="greac"
+        add_version=true
     )
 
 
@@ -939,3 +938,4 @@ function julia_main()::Cint
 end
 end
 
+GREAC.julia_main()

@@ -5,7 +5,7 @@
 
 source /home/a61491/.bashrc
 
-PROJECTHOME=/home/a61491/rrm-genomic-extractor/GREAC
+PROJECTHOME=/home/a61491/genomic-extractor/GREAC
 DATAHOME=/tmp2/felipe
 
 # TRAIN=/$HOME/test_voc/train/kmers
