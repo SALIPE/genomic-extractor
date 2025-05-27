@@ -26,7 +26,7 @@ GROUPNAME=covid_2
 # TRAIN=/home/salipe/Desktop/datasets/HBV/data/train/kmers
 # GROUPNAME=hbv
 
-#cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME -w $1 benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $2
-cd $PROJECTHOME &&  julia --project src/GREAC.jl  --group-name $GROUPNAME fit-parameters --train-dir $TRAIN --test-dir $TESTDIR 
+cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME -w $1 benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $2
+# cd $PROJECTHOME &&  julia --project src/GREAC.jl  --group-name $GROUPNAME fit-parameters --train-dir $TRAIN --test-dir $TESTDIR 
 
 

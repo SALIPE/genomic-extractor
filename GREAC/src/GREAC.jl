@@ -1,9 +1,6 @@
 module GREAC
 
 include("modules/DataIO.jl")
-include("modules/EntropyUtil.jl")
-include("modules/TransformUtils.jl")
-include("modules/ConvergenceAnalysis.jl")
 include("modules/RegionExtraction.jl")
 include("modules/ClassificationModel.jl")
 
@@ -16,217 +13,9 @@ using FLoops,
     BenchmarkTools,
     .DataIO,
     .RegionExtraction,
-    .ClassificationModel,
-    .TransformUtils,
-    .EntropyUtil,
-    .ConvergenceAnalysis
+    .ClassificationModel
 
 export GREAC
-
-function histogramPosWndw(
-    positions::Vector{Int16},
-    wndwSize::Int16,
-    signalLen::Int32)::Vector{Int16}
-
-    posHistogram = zeros(Int16, signalLen)
-
-    for pos in positions
-        initIdx::Int16 = pos + 1 - wndwSize
-        initIdx = initIdx <= 0 ? 1 : initIdx
-
-        # endIdx::Int16 = initIdx + wndwSize - 1
-        endIdx::Int16 = pos > signalLen ? signalLen : pos
-        posHistogram[initIdx:endIdx] .+= 1
-    end
-    return posHistogram
-end
-
-# Exec the window process for one FASTA file
-function validateEntropyWindow(
-    positions::Vector{Int16},
-    wnwPercent::Float16,
-    variantName::String,
-    output::String,
-    variantFilePath::String,
-    validatePos::Bool=true
-)
-
-    sequences::Array{String} = []
-    for record in open(FASTAReader, variantFilePath)
-        seq::String = sequence(String, record)
-        push!(sequences, seq)
-    end
-    # plt = plot(title="$variantName Regions - $(wnwPercent*100)%", dpi=300)
-
-    entropy_signals = Vector{Vector{Float64}}(undef, length(sequences))
-    # Processo para encontrar valores de entropia por região do genoma
-    for (s, seqs) in enumerate(sequences)
-        slideWndw::Int = ceil(Int, length(seqs) * wnwPercent)
-        y::Vector{Float64} = EntropyUtil.mountEntropyByWndw(slideWndw, seqs)
-        entropy_signals[s] = y
-
-        # plot!(x, y, label="Entropy-value", xlims=lim)
-    end
-    # distances = ConvergenceAnalysis.euclidean_distance(entropy_signals)
-    # ylen = length(distances)
-    # x = range(1, ylen)
-    # lim = [0, ylen]
-    # if validatePos
-    #     regions::Vector{Int} = histogramPosWndw(positions, ceil(Int, ylen * wnwPercent), ylen)
-    #     plot!(twinx(), x, regions,
-    #         label="Frequency",
-    #         seriestype=:bar,
-    #         linecolor=nothing,
-    #         xlims=lim)
-    # end
-    # plot!(x, distances, label="Distance-value", xlims=lim)
-    # png(plt, output)
-end
-
-
-function computeEntropySignal(
-    filePath::String,
-    wnwPercent::Float32,
-)::Vector{Vector{Float64}}
-
-    sequences::Vector{String} = DataIO.loadStringSequences(filePath)
-
-    num_sequences = length(sequences)
-    entropy_signals = Vector{Vector{Float64}}(undef, num_sequences)
-
-    if num_sequences > 1
-        @floop for s = 1:num_sequences
-            seq = sequences[s]
-            y = EntropyUtil.mountEntropyByWndw(
-                ceil(Int, length(seq) * wnwPercent), seq)
-            @inbounds entropy_signals[s] = y
-        end
-        return entropy_signals
-    else
-        seq = sequences[1]
-        y = EntropyUtil.mountEntropyByWndw(
-            ceil(Int, length(seq) * wnwPercent), seq)
-        entropy_signals[1] = y
-        return entropy_signals
-    end
-
-end
-
-#=
-     Do a comparison betweeen variant class regions based on the euclidian distance
-     the comparison should be a explanation to why use a consensus signal for class classfication evaluation
- =#
-function compareVariantClassPerDistance(
-    wnwPercent::Float32,
-    output::String,
-    variantDirPath::String,
-    positions::Vector{Int16}=Int16[],
-    valPositions::Bool=false
-)
-
-    files::Vector{String} = readdir(variantDirPath)
-
-    consensusSignals = Vector{Tuple{String,Vector{Float64}}}(undef, length(files))
-
-    @floop ThreadedEx() for (i, file) in enumerate(files)
-
-        entropy_signals = computeEntropySignal("$variantDirPath/$file", wnwPercent)
-
-        # Signifca que é um arquivo consensus (pelo menos deveria ser)
-        if length(entropy_signals) == 1
-            consensusSignals[i] = (file, entropy_signals[1])
-        else
-            distances::Vector{Float64} = ConvergenceAnalysis.euclidean_distance(entropy_signals)
-            consensusSignals[i] = (file, distances)
-        end
-    end
-
-    # -------------------- SIGNAL COMPARISON --------------------------------------------
-    # plt = plot(title="Variant Classes Comparison per window size - $wnwPercent", dpi=300)
-    # for (fastaFile, distances) in consensusSignals
-    #     plot!(range(1, length(distances)), distances, label="$fastaFile: Distance-value")
-    # end
-    # savefig(plt, "$output/euclidian_consensus.pdf")
-    # -----------------------------------------------------------------------------------
-
-
-    # -------------------- SIGNAL FILTERING --------------------------------------------
-    # filteredEntropy = TransformUtils.RRMEntropySignal(consensusSignals)
-    # plt = plot(title="Signals Filtered using RRM - $wnwPercent", dpi=300)
-
-    # ylen::Int32 = minimum(map(x -> length(x[2]), filteredEntropy))
-    # x = range(1, ylen)
-    # lim = [0, ylen]
-
-    # for (class, f) in filteredEntropy
-    #     plot!(x, f[1:ylen], label=class, xlims=lim)
-    # end
-
-    # regions::Vector{Int16} = Vector{Int16}()
-
-    # if valPositions
-
-    #     regions = histogramPosWndw(positions, ceil(Int16, ylen * wnwPercent), ylen)
-    #     plot!(twinx(), x, regions,
-    #         label="Frequency",
-    #         seriestype=:bar,
-    #         linecolor=nothing,
-    #         xlims=lim)
-
-    # end
-    # png(plt, "$output/iffts")
-
-    # _, _, norm = findPeaksBetweenClasses(map(x -> x[2], consensusSignals))
-
-
-    # plt = plot(title="Signal distances between points classes - $wnwPercent", dpi=300)
-    # plot!(norm,
-    #     linecolor=:red,
-    #     xlims=lim)
-    # plot!(twinx(), x, regions,
-    #     label="Frequency",
-    #     seriestype=:bar,
-    #     linecolor=nothing,
-    #     xlims=lim)
-
-    # png(plt, "$output/distances")
-    # -----------------------------------------------------------------------------------
-
-end
-
-
-#Função para achar quais são os picos de distancia entre as classes, a partir do consensus de distancia gerado 
-function findPeaksBetweenClasses(signals::Vector{Vector{Float64}})
-    n_classes = length(signals)
-
-    # Tamanho de cada vetor
-    numPoints = minimum(map(length, signals))
-
-    # Matriz para armazenar distâncias ponto a ponto
-    matrixDistances = zeros(Float64, numPoints, n_classes, n_classes)
-
-    # Calcular distâncias ponto a ponto para todas as combinações de classes
-    for i in 1:n_classes, j in i+1:n_classes
-        for k in 1:numPoints
-            matrixDistances[k, i, j] = sqrt((signals[i][k] - signals[j][k])^2)
-            matrixDistances[k, j, i] = matrixDistances[k, i, j]  # Simetria
-        end
-    end
-
-    # Matriz média de distâncias para cada ponto
-    matrixMeamDistances = mean(matrixDistances, dims=(2, 3))[:]
-
-    N = MinMax(matrixMeamDistances)
-    norm = N(matrixMeamDistances)
-
-    # Mediana das médias pra definir picos
-    peakThreashold = maximum(matrixMeamDistances)
-    # Identificar os picos de maior valor
-    peaksIdx = findall(x -> x == peakThreashold, matrixMeamDistances)
-
-    return (matrixMeamDistances, peaksIdx, norm)
-end
-
 
 
 function greacClassification(
@@ -489,7 +278,7 @@ function getKmersDistributionPerClass(
             RegionExtraction.regionsConjuction(variantDirPath, wnwPercent, groupName))
 
         DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
-
+        return distribution
     end
 end
 
@@ -532,11 +321,14 @@ function havein(pos, regions)
     end
     return pos, 0, 0
 end
+
 function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
     pos = [670,
+        913,
         1059,
         2790,
         3037,
+        3267,
         4184,
         5386,
         5648,
@@ -544,6 +336,8 @@ function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
         8393,
         8986,
         9053,
+        9344,
+        9534,
         9866,
         9867,
         10029,
@@ -552,27 +346,47 @@ function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
         10449,
         11201,
         11537,
+        11674,
         11750,
         12160,
         12880,
         13195,
         14257,
         14408,
+        14676,
         15240,
+        15279,
         15451,
         15714,
+        16176,
         16466,
         16935,
         17039,
         17236,
         17410,
+        18163,
+        18171,
+        23040,
+        23055,
+        23063,
+        23075,
+        23271,
         23403,
         23525,
+        23593,
         23599,
         23604,
+        23673,
+        23709,
+        23731,
+        23948,
+        24138,
         24424,
         24469,
         24503,
+        24506,
+        24748,
+        24914,
         25000,
         25088,
         25416,
@@ -582,12 +396,15 @@ function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
         26060,
         26149,
         26270,
+        26709,
         26767,
+        28272,
         28512,
         28724,
         28881,
         28882,
         28883,
+        28913,
         28916]
 
     havepos = Base.Fix2(havein, model.regions)
@@ -604,12 +421,10 @@ function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
 end
 
 
-
 function fitParameters(
     args,
     groupName::String,
 )
-
     window::Float32 = 0.002
     current_f1 = 0
     current_w = 0
@@ -659,19 +474,6 @@ function fitParameters(
 end
 
 
-
-function add_convergence_analysis_args!(settings)
-    s = settings["convergence-analysis"]
-    @add_arg_table! s begin
-        "-d", "--files-directory"
-        help = "Variant directory with organisms Fasta file"
-        required = true
-        arg_type = String
-
-    end
-end
-
-
 function add_benchmark_args!(settings)
     s = settings["benchmark"]
     @add_arg_table! s begin
@@ -709,42 +511,6 @@ function add_performance_args!(settings)
     end
 end
 
-function add_region_validation_args!(settings)
-    s = settings["region-validation"]
-    @add_arg_table! s begin
-        "-f", "--file"
-        help = "Single Fasta file"
-        arg_type = String
-        "-d", "--files-directory"
-        help = "Directory containing Fasta files"
-        arg_type = String
-        "--variant-name"
-        help = "Variant name identifier"
-        arg_type = String
-        "-w", "--window"
-        help = "Sliding window percent size"
-        arg_type = Float32
-        default = 0.004
-        "-p", "--val-positions-file"
-        help = "Validation positions file"
-        arg_type = String
-        "-o", "--output-directory"
-        help = "Output directory"
-        required = true
-        arg_type = String
-    end
-end
-
-#= Command Handlers =#
-
-function handle_convergence_analysis(args)
-    @info "Starting convergence analysis" args
-    ConvergenceAnalysis.convergenceAnalysis(
-        args["window"],
-        args["files-directory"]
-    )
-end
-
 function handle_benchmark(args,
     groupName::String,
     window::Float32)
@@ -755,19 +521,21 @@ function handle_benchmark(args,
         groupName,
         args["train-dir"]
     )
-    getKmersDistributionPerClass(
+    distribution = getKmersDistributionPerClass(
         window,
         groupName,
         args["train-dir"]
     )
-    @info "Starting classification evaluation"
-    greacClassification(
-        args["test-dir"],
-        nothing,
-        window,
-        groupName,
-        args["metric"]
-    )
+
+    export_sars_pos(groupName, window, distribution)
+    # @info "Starting classification evaluation"
+    # greacClassification(
+    #     args["test-dir"],
+    #     nothing,
+    #     window,
+    #     groupName,
+    #     args["metric"]
+    # )
 end
 
 function handle_performance_evaluation(args, groupName::String)
@@ -838,32 +606,6 @@ function handle_performance_evaluation(args, groupName::String)
     return results
 end
 
-function handle_region_validation(args)
-    @info "Starting region validation" args
-    positions = isnothing(args["val-positions-file"]) ? nothing :
-                DataIO.readVectorFromFile(args["val-positions-file"], Int16)
-
-    if !isnothing(args["file"])
-        validateEntropyWindow(
-            positions,
-            args["window"],
-            args["variant-name"],
-            args["output-directory"],
-            args["file"]
-        )
-    elseif !isnothing(args["files-directory"])
-        compareVariantClassPerDistance(
-            args["window"],
-            args["output-directory"],
-            args["files-directory"],
-            positions,
-            true
-        )
-    else
-        error("Must specify either --file or --files-directory")
-    end
-end
-
 
 function julia_main()::Cint
 
@@ -872,7 +614,6 @@ function julia_main()::Cint
         version="0.1",
         add_version=true
     )
-
 
     # Global options (apply to all commands)
     @add_arg_table! settings begin
@@ -886,19 +627,14 @@ function julia_main()::Cint
         "-w", "--window"
         help = "Sliding window percent size"
         arg_type = Float32
-        required = false
+        required = true
         range_tester = (x -> 0.0001 < x < 0.5)
-
     end
 
     # Create subcommand structure
     @add_arg_table! settings begin
-        ("convergence-analysis", action=:command,
-            help="Perform convergence analysis between sequences")
         ("benchmark", action=:command,
             help="Benchmark extract features model and classify creating and print confusion matrix")
-        ("region-validation", action=:command,
-            help="Validate genomic regions with various parameters")
         ("performance-evaluation", action=:command,
             help="Evaluate function performance using bechmark tools")
         ("fit-parameters", action=:command,
@@ -906,10 +642,8 @@ function julia_main()::Cint
     end
 
     # Add arguments for each subcommand
-    add_convergence_analysis_args!(settings)
     add_performance_args!(settings)
     add_benchmark_args!(settings)
-    add_region_validation_args!(settings)
     add_fit_parameters_args!(settings)
     parsed_args = parse_args(settings)
 
@@ -920,16 +654,12 @@ function julia_main()::Cint
             rm("$(homedir())/.project_cache/$(parsed_args["group-name"])/$(parsed_args["window"])"; recursive=true, force=true)
         end
 
-        if parsed_args["%COMMAND%"] == "convergence-analysis"
-            handle_convergence_analysis(parsed_args["convergence-analysis"])
-        elseif parsed_args["%COMMAND%"] == "fit-parameters"
+        if parsed_args["%COMMAND%"] == "fit-parameters"
             fitParameters(parsed_args["fit-parameters"], parsed_args["group-name"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
             handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "performance-evaluation"
             handle_performance_evaluation(parsed_args["performance-evaluation"], parsed_args["group-name"])
-        elseif parsed_args["%COMMAND%"] == "region-validation"
-            handle_region_validation(parsed_args["region-validation"])
         end
     catch e
         @error "Error processing command" exception = (e, catch_backtrace())

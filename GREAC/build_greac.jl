@@ -3,7 +3,7 @@ using PackageCompiler
 
 Pkg.activate(".")
 
-output_dir = joinpath(@__DIR__, "build", "greac")
+output_dir = joinpath(@__DIR__, "greac")
 
 println("Iniciando a compilação do executável GREAC com create_app...")
 create_app(

@@ -1,14 +1,10 @@
 module RegionExtraction
 
 include("DataIO.jl")
-include("TransformUtils.jl")
 
 using .DataIO,
-    .TransformUtils,
     Serialization,
     FASTX,
-    AbstractFFTs,
-    FFTW,
     FLoops
 
 export RegionExtraction
