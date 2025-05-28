@@ -112,8 +112,8 @@ function predict_membership(
     for c in model.classes
         class_freqs = model.class_string_probs[c]
         stats = model.variant_stats[c]
-        d = metrics_options(metric, class_freqs, X)
-        memberships[c] = gaussian_membership(stats, d)
+        d = metrics_options(model, metric, class_freqs, X)
+        memberships[c] = trapezoidal_membership(stats, d)
     end
 
     if normalize
@@ -206,7 +206,7 @@ function predict_raw(
 
         # Get the class's precomputed conditional frequencies
         class_freqs = model.class_string_probs[c]
-        dists[c] = metrics_options(metric, class_freqs, X)
+        dists[c] = metrics_options(model, metric, class_freqs, X)
     end
 
     return argmin(dists), dists
@@ -229,6 +229,7 @@ function kld(
 end
 
 function metrics_options(
+    model,
     metric::Union{Nothing,String},
     class_freqs,
     X::Vector{Float64}

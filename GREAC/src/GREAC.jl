@@ -23,27 +23,27 @@ function greacClassification(
     outputdir::Union{Nothing,String},
     wnwPercent::Float32,
     groupName::String,
-    metric::Union{Nothing,String},
-    model::Union{Nothing,ClassificationModel.MultiClassModel}=nothing
+    metric::Union{Nothing,String}
 )
 
-    if isnothing(model)
-        modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
-        model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
-    end
+
+    modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
+    model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
+
     # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
-    # predict_raw (model, metric)
-    classify = Base.Fix1(ClassificationModel.predict_membership, (model, metric))
+    # predict_raw predict_membership (model, metric)
+    classify = Base.Fix1(ClassificationModel.predict_raw, (model, metric))
 
     y_true = String[]
     y_pred = String[]
     kmerset::Vector{String} = collect(model.kmerset)
+    regions::Vector{Tuple{Int,Int}} = model.regions
 
     for class in model.classes
         file_path::String = "$folderPath/$class.fasta"
         total = DataIO.countSequences(file_path)
 
-        chunk_size = 10000
+        chunk_size = 20000
         chunk_init::Int = 1
 
         @info "Classyfing $class $total sequences:"
@@ -65,9 +65,9 @@ function greacClassification(
                 seq::Base.CodeUnits = classeqs[local_idx]
 
                 kmer_distribution = ClassificationModel.sequence_kmer_distribution(
-                    model.regions, seq, kmerset
+                    regions, seq, kmerset
                 )
-                seq_distribution = kmer_distribution ./ length(model.kmerset)
+                seq_distribution = kmer_distribution ./ length(kmerset)
 
                 if !iszero(sum(seq_distribution))
                     cl = classify(seq_distribution)
@@ -107,11 +107,11 @@ function greacClassification(
             # Write header if file is empty/new
             if filesize(RESULTS_CSV) == 0
                 types = join(model.classes, ",")
-                write(io, "wndwPercent,metric,windows,window_size,kmerset," * types * ",macro_f1,macro_precision,macro_recall,micro_f1,micro_precision,micro_recall\n")
+                write(io, "wndwPercent,metric,windows,window_size,kmerset," * types * ",macro_f1,macro_precision,macro_recall,cm\n")
             end
 
             # Format data components
-            # cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
+            cm = replace(string(results[:confusion_matrix]), "\n" => " | ")
             perclass = join([v[:f1] for (k, v) in results[:per_class]], ",")
             # Create CSV line
             line = join([
@@ -124,9 +124,7 @@ function greacClassification(
                     results[:macro][:f1],
                     results[:macro][:precision],
                     results[:macro][:recall],
-                    results[:micro][:f1],
-                    results[:micro][:precision],
-                    results[:micro][:recall]
+                    cm
                 ], ",")
 
             write(io, line * "\n")
@@ -424,8 +422,8 @@ end
 function fitParameters(
     args,
     groupName::String,
+    window::Float32
 )
-    window::Float32 = 0.002
     current_f1 = 0
     current_w = 0
     current_metric = ""
@@ -434,7 +432,7 @@ function fitParameters(
     while window <= 0.004
 
         threhold::Float16 = 0.5
-        while threhold <= 0.8
+        while threhold <= 0.9
             rm("$(homedir())/.project_cache/$(groupName)/$window"; recursive=true, force=true)
 
             RegionExtraction.extractFeaturesTemplate(
@@ -452,23 +450,26 @@ function fitParameters(
             # model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(
             #     "$(homedir())/.project_cache/$groupName/$window/kmers_distribution.dat"
             # )
-            f1 = greacClassification(
-                args["test-dir"],
-                nothing,
-                window,
-                groupName,
-                "manhattan"
-            )
-            if f1 > current_f1
-                current_f1 = f1
-                current_w = window
-                current_metric = "manhattan"
-                current_threhold = threhold
-                @info "New Best:" current_f1, current_w, current_metric, threhold
+
+            for metric in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"]
+                f1 = greacClassification(
+                    args["test-dir"],
+                    nothing,
+                    window,
+                    groupName,
+                    metric
+                )
+                if f1 > current_f1
+                    current_f1 = f1
+                    current_w = window
+                    current_metric = metric
+                    current_threhold = threhold
+                    @info "New Best:" current_f1, current_w, current_metric, threhold
+                end
             end
             threhold += 0.05
         end
-        window += 0.0005
+        window += Float32(0.0005)
     end
     @info current_f1, current_w, current_metric, current_threhold
 end
@@ -528,14 +529,14 @@ function handle_benchmark(args,
     )
 
     export_sars_pos(groupName, window, distribution)
-    # @info "Starting classification evaluation"
-    # greacClassification(
-    #     args["test-dir"],
-    #     nothing,
-    #     window,
-    #     groupName,
-    #     args["metric"]
-    # )
+    @info "Starting classification evaluation"
+    greacClassification(
+        args["test-dir"],
+        nothing,
+        window,
+        groupName,
+        args["metric"]
+    )
 end
 
 function handle_performance_evaluation(args, groupName::String)
@@ -655,7 +656,7 @@ function julia_main()::Cint
         end
 
         if parsed_args["%COMMAND%"] == "fit-parameters"
-            fitParameters(parsed_args["fit-parameters"], parsed_args["group-name"])
+            fitParameters(parsed_args["fit-parameters"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
             handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "performance-evaluation"
