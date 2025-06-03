@@ -447,10 +447,6 @@ function fitParameters(
                 args["train-dir"]
             )
 
-            # model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(
-            #     "$(homedir())/.project_cache/$groupName/$window/kmers_distribution.dat"
-            # )
-
             for metric in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"]
                 f1 = greacClassification(
                     args["test-dir"],
@@ -488,6 +484,9 @@ function add_benchmark_args!(settings)
         "--test-dir"
         help = "Test dataset path"
         required = true
+        "-o", "--output-directory"
+        help = "Where the files go"
+        required = false
     end
 end
 
@@ -528,11 +527,11 @@ function handle_benchmark(args,
         args["train-dir"]
     )
 
-    export_sars_pos(groupName, window, distribution)
+    # export_sars_pos(groupName, window, distribution)
     @info "Starting classification evaluation"
     greacClassification(
         args["test-dir"],
-        nothing,
+        args["output-directory"],
         window,
         groupName,
         args["metric"]
