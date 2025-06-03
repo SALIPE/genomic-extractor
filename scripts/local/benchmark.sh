@@ -30,7 +30,7 @@ GROUPNAME=dengue
 docker run --rm --cpus="4" -e JULIA_NUM_THREADS=4 \
     -v $TRAIN:/train_dir \
     -v $TESTDIR:/test_dir \
-    -v ./output:/output \
+    -v ./data/output:/output \
     -v ~/.project_cache:/root/.project_cache \
     greac:latest \
     julia --project=/app /app/src/GREAC.jl \

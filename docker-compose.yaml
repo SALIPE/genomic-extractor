@@ -17,8 +17,7 @@ services:
       - n8n_data:/home/node/.n8n
       - ./data/input:/data/input
       - ./data/output:/data/output
-    networks:
-      - fasta_network
+      - ./scripts/local:/scripts
     depends_on:
       - postgres
 
@@ -32,8 +31,6 @@ services:
       - POSTGRES_PASSWORD=n8n123
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - fasta_network
 
   # Streamlit Frontend
   streamlit:
@@ -45,25 +42,9 @@ services:
     volumes:
       - ./data/input:/app/data/input
       - ./data/output:/app/data/output
-    networks:
-      - fasta_network
     depends_on:
       - n8n
-
-  greac:
-    image: greac:latest
-    container_name: greac
-    volumes:
-      - ./data/input:/data/input
-      - ./data/output:/data/output
-    networks:
-      - fasta_network
-    # command: tail -f /dev/null  # Keep container running
 
 volumes:
   n8n_data:
   postgres_data:
-
-networks:
-  fasta_network:
-    driver: bridge

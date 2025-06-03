@@ -1,12 +1,11 @@
 {
-  "name": "FASTA Processor Workflow",
+  "name": "FASTA Processor Local Script",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
         "path": "process-fasta",
-        "responseMode": "responseNode",
-        "options": {}
+        "responseMode": "responseNode"
       },
       "id": "webhook-trigger",
       "name": "Webhook Trigger",
@@ -20,16 +19,16 @@
     },
     {
       "parameters": {
-        "command": "sh",
-        "arguments": [
-          "-c",
-          "docker run --rm greac:latest julia --project=/app /app/src/GREAC.jl --no-cache --group-name \"{{$json[\"group_name\"]}}\" -w {{$json[\"window_size\"]}} benchmark --train-dir \"{{$json[\"train_dir\"]}}\" --test-dir \"{{$json[\"test_dir\"]}}\" -m manhattan"
-        ]
+        "requestMethod": "POST",
+        "url": "http://192.168.1.219:5005/run-script",
+        "jsonParameters": true,
+        "options": {},
+        "bodyParametersJson": "={\n  \"input\": \"{{$json[\"input\"]}}\",\n  \"group\": \"{{$json[\"group\"]}}\",\n  \"window\": \"{{$json[\"window\"]}}\"\n}"
       },
-      "id": "execute-processor",
-      "name": "Execute FASTA Processor",
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
+      "id": "http-request",
+      "name": "Call Local Python Server",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
       "position": [
         460,
         300
@@ -37,8 +36,8 @@
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ $json }}"
+        "respondWith": "responseNode",
+        "responseNodeName": "Call Local Python Server"
       },
       "id": "webhook-response",
       "name": "Webhook Response",
@@ -55,14 +54,14 @@
       "main": [
         [
           {
-            "node": "Execute FASTA Processor",
+            "node": "Call Local Python Server",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Execute FASTA Processor": {
+    "Call Local Python Server": {
       "main": [
         [
           {
