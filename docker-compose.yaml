@@ -15,9 +15,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - n8n_data:/home/node/.n8n
-      - ./data/input:/data/input
-      - ./data/output:/data/output
-      - ./scripts/local:/scripts
     depends_on:
       - postgres
 
@@ -42,6 +39,7 @@ services:
     volumes:
       - ./data/input:/app/data/input
       - ./data/output:/app/data/output
+      - ~/.project_cache:/julia-cache
     depends_on:
       - n8n
 

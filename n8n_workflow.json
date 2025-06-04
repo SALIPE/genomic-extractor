@@ -1,19 +1,20 @@
 {
-  "name": "FASTA Processor Local Script",
+  "name": "My workflow",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
         "path": "process-fasta",
-        "responseMode": "responseNode"
+        "responseMode": "responseNode",
+        "options": {}
       },
-      "id": "webhook-trigger",
+      "id": "37752b7e-fc53-42fa-8be3-ca03795faf65",
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        240,
-        300
+        -380,
+        -340
       ],
       "webhookId": "process-fasta"
     },
@@ -23,32 +24,33 @@
         "url": "http://192.168.1.219:5005/run-script",
         "jsonParameters": true,
         "options": {},
-        "bodyParametersJson": "={\n  \"input\": \"{{$json[\"input\"]}}\",\n  \"group\": \"{{$json[\"group\"]}}\",\n  \"window\": \"{{$json[\"window\"]}}\"\n}"
+        "bodyParametersJson": "={\n  \"train_dir\": \"{{$json[\"train_dir\"]}}\",\n  \"test_dir\": \"{{$json[\"test_dir\"]}}\",\n  \"group_name\": \"{{$json[\"group_name\"]}}\",\n  \"metric\": \"{{$json[\"metric\"]}}\",\n  \"window_size\": \"{{$json[\"window_size\"]}}\"\n  \"cache\": \"{{$json[\"cache\"]}}\"\n}"
       },
-      "id": "http-request",
+      "id": "b04c9bb9-87b5-45af-8908-1cece74c47fd",
       "name": "Call Local Python Server",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 2,
       "position": [
-        460,
-        300
+        -160,
+        -340
       ]
     },
     {
       "parameters": {
-        "respondWith": "responseNode",
-        "responseNodeName": "Call Local Python Server"
+        "respondWith": "json",
+        "options": {}
       },
-      "id": "webhook-response",
+      "id": "d757acdf-0c22-4b44-a340-8bfc18cd493b",
       "name": "Webhook Response",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        680,
-        300
+        60,
+        -340
       ]
     }
   ],
+  "pinData": {},
   "connections": {
     "Webhook Trigger": {
       "main": [
@@ -74,6 +76,13 @@
     }
   },
   "active": true,
-  "settings": {},
-  "versionId": "1"
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "33bca938-76db-49bf-8c27-84a9a6ffc12c",
+  "meta": {
+    "instanceId": "434fc78abe16e6ca12ecc67a0f058ce5b5c0ba31d1005db932c639e10ef4ce43"
+  },
+  "id": "NYx6DN7pSYpe1BLY",
+  "tags": []
 }

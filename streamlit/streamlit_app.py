@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import subprocess
 import zipfile
 
 import pandas as pd
@@ -17,9 +18,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# Diretórios
+def list_directory_tree(directory: str, prefix: str = "") -> str:
+    tree_str = ""
+    for root, dirs, files in os.walk(directory):
+        level = root.replace(directory, "").count(os.sep)
+        indent = " " * 4 * level
+        tree_str += f"{prefix}{indent}📁 {os.path.basename(root)}/\n"
+        sub_indent = " " * 4 * (level + 1)
+        for f in files:
+            tree_str += f"{prefix}{sub_indent}📄 {f}\n"
+    return tree_str
+
 INPUT_DIR = "/app/data/input"
 OUTPUT_DIR = "/app/data/output"
+JULIA_CACHE_DIR = "/julia-cache"
 N8N_WEBHOOK_URL = "http://n8n:5678/webhook/process-fasta"
 
 def extract_uploaded_files(uploaded_files):
@@ -85,163 +97,80 @@ def trigger_n8n_workflow(processing_params):
     except Exception as e:
         return False, str(e)
 
-def check_processing_status():
-    """Verifica status do processamento"""
-    if os.path.exists(os.path.join(OUTPUT_DIR, "processing_complete.json")):
-        with open(os.path.join(OUTPUT_DIR, "processing_complete.json"), 'r') as f:
-            return json.load(f)
-    return None
 
 def main():
-    st.title("🧬 FASTA Variant Processor")
+    st.title("🧬 GREAC-UI")
     st.markdown("---")
-    
-    # Sidebar para configurações
+
     with st.sidebar:
         st.header("⚙️ Configurações")
-        
-        processing_mode = st.selectbox(
-            "Modo de Processamento",
-            ["benchmark", "fit-parameters"]
-        )
 
-        group_name = st.text_input(
-            "Nome do grupo"
-        )
+        group_name = st.text_input("Nome do grupo")
+        window_size = st.number_input("Comprimento mínimo da sequência", step=0.005, format="%.3f")
+        metric = st.selectbox("Métricas", ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"])
+        cache = st.checkbox("Usar cache", value=True)
 
-        window_size = st.number_input(
-            "Comprimento mínimo da sequência",
-            step=.05,format="%.3f"
-        )
-           
-    # Upload de arquivos
-    st.header("📁 Upload de Arquivos")
-    uploaded_files = st.file_uploader(
-        "Selecione arquivos ZIP contendo estrutura de variantes",
-        accept_multiple_files=True,
-        type=['zip']
-    )
-    
-    if uploaded_files:
-        with st.spinner("Extraindo arquivos..."):
-            extract_uploaded_files(uploaded_files)
-        st.success(f"✅ {len(uploaded_files)} arquivo(s) processado(s)")
-        
-        # Análise da estrutura
-        st.header("🔍 Estrutura dos Dados")
-        variants = analyze_input_structure()
-        
-        if variants:
-            col1, col2 = st.columns(2)
+    st.header("📁 Seleção de Diretórios Locais")
+
+    train_dir = st.text_input("📂 Caminho dos Dados de Treino", value="./data/train")
+    test_dir = st.text_input("📂 Caminho dos Dados de Teste", value="./data/test")
+    feature_dir = st.text_input("📂 Caminho dos Dados para Extração de Features", value="./data/feature")
+
+    # Verificação dos diretórios
+    dir_check = all([os.path.isdir(train_dir), os.path.isdir(test_dir), os.path.isdir(feature_dir)])
+
+    if not dir_check:
+        st.warning("⚠️ Um ou mais diretórios não existem. Verifique os caminhos.")
+    else:
+        st.success("✅ Diretórios encontrados.")
+
+        st.header("🚀 Processamento")
+
+        # Campos obrigatórios validados
+        if not group_name or not window_size:
+            st.error("⚠️ Preencha todos os campos do lado esquerdo antes de iniciar o processamento.")
+            return
+
+        process_script = '../scripts/local/benchmark.sh'
+
+        if not os.path.exists(process_script):
+            st.error("❌ Script de processamento não encontrado.")
+            return
+
+        if st.button("▶️ Iniciar Processamento", type="primary"):
+            st.info("📡 Iniciando o script de processamento...")
+            st.text(f"Grupo: {group_name} | Window: {window_size} | Métrica: {metric}")
+
             
-            with col1:
-                st.metric("Variantes Encontradas", len(variants))
-                
-                # Tabela de variantes
-                variant_data = []
-                for variant, files in variants.items():
-                    total_sequences = sum(f['sequences'] for f in files)
-                    variant_data.append({
-                        'Variante': variant,
-                        'Arquivos': len(files),
-                        'Sequências': total_sequences
-                    })
-                
-                df_variants = pd.DataFrame(variant_data)
-                st.dataframe(df_variants, use_container_width=True)
-            
-            with col2:
-                # Gráfico de distribuição
-                if len(variant_data) > 0:
-                    fig = px.bar(
-                        df_variants,
-                        x='Variante',
-                        y='Sequências',
-                        title='Distribuição de Sequências por Variante'
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
-            
-            # Detalhes por variante
-            st.subheader("📋 Detalhes por Variante")
-            for variant, files in variants.items():
-                with st.expander(f"Variante: {variant} ({len(files)} arquivos)"):
-                    for file_info in files:
-                        st.write(f"- **{file_info['file']}**: {file_info['sequences']} sequências")
-            
-            # Botão de processamento
-            st.header("🚀 Processamento")
-            
-            processing_params = {
-                "group_name": group_name,
-                "window_size":window_size,
-                "train_dir": f'{INPUT_DIR}/train/kmers',
-                "test_dir": f'{INPUT_DIR}/test'
-            }
-            
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                if st.button("▶️ Iniciar Processamento", type="primary"):
-                    with st.spinner("Iniciando processamento..."):
-                        success, result = trigger_n8n_workflow(processing_params)
-                        
-                        if success:
-                            st.success("✅ Processamento iniciado com sucesso!")
-                            st.json(result)
-                        else:
-                            st.error(f"❌ Erro ao iniciar processamento: {result}")
-            
-            with col2:
-                if st.button("🔄 Verificar Status"):
-                    status = check_processing_status()
-                    if status:
-                        st.success("✅ Processamento concluído!")
-                        st.json(status)
-                    else:
-                        st.info("⏳ Processamento em andamento ou não iniciado")
-            
-            with col3:
-                if st.button("📥 Baixar Resultados"):
-                    if os.path.exists(OUTPUT_DIR) and os.listdir(OUTPUT_DIR):
-                        # Cria ZIP com resultados
-                        zip_path = "/tmp/results.zip"
-                        with zipfile.ZipFile(zip_path, 'w') as zipf:
-                            for root, dirs, files in os.walk(OUTPUT_DIR):
-                                for file in files:
-                                    file_path = os.path.join(root, file)
-                                    arcname = os.path.relpath(file_path, OUTPUT_DIR)
-                                    zipf.write(file_path, arcname)
-                        
-                        with open(zip_path, "rb") as f:
-                            st.download_button(
-                                label="💾 Download ZIP",
-                                data=f.read(),
-                                file_name="fasta_results.zip",
-                                mime="application/zip"
-                            )
-                    else:
-                        st.warning("⚠️ Nenhum resultado encontrado")
-    
-    # Status do sistema
-    st.header("📊 Status do Sistema")
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        # Verifica conexão com N8N
-        try:
-            response = requests.get("http://n8n:5678/healthz", timeout=5)
-            n8n_status = "🟢 Online" if response.status_code == 200 else "🔴 Offline"
-        except:
-            n8n_status = "🔴 Offline"
-        st.metric("N8N Status", n8n_status)
-    
-    with col2:
-        input_files = len([f for f in os.listdir(INPUT_DIR) if f.endswith(('.fasta', '.fa', '.fas'))]) if os.path.exists(INPUT_DIR) else 0
-        st.metric("Arquivos Input", input_files)
-    
-    with col3:
-        output_files = len(os.listdir(OUTPUT_DIR)) if os.path.exists(OUTPUT_DIR) else 0
-        st.metric("Arquivos Output", output_files)
+            cmd = [
+                process_script,
+                train_dir,
+                test_dir,
+                group_name,
+                str(window_size),
+                metric,
+                "--no-cache" if not cache else ""
+            ]
+
+            with st.spinner("🔄 Processando..."):
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True
+                )
+
+                output_placeholder = st.empty()
+                output_text = ""
+
+                for line in process.stdout:
+                    output_text += line
+                    output_placeholder.code(output_text, language='bash')
+
+                process.wait()
+                st.success("✅ Processamento concluído.")
+
+
 
 if __name__ == "__main__":
     main()

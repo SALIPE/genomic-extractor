@@ -9,17 +9,30 @@ app = Flask(__name__)
 def run_script():
     data = request.json
 
-    input_file = data.get('input')
-    group = data.get('group')
-    window = data.get('window')
+    train_dir = data.get('train_dir')
+    test_dir = data.get('test_dir')
+    group = data.get('group_name')
+    window = data.get('window_size')
+    metric = data.get('metric')
+    cache = data.get('cache')
 
-    script_path = './scripts/local/benchmark.sh'
+    print(data)
+    script_path = f'./scripts/local/benchmark.sh'
 
     if not os.path.exists(script_path):
         return jsonify({"error": "Script não encontrado"}), 404
 
     try:
-        result = subprocess.run(script_path,
+        result = subprocess.run(
+            [
+                script_path,
+                train_dir,
+                test_dir,
+                group,
+                window,
+                metric,
+                cache
+            ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
