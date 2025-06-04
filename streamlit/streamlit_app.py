@@ -30,9 +30,9 @@ def list_directory_tree(directory: str, prefix: str = "") -> str:
     return tree_str
 
 INPUT_DIR = "/app/data/input"
-OUTPUT_DIR = "/app/data/output"
+OUTPUT_DIR = "./data/output"
 JULIA_CACHE_DIR = "/julia-cache"
-N8N_WEBHOOK_URL = "http://n8n:5678/webhook/process-fasta"
+HOMEDATA = "/home/salipe/"
 
 def extract_uploaded_files(uploaded_files):
     """Extrai arquivos uploaded para o diretório de input"""
@@ -85,39 +85,41 @@ def analyze_input_structure():
     
     return variants
 
-def trigger_n8n_workflow(processing_params):
-    """Dispara o workflow do N8N"""
-    try:
-        response = requests.post(
-            N8N_WEBHOOK_URL,
-            json=processing_params,
-            timeout=None
-        )
-        return response.status_code == 200, response.json() if response.content else {}
-    except Exception as e:
-        return False, str(e)
 
 
 def main():
     st.title("🧬 GREAC-UI")
     st.markdown("---")
 
-    with st.sidebar:
-        st.header("⚙️ Configurações")
+    
+    st.header("⚙️ Configurações")
 
+    col1, col2 = st.columns(2)
+    with col1:
         group_name = st.text_input("Nome do grupo")
-        window_size = st.number_input("Comprimento mínimo da sequência", step=0.005, format="%.3f")
+        window_size = st.number_input("Comprimento mínimo da sequência", step=0.001, format="%.3f")
         metric = st.selectbox("Métricas", ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"])
         cache = st.checkbox("Usar cache", value=True)
+    with col2:
+        pg_options = ["GREAC", "gramep", "FastaSplitter"]
+        program = st.selectbox("Programa",pg_options)
 
     st.header("📁 Seleção de Diretórios Locais")
 
-    train_dir = st.text_input("📂 Caminho dos Dados de Treino", value="./data/train")
-    test_dir = st.text_input("📂 Caminho dos Dados de Teste", value="./data/test")
-    feature_dir = st.text_input("📂 Caminho dos Dados para Extração de Features", value="./data/feature")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        train_dir = st.text_input("📂 Caminho dos Dados de Treino", value=f"{HOMEDATA}/Desktop/datasets/dengue/train/kmers")
+    with col2:
+        test_dir = st.text_input("📂 Caminho dos Dados de Teste", value=f"{HOMEDATA}/Desktop/datasets/dengue/test")
+    with col3:
+        feature_dir = st.text_input("📂 Caminho dos Dados para Extração de Features", value=f"{HOMEDATA}/Desktop/datasets/dengue")
 
     # Verificação dos diretórios
-    dir_check = all([os.path.isdir(train_dir), os.path.isdir(test_dir), os.path.isdir(feature_dir)])
+    if program == pg_options[0]:
+        dir_check = all([os.path.isdir(train_dir), os.path.isdir(test_dir)])
+    else: 
+        dir_check = all([os.path.isdir(feature_dir)])
 
     if not dir_check:
         st.warning("⚠️ Um ou mais diretórios não existem. Verifique os caminhos.")
@@ -127,48 +129,87 @@ def main():
         st.header("🚀 Processamento")
 
         # Campos obrigatórios validados
-        if not group_name or not window_size:
-            st.error("⚠️ Preencha todos os campos do lado esquerdo antes de iniciar o processamento.")
+        if (not group_name or not window_size) and program == pg_options[0]:
+            st.error("⚠️ Preencha todos as configurações antes de iniciar o processamento.")
             return
 
-        process_script = '../scripts/local/benchmark.sh'
+        if program == pg_options[0]:
+            process_script = f'../scripts/local/benchmark.sh'
+        elif program == pg_options[1]:
+            process_script = '../scripts/local/benchmark.sh'
+        elif program == pg_options[2]:
+            process_script = f'{HOMEDATA}/Desktop/Fasta-splitter/FastaSplitter/balance.sh'
 
         if not os.path.exists(process_script):
             st.error("❌ Script de processamento não encontrado.")
             return
 
-        if st.button("▶️ Iniciar Processamento", type="primary"):
-            st.info("📡 Iniciando o script de processamento...")
-            st.text(f"Grupo: {group_name} | Window: {window_size} | Métrica: {metric}")
-
+        col1, col2 = st.columns(2)
             
-            cmd = [
-                process_script,
-                train_dir,
-                test_dir,
-                group_name,
-                str(window_size),
-                metric,
-                "--no-cache" if not cache else ""
-            ]
+        with col1:
+            if st.button("▶️ Iniciar Processamento", type="primary"):
+                st.info("📡 Iniciando o script de processamento...")
+                st.text(f"Grupo: {group_name} | Window: {window_size} | Métrica: {metric}")
 
-            with st.spinner("🔄 Processando..."):
-                process = subprocess.Popen(
-                    cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True
-                )
+                
+                greac_cmd = [
+                    process_script,
+                    train_dir,
+                    test_dir,
+                    group_name,
+                    str(window_size),
+                    metric,
+                    "--no-cache" if not cache else ""
+                ]
+                balance = [
+                    process_script,
+                    feature_dir
+                ]
 
-                output_placeholder = st.empty()
-                output_text = ""
+                if program == pg_options[0]:
+                    process_cmd = greac_cmd
+                else: 
+                    process_cmd = balance
 
-                for line in process.stdout:
-                    output_text += line
-                    output_placeholder.code(output_text, language='bash')
+                with st.spinner("🔄 Processando..."):
+                    process = subprocess.Popen(
+                        process_cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        universal_newlines=True
+                    )
 
-                process.wait()
-                st.success("✅ Processamento concluído.")
+                    output_placeholder = st.empty()
+                    output_text = ""
+
+                    for line in process.stdout:
+                        output_text += line
+                        output_placeholder.code(output_text, language='bash')
+
+                    process.wait()
+                    st.success("✅ Processamento concluído.")
+            
+        with col2:
+            if st.button("📥 Baixar Resultados"):
+                        if os.path.exists(OUTPUT_DIR) and os.listdir(OUTPUT_DIR):
+                            # Cria ZIP com resultados
+                            zip_path = "/tmp/results.zip"
+                            with zipfile.ZipFile(zip_path, 'w') as zipf:
+                                for root, dirs, files in os.walk(OUTPUT_DIR):
+                                    for file in files:
+                                        file_path = os.path.join(root, file)
+                                        arcname = os.path.relpath(file_path, OUTPUT_DIR)
+                                        zipf.write(file_path, arcname)
+                            
+                            with open(zip_path, "rb") as f:
+                                st.download_button(
+                                    label="💾 Download ZIP",
+                                    data=f.read(),
+                                    file_name="fasta_results.zip",
+                                    mime="application/zip"
+                                )
+                        else:
+                            st.warning("⚠️ Nenhum resultado encontrado")
 
 
 
