@@ -104,6 +104,10 @@ def main():
         pg_options = ["GREAC", "gramep", "FastaSplitter"]
         program = st.selectbox("Programa",pg_options)
 
+        if program == pg_options[1]:
+            reference_path = st.text_input("📂 Caminho da Referência", value=f"{HOMEDATA}/Desktop/datasets/denv/refseq.fasta")
+            k = st.number_input("K-mer size", step=1)
+
     st.header("📁 Seleção de Diretórios Locais")
 
     col1, col2, col3 = st.columns(3)
@@ -125,7 +129,6 @@ def main():
         st.warning("⚠️ Um ou mais diretórios não existem. Verifique os caminhos.")
     else:
         st.success("✅ Diretórios encontrados.")
-
         st.header("🚀 Processamento")
 
         # Campos obrigatórios validados
@@ -136,7 +139,7 @@ def main():
         if program == pg_options[0]:
             process_script = f'../scripts/local/benchmark.sh'
         elif program == pg_options[1]:
-            process_script = '../scripts/local/benchmark.sh'
+            process_script = './scripts/get_kmers.sh'
         elif program == pg_options[2]:
             process_script = f'{HOMEDATA}/Desktop/Fasta-splitter/FastaSplitter/balance.sh'
 
@@ -149,9 +152,9 @@ def main():
         with col1:
             if st.button("▶️ Iniciar Processamento", type="primary"):
                 st.info("📡 Iniciando o script de processamento...")
-                st.text(f"Grupo: {group_name} | Window: {window_size} | Métrica: {metric}")
+                if program == pg_options[0]:
+                    st.text(f"Grupo: {group_name} | Window: {window_size} | Métrica: {metric}")
 
-                
                 greac_cmd = [
                     process_script,
                     train_dir,
@@ -166,8 +169,17 @@ def main():
                     feature_dir
                 ]
 
+                get_kmers = [
+                    process_script,
+                    train_dir,
+                    reference_path,
+                    k
+                ]
+
                 if program == pg_options[0]:
                     process_cmd = greac_cmd
+                elif program == pg_options[1]:
+                    process_cmd = get_kmers
                 else: 
                     process_cmd = balance
 
