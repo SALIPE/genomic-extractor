@@ -490,6 +490,15 @@ function add_benchmark_args!(settings)
     end
 end
 
+function add_extract_features_args!(settings)
+    s = settings["extract-features"]
+    @add_arg_table! s begin
+        "--train-dir"
+        help = "Training dataset path"
+        required = true
+    end
+end
+
 function add_fit_parameters_args!(settings)
     s = settings["fit-parameters"]
     @add_arg_table! s begin
@@ -535,6 +544,22 @@ function handle_benchmark(args,
         window,
         groupName,
         args["metric"]
+    )
+end
+
+function extract_features(args,
+    groupName::String,
+    window::Float32)
+    @info "Starting model extraction" args window groupName
+    RegionExtraction.extractFeaturesTemplate(
+        window,
+        groupName,
+        args["train-dir"]
+    )
+    distribution = getKmersDistributionPerClass(
+        window,
+        groupName,
+        args["train-dir"]
     )
 end
 
@@ -628,13 +653,15 @@ function julia_main()::Cint
         help = "Sliding window percent size"
         arg_type = Float32
         required = true
-        range_tester = (x -> 0.0001 < x < 0.5)
+        range_tester = (x -> 0.000001 <= x <= 0.05)
     end
 
     # Create subcommand structure
     @add_arg_table! settings begin
         ("benchmark", action=:command,
             help="Benchmark extract features model and classify creating and print confusion matrix")
+        ("extract-features", action=:command,
+            help="Exract features from k-mer set")
         ("performance-evaluation", action=:command,
             help="Evaluate function performance using bechmark tools")
         ("fit-parameters", action=:command,
@@ -644,6 +671,7 @@ function julia_main()::Cint
     # Add arguments for each subcommand
     add_performance_args!(settings)
     add_benchmark_args!(settings)
+    add_extract_features_args!(settings)
     add_fit_parameters_args!(settings)
     parsed_args = parse_args(settings)
 
@@ -656,6 +684,8 @@ function julia_main()::Cint
 
         if parsed_args["%COMMAND%"] == "fit-parameters"
             fitParameters(parsed_args["fit-parameters"], parsed_args["group-name"], parsed_args["window"])
+        elseif parsed_args["%COMMAND%"] == "extract-features"
+            extract_features(parsed_args["extract-features"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
             handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "performance-evaluation"

@@ -71,7 +71,7 @@ function extractFeaturesTemplate(
     wnwPercent::Float32,
     groupName::String,
     variantDirPath::String,
-    histogramThreshold::Float16=Float16(0.5)
+    histogramThreshold::Float16=Float16(0.8)
 )
 
     @info "Threads:" Threads.nthreads()
@@ -111,8 +111,8 @@ function extractFeaturesTemplate(
             sequences::Vector{String} = DataIO.loadStringSequences("$variantDirPath/$variant/$variant.fasta")
             minSeqLength::UInt64 = minimum(map(length, sequences))
             wnwSize::UInt64 = ceil(UInt64, minSeqLength * wnwPercent)
-
-            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, _wndwExlcusiveKmersHistogram(varKmer[variant], wnwSize, sequences, histogramThreshold))
+            @info wnwSize
+            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, _wndwExlcusiveKmersHistogram_bytes(varKmer[variant], wnwSize, sequences, histogramThreshold))
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
@@ -149,62 +149,6 @@ function findExclusiveElements(class_dict::Dict{String,Vector{String}})::Dict{St
     return exclusive_dict
 end
 
-#=
-    Feature extraction based on exclusive kmers.
-    Extraction process:
-    k-mers list -> run windown slide -> count histogram for most freq -> extract regions
-
-=#
-function wndwExlcusiveKmersHistogram(
-    exclusiveKmers::Vector{String},
-    wndwSize::UInt64,
-    sequences::Vector{String},
-    histogramThreshold::Float16
-)::Tuple{Vector{UInt16},BitArray}
-
-    @assert all(≤(wndwSize), length.(exclusiveKmers)) "All k-mers must be ≤ window size"
-
-    patterns = [Base.Fix1(occursinKmer, kmer) for kmer in exclusiveKmers]
-
-    byte_seqs = [codeunits(s) for s in sequences]
-    maxSeqLen = maximum(length, sequences)
-    total_windows = maxSeqLen - wndwSize + 1
-
-    # num_threads = Threads.nthreads()
-    # basesize = max(1, length(sequences) ÷ num_threads)
-
-    @floop for seq in byte_seqs
-        seq_len = length(seq)
-        seq_windows = seq_len - wndwSize + 1
-        seq_hist = zeros(UInt16, seq_windows)
-
-        for initPos in 1:seq_windows
-            endPos = initPos + wndwSize - 1
-            for pattern in patterns
-                if pattern(seq[initPos:endPos])
-                    seq_hist[initPos] += 1
-                    break
-                end
-            end
-        end
-
-        padded_hist = zeros(UInt16, total_windows)
-        valid_range = 1:length(seq_hist)
-        padded_hist[valid_range] = seq_hist
-
-        @reduce(
-            histogram = zeros(UInt16, total_windows) .+ padded_hist
-        )
-    end
-
-    marked = falses(maxSeqLen)
-    for i in eachindex(histogram)
-        if histogram[i] / length(byte_seqs) > histogramThreshold
-            marked[i:i+wndwSize-1] .= true
-        end
-    end
-    return histogram, marked
-end
 
 function _wndwExlcusiveKmersHistogram(
     exclusiveKmers::Vector{String},
@@ -248,47 +192,145 @@ function _wndwExlcusiveKmersHistogram(
     return histogram, marked
 end
 
+function compute_hash(s::String)::UInt64
+    h = UInt64(0)
+    base = UInt64(257)
 
-function wndwSequencesKmersHistogram(
-    kmerset::Set{String},
-    wndwSize::UInt16,
+    for char in s
+        h = h * base + UInt64(char)
+    end
+
+    return h
+end
+
+function getOccursin_rolling_hash(
+    sequence::String,
+    kmer_hash_map::Dict{UInt64,Vector{String}},
+    k_len::Int
+)::Vector{Int}
+    seq_len = length(sequence)
+    positions = Int[]
+
+    if seq_len < k_len
+        return positions
+    end
+
+    base = UInt64(257)
+
+    # Calculate base^(k_len-1) for rolling hash
+    power = UInt64(1)
+    for i in 1:(k_len-1)
+        power *= base
+    end
+
+    # Calculate initial hash
+    current_hash = UInt64(0)
+    @inbounds for i in 1:k_len
+        current_hash = current_hash * base + UInt64(sequence[i])
+    end
+
+    # Check first k-mer
+    if haskey(kmer_hash_map, current_hash)
+        kmer_candidate = SubString(sequence, 1, k_len)
+        if String(kmer_candidate) in kmer_hash_map[current_hash]
+            push!(positions, 1)
+        end
+    end
+
+    # Roll through sequence
+    @inbounds for i in (k_len+1):seq_len
+        # Rolling hash: remove leftmost char, add rightmost char
+        current_hash = current_hash - UInt64(sequence[i-k_len]) * power
+        current_hash = current_hash * base + UInt64(sequence[i])
+
+        # Check if hash matches any k-mer
+        if haskey(kmer_hash_map, current_hash)
+            kmer_candidate = SubString(sequence, i - k_len + 1, i)
+            if String(kmer_candidate) in kmer_hash_map[current_hash]
+                push!(positions, i - k_len + 1)
+            end
+        end
+    end
+
+    return positions
+end
+
+function getOccursin_substring(
+    sequence::String,
+    kmer_set::Set{String},
+    k_len::Int
+)::Vector{Int}
+    seq_len = length(sequence)
+    positions = Int[]
+
+    # Use SubString for zero-copy k-mer extraction
+    @inbounds for i in 1:(seq_len-k_len+1)
+        kmer_substr = SubString(sequence, i, i + k_len - 1)
+
+        if String(kmer_substr) in kmer_set
+            push!(positions, i)
+        end
+    end
+
+    return positions
+end
+
+# Version with byte-level operations
+function _wndwExlcusiveKmersHistogram_bytes(
+    exclusiveKmers::Vector{String},
+    wndwSize::UInt64,
     sequences::Vector{String},
-)::Vector{Vector{UInt64}}
+    histogramThreshold::Float16
+)::Tuple{Vector{UInt16},BitArray}
 
-    kmer_lengths = length.(kmerset)
-    @assert all(≤(wndwSize), kmer_lengths) "All k-mers must be ≤ window size"
+    @assert all(≤(wndwSize), length.(exclusiveKmers)) "All k-mers must be ≤ window size"
 
-    patterns = [Base.Fix1(occursinKmer, kmer) for kmer in kmerset]
-
-    byte_seqs = [codeunits(s) for s in sequences]
+    k_len::Int = length(exclusiveKmers[1])
     maxSeqLen = maximum(length, sequences)
     total_windows = maxSeqLen - wndwSize + 1
 
-    x_signals = Vector{Vector{UInt64}}(undef, length(sequences))
+    kmer_hash_map = Dict{UInt64,Vector{String}}()
 
-    @floop for (i, seq) in enumerate(byte_seqs)
-        seq_windows = length(seq) - wndwSize + 1
-        seq_hist = zeros(UInt64, seq_windows)
+    for kmer in exclusiveKmers
+        h = compute_hash(kmer)
+        if !haskey(kmer_hash_map, h)
+            kmer_hash_map[h] = String[]
+        end
+        push!(kmer_hash_map[h], kmer)
+    end
+    # kmer_set = Set(exclusiveKmers)
 
-        for initPos in 1:seq_windows
-            endPos = initPos + wndwSize - 1
-            for pattern in patterns
-                if pattern(seq[initPos:endPos])
-                    seq_hist[initPos] += 1
-                end
+    @floop for seq in sequences
+        # positions = getOccursin_substring(seq, kmer_set, k_len)
+        positions = getOccursin_rolling_hash(seq, kmer_hash_map, k_len)
+
+        window_coverage = falses(total_windows)
+
+        @inbounds for pos in positions
+            start_window = max(1, pos - Int(wndwSize) + k_len)
+            end_window = min(total_windows, pos)
+
+            if start_window <= end_window
+                window_coverage[start_window:end_window] .= true
             end
         end
 
-        padded_hist = zeros(UInt64, total_windows)
-        padded_hist[1:length(seq_hist)] = seq_hist
-
-        x_signals[i] = padded_hist
+        @reduce(histogram = zeros(UInt32, total_windows) .+ UInt32.(window_coverage))
     end
 
-    return x_signals
+    histogram_u16 = UInt16.(min.(histogram, typemax(UInt16)))
+    threshold_count = UInt32(ceil(length(sequences) * histogramThreshold))
 
+    marked = falses(maxSeqLen)
+    @inbounds for i in eachindex(histogram)
+        if histogram[i] >= threshold_count
+            end_pos = min(maxSeqLen, i + Int(wndwSize) - 1)
+            marked[i:end_pos] .= true
+        end
+    end
+
+    return histogram_u16, marked
 end
-
 
 #=
 Count kmers appearance in the region segment, doing a codeunits regex
