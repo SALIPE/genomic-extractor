@@ -332,23 +332,6 @@ function _wndwExlcusiveKmersHistogram_bytes(
     return histogram_u16, marked
 end
 
-#=
-Count kmers appearance in the region segment, doing a codeunits regex
-=#
-function countPatterns(
-    seqWindow::SubArray,
-    kmers::Vector{String})::UInt16
-
-    patterns = [Base.Fix1(occursinKmer, kmer) for kmer in kmers]
-    count::UInt16 = 0
-
-    @floop for pattern in patterns
-        if pattern(seqWindow)
-            @reduce count += 1
-        end
-    end
-    return count
-end
 
 function getOccursin(
     sequence::String,

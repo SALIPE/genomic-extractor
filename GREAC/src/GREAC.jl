@@ -32,7 +32,7 @@ function greacClassification(
 
     # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
     # predict_raw predict_membership (model, metric)
-    classify = Base.Fix1(ClassificationModel.predict_raw, (model, metric))
+    classify = Base.Fix1(ClassificationModel.predict_membership, (model, metric))
 
     y_true = String[]
     y_pred = String[]
@@ -43,7 +43,7 @@ function greacClassification(
         file_path::String = "$folderPath/$class.fasta"
         total = DataIO.countSequences(file_path)
 
-        chunk_size = 20000
+        chunk_size = 10000
         chunk_init::Int = 1
 
         @info "Classyfing $class $total sequences:"
@@ -64,7 +64,7 @@ function greacClassification(
             @floop for local_idx in 1:current_chunk_size
                 seq::Base.CodeUnits = classeqs[local_idx]
 
-                kmer_distribution = ClassificationModel.sequence_kmer_distribution(
+                kmer_distribution = ClassificationModel.sequence_kmer_distribution_optimized(
                     regions, seq, kmerset
                 )
                 seq_distribution = kmer_distribution ./ length(kmerset)

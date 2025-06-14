@@ -7,7 +7,6 @@ export ClassificationModel
 
 struct MultiClassModel
     classes::Vector{String}
-    priors::Dict{String,Float64}
     class_string_probs::Dict{String,Vector{Float64}}
     variant_stats::Dict{String,Dict{Symbol,Any}}
     wnw_size::Int
@@ -24,12 +23,9 @@ function fitMulticlass(
     regions::Vector{Tuple{Int,Int}}
 )::MultiClassModel
 
-    priors = Dict{String,Float64}()
     class_string_probs = Dict{String,Vector{Float64}}()
     variant_stats = Dict{String,Dict{Symbol,Any}}()
 
-
-    total_samples = sum(x -> x[2], meta_data)
     regions_len = length(regions)
     for (class, _) in meta_data
 
@@ -48,15 +44,16 @@ function fitMulticlass(
         # Process F_wr
         class_freq = kmer_distribution ./ (length(kmerset) * length(class_seqs))
         class_string_probs[class] = class_freq
-        priors[class] = meta_data[class] / total_samples
 
         in_group = Vector{Float64}(undef, length(class_seqs))
         @floop for s in eachindex(class_seqs)
             seq::Base.CodeUnits = class_seqs[s]
 
-            seq_distribution = sequence_kmer_distribution(regions, seq, collect(kmerset)) ./ length(kmerset)
+            seq_distribution = sequence_kmer_distribution_optimized(regions, seq, collect(kmerset)) ./ length(kmerset)
 
+            #manhttan and euclidian  distance for interval trust
             in_group[s] = sum(abs.(seq_distribution - class_freq))
+            # in_group[s] = sqrt(sum((seq_distribution - class_freq) .^ 2))
 
         end
 
@@ -69,7 +66,6 @@ function fitMulticlass(
 
     return MultiClassModel(
         [class for (class, _) in meta_data],
-        priors,
         class_string_probs,
         variant_stats,
         wnw_size,
@@ -103,8 +99,7 @@ end
 
 function predict_membership(
     parameters::Tuple{MultiClassModel,Union{Nothing,String}},
-    X::Vector{Float64},
-    normalize::Bool=false)
+    X::Vector{Float64})
 
     model, metric = parameters
     memberships = Dict{String,Float64}()
@@ -113,16 +108,9 @@ function predict_membership(
         class_freqs = model.class_string_probs[c]
         stats = model.variant_stats[c]
         d = metrics_options(model, metric, class_freqs, X)
-        memberships[c] = trapezoidal_membership(stats, d)
+        memberships[c] = gaussian_membership(stats, d)
     end
 
-    if normalize
-        total = sum(values(memberships))
-        total > 0 || return memberships
-        for variant in keys(memberships)
-            memberships[variant] /= total
-        end
-    end
     return argmax(memberships), memberships
 end
 
@@ -160,6 +148,41 @@ function def_kmer_classes_probs(
     end
 
     return seq_histogram
+end
+
+function sequence_kmer_distribution_optimized(
+    regions::Vector{Tuple{Int,Int}},
+    seq::Base.CodeUnits,
+    kmerset::Vector{String}
+)::Vector{UInt64}
+
+    # Pré-processa os kmers para busca mais eficiente
+    kmer_set = Set(codeunits(kmer) for kmer in kmerset)
+    kmer_length = length(kmerset[1])
+
+    # Inicializa o resultado
+    kmer_distribution = zeros(UInt64, length(regions))
+    seq_len = length(seq)
+
+    @inbounds for (region_idx, (init_pos, end_pos)) in enumerate(regions)
+        # Ajusta end_pos se necessário
+        actual_end = min(end_pos, seq_len)
+
+        # Extrai todos os kmers possíveis da região em uma única passada
+        region_kmers = Set{Vector{UInt8}}()
+        for i in init_pos:(actual_end-kmer_length+1)
+            kmer_candidate = @view seq[i:(i+kmer_length-1)]
+            kmer_vector = Vector{UInt8}(kmer_candidate)
+
+            if kmer_vector in kmer_set
+                push!(region_kmers, kmer_vector)
+            end
+        end
+
+        kmer_distribution[region_idx] = length(region_kmers)
+    end
+
+    return kmer_distribution
 end
 
 function sequence_kmer_distribution(
