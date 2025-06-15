@@ -7,24 +7,20 @@ source /home/a61491/.bashrc
 
 PROJECTHOME=/home/a61491/genomic-extractor/GREAC
 DATAHOME=/tmp2/felipe
+DATASETS=/home/a61491/datasets
 
-# TRAIN=/$HOME/test_voc/train/kmers
-# TESTDIR=/$HOME/test_voc/test
-# GROUPNAME=covid
+TESTDIR=$DATASETS/bees/data/test
+TRAIN=$DATASETS/bees/data/train/kmers_9
+GROUPNAME=bees
 
-TRAIN=$DATAHOME/sars_cov2/train/kmers
-TESTDIR=$DATAHOME/sars_cov2/test
-GROUPNAME=covid_2
+# TRAIN=$DATAHOME/sars_cov2/train/kmers
+# TESTDIR=$DATAHOME/sars_cov2/test
+# GROUPNAME=covid_2
 
-# TESTDIR=$HOME/bees/test
-# TRAIN=$HOME/bees/kmers
-# GROUPNAME=bees
 
-# TRAIN=/$HOME/denv/kmers
-# TESTDIR=/$HOME/denv/test
-# GROUPNAME=denv
 
-# cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME -w $1 benchmark  --train-dir $TRAIN --test-dir $TESTDIR -m $2
+cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME \
+    -w $1 benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $2 -o ./output
 
-cd $PROJECTHOME &&  julia --project src/GREAC.jl  --group-name $GROUPNAME -w 0.001 fit-parameters  --train-dir $TRAIN --test-dir $TESTDIR 
+# cd $PROJECTHOME &&  julia --project src/GREAC.jl  --group-name $GROUPNAME -w 0.001 fit-parameters  --train-dir $TRAIN --test-dir $TESTDIR 
 
