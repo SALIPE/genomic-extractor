@@ -71,7 +71,7 @@ function extractFeaturesTemplate(
     wnwPercent::Float32,
     groupName::String,
     variantDirPath::String,
-    histogramThreshold::Float16=Float16(0.8)
+    histogramThreshold::Float16=Float16(0.5)
 )
 
     @info "Threads:" Threads.nthreads()

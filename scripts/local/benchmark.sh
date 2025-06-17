@@ -15,23 +15,23 @@ PROJECTHOME=~/Desktop/genomic-extractor/GREAC
 # TRAIN=~/Desktop/datasets/dengue/train/kmers
 # GROUPNAME=dengue
 
-# TRAIN=$1
-# TESTDIR=$2
-# GROUPNAME=$3
-# WINDOW=$4
-# METRIC=$5
+TRAIN=$1
+TESTDIR=$2
+GROUPNAME=$3
+WINDOW=$4
+METRIC=$5
 
 
 # TESTDIR=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/variants/test
 # TRAIN=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/variants/train/kmers
 # GROUPNAME=hiv
 
-TESTDIR=/home/salipe/Desktop/datasets/HBV/data/test
-TRAIN=/home/salipe/Desktop/datasets/HBV/data/train/kmers
-GROUPNAME=hbv
+# TESTDIR=~/Desktop/datasets/HBV/data/test
+# TRAIN=~/Desktop/datasets/HBV/data/train/kmers
+# GROUPNAME=hbv
 
 cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME \
-    -w $1 benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $2 -o ./output
+    -w $WINDOW benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $METRIC -o ./output
 
 
 # docker run --rm --cpus="4" -e JULIA_NUM_THREADS=4 \
