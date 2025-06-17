@@ -5,6 +5,7 @@ export RUST_BACKTRACE=full
 
 DENGUE=~/Desktop/datasets/dengue
 HBV=~/Desktop/datasets/HBV/data
+BEES=~/Desktop/datasets/bees/data
 
 GREAC=~/Desktop/genomic-extractor/scripts/local/benchmark.sh
 BALANCEDATASET=~/Desktop/Fasta-splitter/FastaSplitter
@@ -12,6 +13,7 @@ BALANCEDATASET=~/Desktop/Fasta-splitter/FastaSplitter
 REF_HIV=../genomic-extractor/comparison_scripts/castor_hiv_data/hiv1_refseq.fasta
 REF_HBV=~/Desktop/datasets/HBV/refseq.fasta
 REF_DENV=~/Desktop/datasets/denv/refseq.fasta
+REF_BEES=~/Desktop/datasets/bees/GCA_000002195.1_Amel_4.5_genomic_Group1.fasta
 
 if [ $# -lt 2 ]; then
     echo "❌ Erro: Argumentos insuficientes"
@@ -34,6 +36,10 @@ case $GROUPNAME in
     hbv)
         SOURCE=$HBV
         echo "✅ Dataset HBV selecionado: $SOURCE"
+        ;;
+    bees)
+        SOURCE=$BEES
+        echo "✅ Dataset BEES selecionado: $SOURCE"
         ;;
     *)
         echo "❌ Erro: GROUPNAME deve ser 'denv' ou 'hbv'"
@@ -65,6 +71,20 @@ function get_kmers_hbv() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word 6 \
+            --step 1
+        
+        mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
+    done
+}
+
+function get_kmers_bees() {
+    
+    for variant in M_Group1 C_Group1; do
+        gramep get-only-kmers \
+            --rpath $REF_BEES \
+            --spath $SOURCE/train/$variant.fasta \
+            --save-path $SOURCE/train/kmers/ \
+            --word 9 \
             --step 1
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
@@ -112,6 +132,9 @@ for i in {1..100}; do
             ;;
         hbv)
             get_kmers_hbv
+            ;;
+        bees)
+            get_kmers_bees
             ;;
         *)
             echo "❌ Erro: GROUPNAME inválido: $GROUPNAME"
