@@ -1,11 +1,12 @@
 #!/bin/bash
-source ~/.py-venv/bin/activate
+source ~/Desktop/gramep/.venv/bin/activate
 
 export RUST_BACKTRACE=full
 
 DENGUE=~/Desktop/datasets/dengue
 HBV=~/Desktop/datasets/HBV/data
 BEES=~/Desktop/datasets/bees/data
+SARS=~/Desktop/datasets/sars_cov2
 HIV=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/variants
 
 GREAC=~/Desktop/genomic-extractor/scripts/local/benchmark.sh
@@ -14,6 +15,7 @@ BALANCEDATASET=~/Desktop/Fasta-splitter/FastaSplitter
 REF_HIV=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/hiv1_refseq.fasta
 REF_HBV=~/Desktop/datasets/HBV/refseq.fasta
 REF_DENV=~/Desktop/datasets/denv/refseq.fasta
+REF_SARS=~/Desktop/datasets/reference/SARS-CoV2_wuhan_refseq.fasta
 REF_BEES=~/Desktop/datasets/bees/GCA_000002195.1_Amel_4.5_genomic_Group1.fasta
 
 if [ $# -lt 4 ]; then
@@ -47,6 +49,10 @@ case $GROUPNAME in
     hiv)
         SOURCE=$HIV
         echo "✅ Dataset HIV selecionado: $SOURCE"
+        ;;
+    sars)
+        SOURCE=$SARS
+        echo "✅ Dataset SARS selecionado: $SOURCE"
         ;;
     *)
         echo "❌ Erro: GROUPNAME deve ser 'denv' ou 'hbv'"
@@ -89,6 +95,20 @@ function get_kmers_hiv() {
     for variant in HIV1_A HIV1_B HIV1_C HIV1_D HIV1_F HIV1_G; do
         gramep get-only-kmers \
             --rpath $REF_HIV \
+            --spath $SOURCE/train/$variant.fasta \
+            --save-path $SOURCE/train/kmers/ \
+            --word $KMERSIZE \
+            --step 1
+        
+        mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
+    done
+}
+
+function get_kmers_sars() {
+    
+    for variant in Alpha Beta Delta Epsilon Eta Gamma Iota Kappa Lambda Omicron; do
+        gramep get-only-kmers \
+            --rpath $REF_SARS \
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
@@ -149,6 +169,9 @@ for i in {1..100}; do
             ;;
         hiv)
             get_kmers_hiv
+            ;;
+        sars)
+            get_kmers_sars
             ;;
         *)
             echo "❌ Erro: GROUPNAME inválido: $GROUPNAME"

@@ -489,7 +489,7 @@ function add_benchmark_args!(settings)
         "--threshold"
         help = "Window theshold consideration"
         required = false
-        arg_type = Float32
+        arg_type = Float16
         "-o", "--output-directory"
         help = "Where the files go"
         required = false
