@@ -103,6 +103,8 @@ function greacClassification(
     if !isnothing(outputdir)
         RESULTS_CSV = "$outputdir/benchmark_results_$groupName.csv"
 
+        mkpath(outputdir)
+
         open(RESULTS_CSV, "a") do io
             # Write header if file is empty/new
             if filesize(RESULTS_CSV) == 0
@@ -447,7 +449,7 @@ function fitParameters(
                 args["train-dir"]
             )
 
-            for metric in ["manhattan", "euclidian", "chisquared", "mahalanobis", "kld"]
+            for metric in ["manhattan"]
                 f1 = greacClassification(
                     args["test-dir"],
                     nothing,
@@ -484,6 +486,10 @@ function add_benchmark_args!(settings)
         "--test-dir"
         help = "Test dataset path"
         required = true
+        "--threshold"
+        help = "Window theshold consideration"
+        required = false
+        arg_type = Float32
         "-o", "--output-directory"
         help = "Where the files go"
         required = false
@@ -528,7 +534,8 @@ function handle_benchmark(args,
     RegionExtraction.extractFeaturesTemplate(
         window,
         groupName,
-        args["train-dir"]
+        args["train-dir"],
+        args["threshold"]
     )
     distribution = getKmersDistributionPerClass(
         window,
@@ -653,7 +660,6 @@ function julia_main()::Cint
         help = "Sliding window percent size"
         arg_type = Float32
         required = true
-        range_tester = (x -> 0.000001 <= x <= 0.05)
     end
 
     # Create subcommand structure

@@ -6,23 +6,26 @@ export RUST_BACKTRACE=full
 DENGUE=~/Desktop/datasets/dengue
 HBV=~/Desktop/datasets/HBV/data
 BEES=~/Desktop/datasets/bees/data
+HIV=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/variants
 
 GREAC=~/Desktop/genomic-extractor/scripts/local/benchmark.sh
 BALANCEDATASET=~/Desktop/Fasta-splitter/FastaSplitter
 
-REF_HIV=../genomic-extractor/comparison_scripts/castor_hiv_data/hiv1_refseq.fasta
+REF_HIV=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/hiv1_refseq.fasta
 REF_HBV=~/Desktop/datasets/HBV/refseq.fasta
 REF_DENV=~/Desktop/datasets/denv/refseq.fasta
 REF_BEES=~/Desktop/datasets/bees/GCA_000002195.1_Amel_4.5_genomic_Group1.fasta
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 4 ]; then
     echo "❌ Erro: Argumentos insuficientes"
-    echo "Uso: $0 <GROUPNAME> <WINDOW>"
+    echo "Uso: $0 <GROUPNAME> <WINDOW> <KMERSIZE> <THRESHOLD>"
     exit 1
 fi
 
 GROUPNAME=$1
 WINDOW=$2
+KMERSIZE=$3 
+THRESHOLD=$4
 
 echo "📋 Parâmetros recebidos:"
 echo "   - GROUPNAME: $GROUPNAME"
@@ -41,6 +44,10 @@ case $GROUPNAME in
         SOURCE=$BEES
         echo "✅ Dataset BEES selecionado: $SOURCE"
         ;;
+    hiv)
+        SOURCE=$HIV
+        echo "✅ Dataset HIV selecionado: $SOURCE"
+        ;;
     *)
         echo "❌ Erro: GROUPNAME deve ser 'denv' ou 'hbv'"
         exit 1
@@ -56,7 +63,7 @@ function get_kmers_denv() {
             --rpath $REF_DENV \
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
-            --word 6 \
+            --word $KMERSIZE \
             --step 1
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
@@ -70,12 +77,27 @@ function get_kmers_hbv() {
             --rpath $REF_HBV \
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
-            --word 6 \
+            --word $KMERSIZE \
             --step 1
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
 }
+
+function get_kmers_hiv() {
+    
+    for variant in HIV1_A HIV1_B HIV1_C HIV1_D HIV1_F HIV1_G; do
+        gramep get-only-kmers \
+            --rpath $REF_HIV \
+            --spath $SOURCE/train/$variant.fasta \
+            --save-path $SOURCE/train/kmers/ \
+            --word $KMERSIZE \
+            --step 1
+        
+        mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
+    done
+}
+
 
 function get_kmers_bees() {
     
@@ -84,7 +106,7 @@ function get_kmers_bees() {
             --rpath $REF_BEES \
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
-            --word 9 \
+            --word $KMERSIZE  \
             --step 1
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
@@ -106,17 +128,6 @@ if [ ! -d "$SOURCE" ]; then
     exit 1
 fi
 
-if [ ! -d "$SOURCE/train" ]; then
-    echo "❌ Erro: Diretório de treino não existe: $SOURCE/train"
-    exit 1
-fi
-
-if [ ! -d "$TESTDIR" ]; then
-    echo "❌ Erro: Diretório de teste não existe: $TESTDIR"
-    exit 1
-fi
-
-echo "✅ Todos os diretórios verificados"
 
 for i in {1..100}; do
     echo "Iteração $i de 100"
@@ -136,13 +147,16 @@ for i in {1..100}; do
         bees)
             get_kmers_bees
             ;;
+        hiv)
+            get_kmers_hiv
+            ;;
         *)
             echo "❌ Erro: GROUPNAME inválido: $GROUPNAME"
             exit 1
             ;;
     esac
     
-    $GREAC $TRAIN $TESTDIR $GROUPNAME $WINDOW $METRIC 
+    $GREAC $TRAIN $TESTDIR $GROUPNAME $WINDOW $METRIC $KMERSIZE $THRESHOLD
     
 done
 

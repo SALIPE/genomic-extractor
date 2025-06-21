@@ -20,6 +20,8 @@ TESTDIR=$2
 GROUPNAME=$3
 WINDOW=$4
 METRIC=$5
+KMER=$6
+THRESHOLD=$7
 
 
 # TESTDIR=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/variants/test
@@ -31,7 +33,7 @@ METRIC=$5
 # GROUPNAME=hbv
 
 cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME \
-    -w $WINDOW benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $METRIC -o ./output
+    -w $WINDOW benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $METRIC --threshold $THRESHOLD -o ./output-$KMER
 
 
 # docker run --rm --cpus="4" -e JULIA_NUM_THREADS=4 \
@@ -46,7 +48,8 @@ cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNA
 #     benchmark --train-dir /train_dir \
 #     --test-dir /test_dir  \
 #     -m $METRIC \
-#     -o /output
-# cd $PROJECTHOME &&  julia --project src/GREAC.jl  --group-name $GROUPNAME -w 0.001 fit-parameters  --train-dir $TRAIN --test-dir $TESTDIR 
+# #     -o /output
+# cd $PROJECTHOME &&  julia --project src/GREAC.jl --no-cache \
+#     --group-name $GROUPNAME -w 0.001 fit-parameters --train-dir $TRAIN --test-dir $TESTDIR 
 
 
