@@ -1,5 +1,5 @@
 #!/bin/bash
-source ~/Desktop/gramep/.venv/bin/activate
+source ~/.py-venv/bin/activate
 
 export RUST_BACKTRACE=full
 
@@ -149,7 +149,7 @@ if [ ! -d "$SOURCE" ]; then
 fi
 
 
-for i in {1..100}; do
+for i in {1..1}; do
     echo "Iteração $i de 100"
     
     $BALANCEDATASET/test.sh $SOURCE
