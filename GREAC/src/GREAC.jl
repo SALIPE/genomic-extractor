@@ -30,7 +30,7 @@ function greacClassification(
     modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
     model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
 
-    # classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
+    classification_probs = Dict{String,Vector{Dict{String,Float64}}}()
     # predict_raw predict_membership (model, metric)
     classify = Base.Fix1(ClassificationModel.predict_membership, (model, metric))
 
@@ -47,7 +47,7 @@ function greacClassification(
         chunk_init::Int = 1
 
         @info "Classyfing $class $total sequences:"
-        # classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, total)
+        classifications = Vector{Dict{String,Float64}}(undef, total)
         local_y_pred = String[]
         local_y_true = String[]
 
@@ -58,7 +58,7 @@ function greacClassification(
 
             classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences(file_path, chunk_init, chunk_end)
 
-            # inner_classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, current_chunk_size)
+            inner_classifications = Vector{Dict{String,Float64}}(undef, current_chunk_size)
             inner_y_pred = Vector{String}(undef, current_chunk_size)
 
             @floop for local_idx in 1:current_chunk_size
@@ -70,15 +70,15 @@ function greacClassification(
                 seq_distribution = kmer_distribution ./ length(kmerset)
 
                 if !iszero(sum(seq_distribution))
-                    cl = classify(seq_distribution)
-                    # inner_classifications[local_idx] = cl
-                    inner_y_pred[local_idx] = cl[1]
+                    cl, memberships = classify(seq_distribution)
+                    inner_classifications[local_idx] = memberships
+                    inner_y_pred[local_idx] = cl
                 else
                     inner_y_pred[local_idx] = ""
                 end
             end
 
-            # classifications[chunk_init:chunk_end] = inner_classifications
+            classifications[chunk_init:chunk_end] = inner_classifications
 
             for pred in inner_y_pred
                 if !(pred == "")
@@ -94,7 +94,7 @@ function greacClassification(
 
         append!(y_pred, local_y_pred)
         append!(y_true, local_y_true)
-        # classification_probs[class] = classifications
+        classification_probs[class] = classifications
 
     end
 
@@ -102,8 +102,31 @@ function greacClassification(
 
     if !isnothing(outputdir)
         RESULTS_CSV = "$outputdir/benchmark_results_$groupName.csv"
-
+        MEMBERSHIPS = "$outputdir/memberships_$groupName.txt"
         mkpath(outputdir)
+
+        open(MEMBERSHIPS, "w") do io
+
+            for (key, value) in classification_probs
+                write(io, "\n\n########### $(uppercase(key)) ############")
+
+                for i in eachindex(value)
+
+                    try
+                        classification = value[i]
+                        write(io, "\n--- Classificação $i ---\n")
+
+                        for (class_name, probability) in classification
+                            write(io, "$class_name: $(round(probability, digits=4)) \n")
+                        end
+                    catch e
+                        @warn "Erro encontrado: $e"
+                        continue
+                    end
+                end
+            end
+
+        end
 
         open(RESULTS_CSV, "a") do io
             # Write header if file is empty/new
@@ -434,7 +457,7 @@ function fitParameters(
     while window <= 0.004
 
         threhold::Float16 = 0.5
-        while threhold <= 0.9
+        while threhold <= 0.95
             rm("$(homedir())/.project_cache/$(groupName)/$window"; recursive=true, force=true)
 
             RegionExtraction.extractFeaturesTemplate(

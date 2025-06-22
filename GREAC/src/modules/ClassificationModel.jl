@@ -99,7 +99,7 @@ end
 
 function predict_membership(
     parameters::Tuple{MultiClassModel,Union{Nothing,String}},
-    X::Vector{Float64})
+    X::Vector{Float64})::Tuple{String,Dict{String,Float64}}
 
     model, metric = parameters
     memberships = Dict{String,Float64}()

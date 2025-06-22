@@ -28,7 +28,7 @@ GREAC/greac/
 /compiled_app
 /.project_cache
 notebooks/.project_cache
-**/output
+**/output**
 *.zip
 *.svg
 *.csv
