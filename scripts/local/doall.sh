@@ -15,7 +15,7 @@ BALANCEDATASET=~/Desktop/Fasta-splitter/FastaSplitter
 REF_HIV=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/hiv1_refseq.fasta
 REF_HBV=~/Desktop/datasets/HBV/refseq.fasta
 REF_DENV=~/Desktop/datasets/denv/refseq.fasta
-REF_SARS=~/Desktop/datasets/reference/SARS-CoV2_wuhan_refseq.fasta
+REF_SARS=~/Desktop/datasets/tutorial_data/reference/SARS-CoV2_wuhan_refseq.fasta
 REF_BEES=~/Desktop/datasets/bees/GCA_000002195.1_Amel_4.5_genomic_Group1.fasta
 
 if [ $# -lt 4 ]; then
