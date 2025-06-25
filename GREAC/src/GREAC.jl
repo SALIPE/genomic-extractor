@@ -180,7 +180,6 @@ function compute_variant_metrics(
     end
 
     metrics = Dict{String,Dict}()
-    total_samples = sum(cm)
 
     total_tp = 0
     total_fp = 0
@@ -435,7 +434,7 @@ function sars_pos_val(model::ClassificationModel.MultiClassModel)::Int
     found = map(havepos, pos)
     count = 0
 
-    for (pos, i, e) in found
+    for (pos, i, _) in found
         if i != 0
             count += 1
         end
