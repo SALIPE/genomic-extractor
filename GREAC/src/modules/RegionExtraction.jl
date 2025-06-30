@@ -87,13 +87,14 @@ function extractFeaturesTemplate(
 
 
     outputs = Vector{Tuple{String,Tuple{Vector{UInt16},BitArray}}}(undef, length(variantDirs))
-    varKmer = Dict{String,Vector{String}}()
+    # varKmer = Dict{String,Vector{String}}()
+    kmerset = Set{String}()
 
-    @simd for variant in variantDirs
-        varKmer[variant] = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
+    for variant in variantDirs
+        variantKmers = DataIO.read_pickle_data("$variantDirPath/$variant/$(variant)_ExclusiveKmers.sav")
+        # varKmer[variant] = variantKmers
+        union!(kmerset, Set(variantKmers))
     end
-
-    # exclusiveKmers::Dict{String,Vector{String}} = findExclusiveElements(varKmer)
 
 
     @inbounds for v in eachindex(variantDirs)
@@ -111,8 +112,10 @@ function extractFeaturesTemplate(
             sequences::Vector{String} = DataIO.loadStringSequences("$variantDirPath/$variant/$variant.fasta")
             minSeqLength::UInt64 = minimum(map(length, sequences))
             wnwSize::UInt64 = ceil(UInt64, minSeqLength * wnwPercent)
-            @info wnwSize
-            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, _wndwExlcusiveKmersHistogram_bytes(varKmer[variant], wnwSize, sequences, histogramThreshold))
+            kmer_vector::Vector{String} = collect(kmerset)
+            @info "Window size = $(Int(wnwSize))"
+
+            data::Tuple{String,Tuple{Vector{UInt16},BitArray}} = (variant, _wndwExlcusiveKmersHistogram_bytes(kmer_vector, wnwSize, sequences, histogramThreshold))
             outputs[v] = data
             DataIO.save_cache(cache_path, data)
         end
@@ -120,77 +123,6 @@ function extractFeaturesTemplate(
 
 end
 
-
-function findExclusiveElements(class_dict::Dict{String,Vector{String}})::Dict{String,Vector{String}}
-    # Track which classes each string appears in
-    presence = Dict{String,Set{String}}()
-
-    # First pass: Record class presence for each unique string
-    for (class_name, strings) in class_dict
-        unique_strings = unique(strings)
-        for str in unique_strings
-            if haskey(presence, str)
-                push!(presence[str], class_name)
-            else
-                presence[str] = Set([class_name])
-            end
-        end
-    end
-
-    # Second pass: Find exclusive elements for each class
-    exclusive_dict = Dict{String,Vector{String}}()
-
-    for (class_name, strings) in class_dict
-        unique_elements = unique(strings)
-        exclusive = filter(str -> presence[str] == Set([class_name]), unique_elements)
-        exclusive_dict[class_name] = exclusive
-    end
-
-    return exclusive_dict
-end
-
-
-function _wndwExlcusiveKmersHistogram(
-    exclusiveKmers::Vector{String},
-    wndwSize::UInt64,
-    sequences::Vector{String},
-    histogramThreshold::Float16
-)::Tuple{Vector{UInt16},BitArray}
-
-    @assert all(≤(wndwSize), length.(exclusiveKmers)) "All k-mers must be ≤ window size"
-
-    k_len::Int = length(exclusiveKmers[1])
-    byte_seqs = [codeunits(s) for s in sequences]
-    maxSeqLen = maximum(length, sequences)
-    total_windows = maxSeqLen - wndwSize + 1
-
-    @floop for seq in byte_seqs
-        padded_hist = zeros(UInt32, total_windows)
-
-        positions = getOccursin(String(seq), exclusiveKmers)
-
-        for i in positions
-
-            iniPos::Int = i - (Int(wndwSize) - k_len)
-            iniPos = iniPos > 1 ? iniPos : 1
-            endPos::Int = i > total_windows ? total_windows : i
-            padded_hist[iniPos:endPos] = ones(UInt32, endPos - iniPos + 1)
-
-        end
-
-        @reduce(
-            histogram = zeros(UInt32, total_windows) .+ padded_hist
-        )
-    end
-
-    marked = falses(maxSeqLen)
-    for i in eachindex(histogram)
-        if histogram[i] / length(byte_seqs) > histogramThreshold
-            marked[i:i+wndwSize-1] .= true
-        end
-    end
-    return histogram, marked
-end
 
 function compute_hash(s::String)::UInt64
     h = UInt64(0)
@@ -255,27 +187,6 @@ function getOccursin_rolling_hash(
     return positions
 end
 
-function getOccursin_substring(
-    sequence::String,
-    kmer_set::Set{String},
-    k_len::Int
-)::Vector{Int}
-    seq_len = length(sequence)
-    positions = Int[]
-
-    # Use SubString for zero-copy k-mer extraction
-    @inbounds for i in 1:(seq_len-k_len+1)
-        kmer_substr = SubString(sequence, i, i + k_len - 1)
-
-        if String(kmer_substr) in kmer_set
-            push!(positions, i)
-        end
-    end
-
-    return positions
-end
-
-# Version with byte-level operations
 function _wndwExlcusiveKmersHistogram_bytes(
     exclusiveKmers::Vector{String},
     wndwSize::UInt64,
@@ -298,10 +209,8 @@ function _wndwExlcusiveKmersHistogram_bytes(
         end
         push!(kmer_hash_map[h], kmer)
     end
-    # kmer_set = Set(exclusiveKmers)
 
     @floop for seq in sequences
-        # positions = getOccursin_substring(seq, kmer_set, k_len)
         positions = getOccursin_rolling_hash(seq, kmer_hash_map, k_len)
 
         window_coverage = falses(total_windows)

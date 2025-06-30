@@ -9,7 +9,6 @@ struct MultiClassModel
     classes::Vector{String}
     class_string_probs::Dict{String,Vector{Float64}}
     variant_stats::Dict{String,Dict{Symbol,Any}}
-    wnw_size::Int
     kmerset::Set{String}
     regions::Vector{Tuple{Int,Int}}
 end
@@ -19,7 +18,6 @@ function fitMulticlass(
     kmerset::Set{String},
     meta_data::Dict{String,Int},
     byte_seqs::Dict{String,Vector{Base.CodeUnits}},
-    wnw_size::Int,
     regions::Vector{Tuple{Int,Int}}
 )::MultiClassModel
 
@@ -68,7 +66,6 @@ function fitMulticlass(
         [class for (class, _) in meta_data],
         class_string_probs,
         variant_stats,
-        wnw_size,
         kmerset,
         regions)
 end

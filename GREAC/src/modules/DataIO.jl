@@ -155,12 +155,14 @@ function loadCodeUnitsSequences(
     file::String,
     chunk_init::Int,
     chunk_end::Int
-)::Vector{Base.CodeUnits}
+)::Vector{Tuple{String,Base.CodeUnits}}
 
-    sequences = Vector{Base.CodeUnits}()
+    sequences = Vector{Tuple{String,Base.CodeUnits}}()
     for (i, record) in enumerate(open(FASTAReader, file))
         if i >= chunk_init && i <= chunk_end
-            push!(sequences, codeunits(sequence(String, record)))
+            id = identifier(record)
+            seq = sequence(String, record)
+            push!(sequences, (String(id), codeunits(seq)))
         end
     end
     return sequences

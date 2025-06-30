@@ -33,8 +33,8 @@ THRESHOLD=$7
 # GROUPNAME=hbv
 
 cd $PROJECTHOME && julia --project src/GREAC.jl --no-cache --group-name $GROUPNAME \
-   -w $WINDOW benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $METRIC --threshold $THRESHOLD 
-   #-o ./output-$KMER
+   -w $WINDOW benchmark --train-dir $TRAIN --test-dir $TESTDIR -m $METRIC --threshold $THRESHOLD \
+   -o ./output-$KMER
 
 
 # docker run --rm --cpus="4" -e JULIA_NUM_THREADS=4 \

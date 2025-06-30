@@ -30,7 +30,7 @@ function greacClassification(
     modelCachedFile = "$(homedir())/.project_cache/$groupName/$wnwPercent/kmers_distribution.dat"
     model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache(modelCachedFile)
 
-    classification_probs = Dict{String,Vector{Dict{String,Float64}}}()
+    classification_probs = Dict{String,Vector{Tuple{String,Dict{String,Float64}}}}()
     # predict_raw predict_membership (model, metric)
     classify = Base.Fix1(ClassificationModel.predict_membership, (model, metric))
 
@@ -47,7 +47,7 @@ function greacClassification(
         chunk_init::Int = 1
 
         @info "Classyfing $class $total sequences:"
-        classifications = Vector{Dict{String,Float64}}(undef, total)
+        classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, total)
         local_y_pred = String[]
         local_y_true = String[]
 
@@ -56,13 +56,13 @@ function greacClassification(
             chunk_end = min(chunk_init + chunk_size - 1, total)
             current_chunk_size = chunk_end - chunk_init + 1
 
-            classeqs::Vector{Base.CodeUnits} = DataIO.loadCodeUnitsSequences(file_path, chunk_init, chunk_end)
+            classeqs::Vector{Tuple{String,Base.CodeUnits}} = DataIO.loadCodeUnitsSequences(file_path, chunk_init, chunk_end)
 
-            inner_classifications = Vector{Dict{String,Float64}}(undef, current_chunk_size)
+            inner_classifications = Vector{Tuple{String,Dict{String,Float64}}}(undef, current_chunk_size)
             inner_y_pred = Vector{String}(undef, current_chunk_size)
 
             @floop for local_idx in 1:current_chunk_size
-                seq::Base.CodeUnits = classeqs[local_idx]
+                id, seq::Base.CodeUnits = classeqs[local_idx]
 
                 kmer_distribution = ClassificationModel.sequence_kmer_distribution_optimized(
                     regions, seq, kmerset
@@ -71,7 +71,7 @@ function greacClassification(
 
                 if !iszero(sum(seq_distribution))
                     cl, memberships = classify(seq_distribution)
-                    inner_classifications[local_idx] = memberships
+                    inner_classifications[local_idx] = (id, memberships)
                     inner_y_pred[local_idx] = cl
                 else
                     inner_y_pred[local_idx] = ""
@@ -113,8 +113,8 @@ function greacClassification(
                 for i in eachindex(value)
 
                     try
-                        classification = value[i]
-                        write(io, "\n--- Classificação $i ---\n")
+                        id, classification = value[i]
+                        write(io, "\n--- Classificação $id ---\n")
 
                         for (class_name, probability) in classification
                             write(io, "$class_name: $(round(probability, digits=4)) \n")
@@ -132,7 +132,7 @@ function greacClassification(
             # Write header if file is empty/new
             if filesize(RESULTS_CSV) == 0
                 types = join(model.classes, ",")
-                write(io, "wndwPercent,metric,windows,window_size,kmerset," * types * ",macro_f1,macro_precision,macro_recall,cm\n")
+                write(io, "wndwPercent,metric,windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,cm\n")
             end
 
             # Format data components
@@ -143,7 +143,6 @@ function greacClassification(
                     escape_string(string(wnwPercent)),
                     escape_string(string(metric)),
                     length(model.regions),
-                    model.wnw_size,
                     length(model.kmerset),
                     perclass,
                     results[:macro][:f1],
@@ -266,37 +265,18 @@ function getKmersDistributionPerClass(
 
         meta_data = Dict{String,Int}()
         byte_seqs = Dict{String,Vector{Base.CodeUnits}}()
-        wnw_size = one(Int)
-        max_seq_len = one(Int)
 
         for variant in variantDirs
             byte_seqs[variant] = DataIO.loadCodeUnitsSequences("$variantDirPath/$variant/$variant.fasta")
-
-            minSeqLength::Int = minimum(map(length, byte_seqs[variant]))
-            maxSeqLength::Int = maximum(map(length, byte_seqs[variant]))
-
-            class_wnw_size = ceil(Int, minSeqLength * wnwPercent)
-
-            if (wnw_size == one(Int) || wnw_size > class_wnw_size)
-                wnw_size = class_wnw_size
-            end
-
-            if (max_seq_len == one(Int) || maxSeqLength > max_seq_len)
-                max_seq_len = maxSeqLength
-            end
-
-
             meta_data[variant] = length(byte_seqs[variant])
         end
 
-        @info "Window size value: $wnw_size"
         @info meta_data
 
         distribution::ClassificationModel.MultiClassModel = ClassificationModel.fitMulticlass(
             kmerset,
             meta_data,
             byte_seqs,
-            wnw_size,
             RegionExtraction.regionsConjuction(variantDirPath, wnwPercent, groupName))
 
         DataIO.save_cache("$cachdir/kmers_distribution.dat", distribution)
@@ -726,4 +706,4 @@ function julia_main()::Cint
 end
 end
 
-# GREAC.julia_main()
+GREAC.julia_main()

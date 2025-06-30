@@ -7,6 +7,7 @@ DENGUE=~/Desktop/datasets/dengue
 HBV=~/Desktop/datasets/HBV/data
 BEES=~/Desktop/datasets/bees/data
 SARS=~/Desktop/datasets/sars_cov2
+MONKEYPOX=~/Desktop/datasets/monkeypox
 HIV=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/variants
 
 GREAC=~/Desktop/genomic-extractor/scripts/local/benchmark.sh
@@ -16,6 +17,7 @@ REF_HIV=~/Desktop/genomic-extractor/comparison_scripts/castor_hiv_data/hiv1_refs
 REF_HBV=~/Desktop/datasets/HBV/refseq.fasta
 REF_DENV=~/Desktop/datasets/denv/refseq.fasta
 REF_SARS=~/Desktop/datasets/tutorial_data/reference/SARS-CoV2_wuhan_refseq.fasta
+REF_MONKEYPOX=~/Desktop/datasets/monkeypox-raw/refseq.fasta
 REF_BEES=~/Desktop/datasets/bees/GCA_000002195.1_Amel_4.5_genomic_Group1.fasta
 
 if [ $# -lt 4 ]; then
@@ -54,6 +56,10 @@ case $GROUPNAME in
         SOURCE=$SARS
         echo "✅ Dataset SARS selecionado: $SOURCE"
         ;;
+    monkeypox)
+        SOURCE=$MONKEYPOX
+        echo "✅ Dataset MONKEYPOX selecionado: $SOURCE"
+        ;;
     *)
         echo "❌ Erro: GROUPNAME deve ser 'denv' ou 'hbv'"
         exit 1
@@ -70,7 +76,7 @@ function get_kmers_denv() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1
+            --step 1 -d ALL
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -84,7 +90,21 @@ function get_kmers_hbv() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1
+            --step 1 -d ALL
+        
+        mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
+    done
+}
+
+function get_kmers_monkeypox() {
+    
+    for variant in A B C D E F; do
+        gramep get-only-kmers \
+            --rpath $REF_MONKEYPOX \
+            --spath $SOURCE/train/$variant.fasta \
+            --save-path $SOURCE/train/kmers/ \
+            --word $KMERSIZE \
+            --step 1 -d ALL
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -98,7 +118,7 @@ function get_kmers_hiv() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1
+            --step 1 -d ALL
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -112,7 +132,7 @@ function get_kmers_sars() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1
+            --step 1 -d ALL
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -127,7 +147,7 @@ function get_kmers_bees() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE  \
-            --step 1
+            --step 1 -d ALL
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -172,6 +192,9 @@ for i in {1..1}; do
             ;;
         sars)
             get_kmers_sars
+            ;;
+        monkeypox)
+            #get_kmers_monkeypox
             ;;
         *)
             echo "❌ Erro: GROUPNAME inválido: $GROUPNAME"
