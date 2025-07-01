@@ -519,6 +519,15 @@ function add_fit_parameters_args!(settings)
     end
 end
 
+function add_fasta_regions_args!(settings)
+    s = settings["fasta-regions"]
+    @add_arg_table! s begin
+        "-i", "--input"
+        help = "Training dataset path"
+        required = true
+    end
+end
+
 function add_performance_args!(settings)
     s = settings["performance-evaluation"]
     @add_arg_table! s begin
@@ -570,6 +579,29 @@ function extract_features(args,
         groupName,
         args["train-dir"]
     )
+end
+
+function handle_extract_file_reads(args,
+    groupName::String,
+    wnwPercent::Float32)
+
+    variantDirPath::String = args["input"]
+    cachdir::String = "$(homedir())/.project_cache/$groupName/$wnwPercent"
+    model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
+
+    if isnothing(model)
+        error("Model not found!")
+    end
+
+    variantDirs::Vector{String} = readdir(variantDirPath)
+
+    for variant in variantDirs
+        DataIO.createFastaRegionFile(
+            "$variantDirPath/$variant/$variant.fasta",
+            "$variantDirPath/$variant/$variant-extracted.fasta",
+            model.regions)
+    end
+
 end
 
 function handle_performance_evaluation(args, groupName::String)
@@ -674,6 +706,8 @@ function julia_main()::Cint
             help="Evaluate function performance using bechmark tools")
         ("fit-parameters", action=:command,
             help="Fit better params")
+        ("fasta-regions", action=:command,
+            help="Create file fasta region reads from extract")
     end
 
     # Add arguments for each subcommand
@@ -681,6 +715,7 @@ function julia_main()::Cint
     add_benchmark_args!(settings)
     add_extract_features_args!(settings)
     add_fit_parameters_args!(settings)
+    add_fasta_regions_args!(settings)
     parsed_args = parse_args(settings)
 
 
@@ -696,6 +731,8 @@ function julia_main()::Cint
             extract_features(parsed_args["extract-features"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "benchmark"
             handle_benchmark(parsed_args["benchmark"], parsed_args["group-name"], parsed_args["window"])
+        elseif parsed_args["%COMMAND%"] == "fasta-regions"
+            handle_extract_file_reads(parsed_args["fasta-regions"], parsed_args["group-name"], parsed_args["window"])
         elseif parsed_args["%COMMAND%"] == "performance-evaluation"
             handle_performance_evaluation(parsed_args["performance-evaluation"], parsed_args["group-name"])
         end

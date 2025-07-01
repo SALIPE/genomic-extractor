@@ -1,0 +1,2 @@
+wndwPercent,metric,windows,kmerset,HIV1_F,HIV1_C,HIV1_D,HIV1_B,HIV1_G,HIV1_A,macro_f1,macro_precision,macro_recall,cm
+0.001,manhattan,82,117,0.2737,0.541,0.3846,0.8667,0.48,0.5263,0.512,0.5418,0.5211,[13 5 0 0 5 5; 22 33 0 0 8 4; 7 2 10 1 4 2; 0 0 15 52 0 0; 5 5 0 0 18 3; 20 10 1 0 9 30]

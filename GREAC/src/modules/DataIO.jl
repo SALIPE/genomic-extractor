@@ -179,5 +179,38 @@ function countSequences(
     return count
 end
 
+function createFastaRegionFile(
+    filePath::String,
+    outFile::String,
+    regions::Vector{Tuple{Int,Int}}
+)
+    open(outFile, "w") do io
+        writer = FASTX.FASTA.Writer(io)
+        open(FASTX.FASTA.Reader, filePath) do reader
+            for record in reader
+                sequence_str = FASTX.FASTA.sequence(record)
+                header = FASTX.FASTA.identifier(record)
+
+                for (start_pos, end_pos) in regions
+                    # Validate region bounds
+                    if start_pos >= 1 && end_pos <= length(sequence_str) && start_pos <= end_pos
+                        # Extract subsequence
+                        subseq = sequence_str[start_pos:end_pos]
+
+                        # Create new record with region info in header
+                        new_header = "$(header)_region_$(start_pos)_$(end_pos)"
+                        new_record = FASTX.FASTA.Record(new_header, subseq)
+
+                        write(writer, new_record)
+                    else
+                        @warn "Invalid region ($start_pos, $end_pos) for sequence $(header) of length $(length(sequence_str))"
+                    end
+                end
+            end
+        end
+        close(writer)
+    end
+end
+
 
 end
