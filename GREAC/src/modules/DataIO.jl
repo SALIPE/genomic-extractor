@@ -190,22 +190,19 @@ function createFastaRegionFile(
             for record in reader
                 sequence_str = FASTX.FASTA.sequence(record)
                 header = FASTX.FASTA.identifier(record)
+                new_header = "$(header)_reducted"
+                concatenated_seq = ""
 
                 for (start_pos, end_pos) in regions
-                    # Validate region bounds
                     if start_pos >= 1 && end_pos <= length(sequence_str) && start_pos <= end_pos
-                        # Extract subsequence
                         subseq = sequence_str[start_pos:end_pos]
-
-                        # Create new record with region info in header
-                        new_header = "$(header)_region_$(start_pos)_$(end_pos)"
-                        new_record = FASTX.FASTA.Record(new_header, subseq)
-
-                        write(writer, new_record)
+                        concatenated_seq *= subseq
                     else
                         @warn "Invalid region ($start_pos, $end_pos) for sequence $(header) of length $(length(sequence_str))"
                     end
                 end
+                new_record = FASTX.FASTA.Record(new_header, concatenated_seq)
+                write(writer, new_record)
             end
         end
         close(writer)

@@ -132,7 +132,7 @@ function greacClassification(
             # Write header if file is empty/new
             if filesize(RESULTS_CSV) == 0
                 types = join(model.classes, ",")
-                write(io, "wndwPercent,metric,windows,kmerset," * types * ",macro_f1,macro_precision,macro_recall,cm\n")
+                write(io, "wndwPercent,metric,windows,kmerset,final_len," * types * ",macro_f1,macro_precision,macro_recall,cm\n")
             end
 
             # Format data components
@@ -144,6 +144,7 @@ function greacClassification(
                     escape_string(string(metric)),
                     length(model.regions),
                     length(model.kmerset),
+                    escape_string(string(count_region_length(model.regions))),
                     perclass,
                     results[:macro][:f1],
                     results[:macro][:precision],
@@ -248,7 +249,7 @@ function getKmersDistributionPerClass(
         @error "create cache directory failed" exception = (e, catch_backtrace())
     end
 
-    model::Union{Nothing,ClassificationModel.MultiClassModel} = nothing # DataIO.load_cache("$cachdir/kmers_distribution.dat")
+    model::Union{Nothing,ClassificationModel.MultiClassModel} = DataIO.load_cache("$cachdir/kmers_distribution.dat")
 
     if !isnothing(model)
         @info "Model already processed from cached data from $cachdir"
@@ -433,10 +434,10 @@ function fitParameters(
     current_metric = ""
     current_threhold = 0.5
 
-    while window <= 0.004
+    while window <= 0.0025
 
         threhold::Float16 = 0.5
-        while threhold <= 0.95
+        while threhold <= 0.9
             rm("$(homedir())/.project_cache/$(groupName)/$window"; recursive=true, force=true)
 
             RegionExtraction.extractFeaturesTemplate(

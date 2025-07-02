@@ -3,7 +3,7 @@
 PROJECTHOME=~/Desktop/genomic-extractor/GREAC
 
 
-TESTDIR=~/Desktop/datasets/sars_cov2/test
+
 TRAIN=~/Desktop/datasets/sars_cov2/train/kmers
 GROUPNAME=sars
 

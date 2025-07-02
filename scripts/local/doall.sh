@@ -76,7 +76,7 @@ function get_kmers_denv() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1 -d ALL
+            --step 1
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -90,7 +90,7 @@ function get_kmers_hbv() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1 -d ALL
+            --step 1 
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -118,7 +118,7 @@ function get_kmers_hiv() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1 -d ALL
+            --step 1
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done
@@ -132,7 +132,7 @@ function get_kmers_sars() {
             --spath $SOURCE/train/$variant.fasta \
             --save-path $SOURCE/train/kmers/ \
             --word $KMERSIZE \
-            --step 1 -d ALL
+            --step 1
         
         mv $SOURCE/train/$variant.fasta kmers/$variant/$variant.fasta
     done

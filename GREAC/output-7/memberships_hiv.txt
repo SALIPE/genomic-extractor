@@ -1,1105 +1,985 @@
 
 
 ########### HIV1_F ############
---- Classificação KJ883139|HIV1_F ---
-HIV1_F: 0.9716 
-HIV1_C: 0.9171 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9641 
-HIV1_A: 0.8412 
-
---- Classificação AY173957|HIV1_F ---
-HIV1_F: 0.5783 
-HIV1_C: 0.9488 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.615 
-HIV1_A: 0.4282 
-
---- Classificação MG365762|HIV1_F ---
-HIV1_F: 1.0 
-HIV1_C: 0.2705 
-HIV1_D: 0.0002 
+--- Classificação KU168275|HIV1_F ---
+HIV1_F: 0.9607 
+HIV1_C: 0.9251 
+HIV1_D: 0.0133 
 HIV1_B: 0.0004 
-HIV1_G: 0.9816 
-HIV1_A: 0.8422 
-
---- Classificação MT417764|HIV1_F ---
-HIV1_F: 0.4935 
-HIV1_C: 0.0033 
-HIV1_D: 0.437 
-HIV1_B: 0.004 
-HIV1_G: 0.3159 
-HIV1_A: 0.3629 
-
---- Classificação DQ189088|HIV1_F ---
-HIV1_F: 0.9007 
-HIV1_C: 0.0256 
-HIV1_D: 0.1231 
-HIV1_B: 0.0016 
-HIV1_G: 0.6851 
-HIV1_A: 0.7398 
-
---- Classificação FJ900268|HIV1_F ---
-HIV1_F: 0.1367 
-HIV1_C: 0.0002 
-HIV1_D: 0.9046 
-HIV1_B: 0.0102 
-HIV1_G: 0.0825 
-HIV1_A: 0.1017 
-
---- Classificação KT276260|HIV1_F ---
-HIV1_F: 0.9716 
-HIV1_C: 0.9171 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9641 
-HIV1_A: 0.8412 
-
---- Classificação KJ883145|HIV1_F ---
-HIV1_F: 0.9514 
-HIV1_C: 0.9417 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9447 
-HIV1_A: 0.8069 
-
---- Classificação DQ979025|HIV1_F ---
-HIV1_F: 0.9852 
-HIV1_C: 0.1037 
-HIV1_D: 0.026 
-HIV1_B: 0.0007 
-HIV1_G: 0.9529 
-HIV1_A: 0.9764 
-
---- Classificação MF109526|HIV1_F ---
-HIV1_F: 0.2817 
-HIV1_C: 0.0009 
-HIV1_D: 0.6866 
-HIV1_B: 0.0065 
-HIV1_G: 0.1721 
-HIV1_A: 0.2048 
-
---- Classificação DQ979023|HIV1_F ---
-HIV1_F: 0.4979 
-HIV1_C: 0.4847 
-HIV1_D: 0.0009 
-HIV1_B: 0.0002 
-HIV1_G: 0.8432 
-HIV1_A: 0.7965 
-
---- Classificação KJ883137|HIV1_F ---
-HIV1_F: 0.9999 
-HIV1_C: 0.8229 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9976 
-HIV1_A: 0.9278 
-
---- Classificação KT276257|HIV1_F ---
-HIV1_F: 0.9071 
-HIV1_C: 0.9737 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.904 
-HIV1_A: 0.7454 
-
---- Classificação AY371158|HIV1_F ---
-HIV1_F: 0.1437 
-HIV1_C: 0.0002 
-HIV1_D: 0.8938 
-HIV1_B: 0.0099 
-HIV1_G: 0.0867 
-HIV1_A: 0.1067 
-
---- Classificação KY514084|HIV1_F ---
-HIV1_F: 0.6089 
-HIV1_C: 0.9621 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6421 
-HIV1_A: 0.4534 
-
---- Classificação KJ849782|HIV1_F ---
-HIV1_F: 0.4398 
-HIV1_C: 0.5395 
-HIV1_D: 0.0006 
-HIV1_B: 0.0001 
-HIV1_G: 0.797 
-HIV1_A: 0.747 
+HIV1_G: 0.9999 
+HIV1_A: 0.7821 
 
 --- Classificação MT417747|HIV1_F ---
-HIV1_F: 0.7862 
-HIV1_C: 1.0 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7974 
-HIV1_A: 0.6127 
+HIV1_F: 0.7272 
+HIV1_C: 0.9674 
+HIV1_D: 0.0222 
+HIV1_B: 0.0001 
+HIV1_G: 0.4869 
+HIV1_A: 0.3074 
 
---- Classificação MG365768|HIV1_F ---
-HIV1_F: 0.9649 
-HIV1_C: 1.0 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9986 
-HIV1_A: 0.9965 
+--- Classificação AJ249237|HIV1_F ---
+HIV1_F: 0.9148 
+HIV1_C: 0.0092 
+HIV1_D: 0.8129 
+HIV1_B: 0.0022 
+HIV1_G: 0.2972 
+HIV1_A: 0.9805 
 
---- Classificação AF077336|HIV1_F ---
-HIV1_F: 0.5733 
-HIV1_C: 0.4189 
-HIV1_D: 0.0014 
+--- Classificação FJ771010|HIV1_F ---
+HIV1_F: 0.6886 
+HIV1_C: 0.3191 
+HIV1_D: 0.0003 
 HIV1_B: 0.0002 
-HIV1_G: 0.8945 
-HIV1_A: 0.8535 
+HIV1_G: 0.3545 
+HIV1_A: 0.1935 
 
---- Classificação AF377956|HIV1_F ---
-HIV1_F: 0.151 
-HIV1_C: 0.0003 
-HIV1_D: 0.8824 
-HIV1_B: 0.0096 
-HIV1_G: 0.0911 
-HIV1_A: 0.1118 
+--- Classificação KY989955|HIV1_F ---
+HIV1_F: 0.3394 
+HIV1_C: 0.9982 
+HIV1_D: 0.0147 
+HIV1_B: 0.0 
+HIV1_G: 0.8507 
+HIV1_A: 0.947 
+
+--- Classificação FJ771006|HIV1_F ---
+HIV1_F: 0.6075 
+HIV1_C: 0.3531 
+HIV1_D: 0.0017 
+HIV1_B: 0.0001 
+HIV1_G: 0.5637 
+HIV1_A: 0.3781 
+
+--- Classificação AY173958|HIV1_F ---
+HIV1_F: 0.9653 
+HIV1_C: 0.7955 
+HIV1_D: 0.0007 
+HIV1_B: 0.0 
+HIV1_G: 0.4222 
+HIV1_A: 0.6538 
+
+--- Classificação KJ883151|HIV1_F ---
+HIV1_F: 0.9588 
+HIV1_C: 0.7858 
+HIV1_D: 0.0002 
+HIV1_B: 0.0 
+HIV1_G: 0.7877 
+HIV1_A: 0.7236 
 
 --- Classificação DQ979024|HIV1_F ---
-HIV1_F: 0.5733 
-HIV1_C: 0.4189 
-HIV1_D: 0.0014 
+HIV1_F: 0.5458 
+HIV1_C: 0.6038 
+HIV1_D: 0.0032 
 HIV1_B: 0.0002 
-HIV1_G: 0.8945 
-HIV1_A: 0.8535 
+HIV1_G: 0.8216 
+HIV1_A: 0.9877 
+
+--- Classificação MH705144|HIV1_F ---
+HIV1_F: 0.2734 
+HIV1_C: 0.1501 
+HIV1_D: 0.1264 
+HIV1_B: 0.0043 
+HIV1_G: 0.1228 
+HIV1_A: 0.2686 
+
+--- Classificação MT222953|HIV1_F ---
+HIV1_F: 0.968 
+HIV1_C: 0.163 
+HIV1_D: 0.005 
+HIV1_B: 0.0004 
+HIV1_G: 0.3031 
+HIV1_A: 0.7641 
+
+--- Classificação KY514084|HIV1_F ---
+HIV1_F: 0.6216 
+HIV1_C: 0.95 
+HIV1_D: 0.0031 
+HIV1_B: 0.0 
+HIV1_G: 0.9646 
+HIV1_A: 0.9953 
+
+--- Classificação KU749420|HIV1_F ---
+HIV1_F: 0.4926 
+HIV1_C: 0.9989 
+HIV1_D: 0.1513 
+HIV1_B: 0.0005 
+HIV1_G: 0.7806 
+HIV1_A: 0.9713 
+
+--- Classificação AB485657|HIV1_F ---
+HIV1_F: 0.8012 
+HIV1_C: 0.8136 
+HIV1_D: 0.0165 
+HIV1_B: 0.0003 
+HIV1_G: 0.8173 
+HIV1_A: 0.54 
+
+--- Classificação KJ883145|HIV1_F ---
+HIV1_F: 0.7418 
+HIV1_C: 0.6308 
+HIV1_D: 0.0012 
+HIV1_B: 0.0 
+HIV1_G: 0.9017 
+HIV1_A: 0.8759 
+
+--- Classificação AJ249236|HIV1_F ---
+HIV1_F: 0.9673 
+HIV1_C: 0.0694 
+HIV1_D: 0.8761 
+HIV1_B: 0.0026 
+HIV1_G: 0.2563 
+HIV1_A: 0.6725 
 
 --- Classificação KC113009|HIV1_F ---
-HIV1_F: 0.917 
-HIV1_C: 0.9682 
-HIV1_D: 0.0 
+HIV1_F: 0.8104 
+HIV1_C: 0.4999 
+HIV1_D: 0.0011 
 HIV1_B: 0.0 
-HIV1_G: 0.9129 
-HIV1_A: 0.7581 
+HIV1_G: 0.8212 
+HIV1_A: 0.8287 
+
+--- Classificação KJ883149|HIV1_F ---
+HIV1_F: 0.6084 
+HIV1_C: 0.699 
+HIV1_D: 0.0024 
+HIV1_B: 0.0 
+HIV1_G: 0.9904 
+HIV1_A: 0.9013 
+
+--- Classificação JX140671|HIV1_F ---
+HIV1_F: 0.9998 
+HIV1_C: 0.966 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9849 
+HIV1_A: 0.9883 
+
+--- Classificação GQ290462|HIV1_F ---
+HIV1_F: 0.8708 
+HIV1_C: 0.0484 
+HIV1_D: 0.1265 
+HIV1_B: 0.0034 
+HIV1_G: 0.069 
+HIV1_A: 0.3403 
+
+--- Classificação KJ883140|HIV1_F ---
+HIV1_F: 0.4723 
+HIV1_C: 0.6206 
+HIV1_D: 0.1457 
+HIV1_B: 0.0003 
+HIV1_G: 0.9494 
+HIV1_A: 0.4885 
+
+--- Classificação KT276257|HIV1_F ---
+HIV1_F: 0.8066 
+HIV1_C: 0.5064 
+HIV1_D: 0.0007 
+HIV1_B: 0.0 
+HIV1_G: 0.6365 
+HIV1_A: 0.9577 
 
 --- Classificação FJ771008|HIV1_F ---
-HIV1_F: 0.8218 
-HIV1_C: 0.9997 
-HIV1_D: 0.0 
+HIV1_F: 0.9682 
+HIV1_C: 0.5279 
+HIV1_D: 0.0008 
 HIV1_B: 0.0 
-HIV1_G: 0.8177 
-HIV1_A: 0.6979 
+HIV1_G: 0.3684 
+HIV1_A: 0.5704 
 
---- Classificação MF109434|HIV1_F ---
-HIV1_F: 0.2388 
-HIV1_C: 0.0006 
-HIV1_D: 0.7478 
-HIV1_B: 0.0072 
-HIV1_G: 0.1449 
-HIV1_A: 0.174 
+--- Classificação FJ900267|HIV1_F ---
+HIV1_F: 0.0765 
+HIV1_C: 0.0002 
+HIV1_D: 0.6518 
+HIV1_B: 0.008 
+HIV1_G: 0.0099 
+HIV1_A: 0.293 
 
---- Classificação AF005494|HIV1_F ---
-HIV1_F: 0.7439 
-HIV1_C: 0.9976 
-HIV1_D: 0.0 
+--- Classificação MF109640|HIV1_F ---
+HIV1_F: 0.4423 
+HIV1_C: 0.0435 
+HIV1_D: 0.0323 
+HIV1_B: 0.0001 
+HIV1_G: 0.2015 
+HIV1_A: 0.7918 
+
+--- Classificação KJ883147|HIV1_F ---
+HIV1_F: 0.852 
+HIV1_C: 0.7498 
+HIV1_D: 0.0005 
 HIV1_B: 0.0 
-HIV1_G: 0.7605 
-HIV1_A: 0.5721 
+HIV1_G: 0.9216 
+HIV1_A: 0.6998 
 
---- Classificação FJ670516|HIV1_F ---
-HIV1_F: 0.7348 
-HIV1_C: 0.0108 
-HIV1_D: 0.2333 
-HIV1_B: 0.0024 
-HIV1_G: 0.5101 
-HIV1_A: 0.5662 
-
---- Classificação MG365763|HIV1_F ---
-HIV1_F: 0.9256 
-HIV1_C: 0.4394 
-HIV1_D: 0.0 
+--- Classificação KJ883139|HIV1_F ---
+HIV1_F: 0.9671 
+HIV1_C: 0.3459 
+HIV1_D: 0.0003 
 HIV1_B: 0.0 
-HIV1_G: 0.9927 
-HIV1_A: 0.9806 
+HIV1_G: 0.8104 
+HIV1_A: 0.5976 
 
---- Classificação MN153483|HIV1_F ---
-HIV1_F: 0.8901 
-HIV1_C: 0.024 
-HIV1_D: 0.1298 
-HIV1_B: 0.0017 
-HIV1_G: 0.6718 
-HIV1_A: 0.7269 
+--- Classificação MG365766|HIV1_F ---
+HIV1_F: 0.7459 
+HIV1_C: 0.1381 
+HIV1_D: 0.0726 
+HIV1_B: 0.0006 
+HIV1_G: 0.5701 
+HIV1_A: 0.4591 
 
 
 ########### HIV1_C ############
---- Classificação KP411832|HIV1_C ---
-HIV1_F: 0.9439 
-HIV1_C: 0.6379 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9706 
-HIV1_A: 0.9972 
-
---- Classificação AF110968|HIV1_C ---
-HIV1_F: 0.7299 
-HIV1_C: 0.6821 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8113 
-HIV1_A: 0.9479 
-
---- Classificação AF443076|HIV1_C ---
-HIV1_F: 0.7444 
-HIV1_C: 0.6682 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8229 
-HIV1_A: 0.9546 
-
---- Classificação AF443101|HIV1_C ---
-HIV1_F: 0.6854 
-HIV1_C: 0.723 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7751 
-HIV1_A: 0.9253 
+--- Classificação AB485644|HIV1_C ---
+HIV1_F: 0.5794 
+HIV1_C: 0.8199 
+HIV1_D: 0.0602 
+HIV1_B: 0.0002 
+HIV1_G: 0.7414 
+HIV1_A: 0.9919 
 
 --- Classificação AF443085|HIV1_C ---
-HIV1_F: 0.9517 
-HIV1_C: 0.6519 
+HIV1_F: 0.9111 
+HIV1_C: 0.9574 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.9757 
-HIV1_A: 0.9953 
+HIV1_G: 0.801 
+HIV1_A: 0.7624 
 
---- Classificação AF110967|HIV1_C ---
-HIV1_F: 0.8517 
-HIV1_C: 0.5563 
+--- Classificação AF110970|HIV1_C ---
+HIV1_F: 0.9374 
+HIV1_C: 0.8772 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9564 
+HIV1_A: 0.7436 
+
+--- Classificação JX140665|HIV1_C ---
+HIV1_F: 0.9707 
+HIV1_C: 0.8651 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.9056 
-HIV1_A: 0.9921 
+HIV1_G: 0.9109 
+HIV1_A: 0.7224 
 
---- Classificação AF110975|HIV1_C ---
-HIV1_F: 0.9718 
-HIV1_C: 0.6935 
-HIV1_D: 0.0 
+--- Classificação AF110960|HIV1_C ---
+HIV1_F: 0.9404 
+HIV1_C: 0.9907 
+HIV1_D: 0.0002 
 HIV1_B: 0.0 
-HIV1_G: 0.9881 
-HIV1_A: 0.9867 
-
---- Classificação AF110977|HIV1_C ---
-HIV1_F: 0.9173 
-HIV1_C: 0.5958 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9527 
-HIV1_A: 1.0 
-
---- Classificação JF683768|HIV1_C ---
-HIV1_F: 0.6298 
-HIV1_C: 0.0066 
-HIV1_D: 0.3137 
-HIV1_B: 0.003 
-HIV1_G: 0.4201 
-HIV1_A: 0.4735 
-
---- Classificação AF443107|HIV1_C ---
-HIV1_F: 0.6095 
-HIV1_C: 0.7883 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7112 
-HIV1_A: 0.88 
-
---- Classificação AF286225|HIV1_C ---
-HIV1_F: 0.9587 
-HIV1_C: 0.9339 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9516 
-HIV1_A: 0.8186 
-
---- Classificação AB254144|HIV1_C ---
-HIV1_F: 0.0149 
-HIV1_C: 0.9644 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0904 
-HIV1_A: 0.0555 
-
---- Classificação AF443093|HIV1_C ---
-HIV1_F: 0.5605 
-HIV1_C: 0.813 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6847 
-HIV1_A: 0.8346 
-
---- Classificação AF443108|HIV1_C ---
-HIV1_F: 0.7839 
-HIV1_C: 0.6003 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8809 
-HIV1_A: 0.9651 
-
---- Classificação AF443098|HIV1_C ---
-HIV1_F: 0.7444 
-HIV1_C: 0.6682 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8229 
-HIV1_A: 0.9546 
-
---- Classificação AF110965|HIV1_C ---
-HIV1_F: 0.6095 
-HIV1_C: 0.7883 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7112 
-HIV1_A: 0.88 
+HIV1_G: 0.9535 
+HIV1_A: 0.9333 
 
 --- Classificação AF443086|HIV1_C ---
-HIV1_F: 0.7582 
+HIV1_F: 0.9681 
+HIV1_C: 0.4794 
+HIV1_D: 0.0008 
+HIV1_B: 0.0 
+HIV1_G: 0.9467 
+HIV1_A: 0.9966 
+
+--- Classificação DQ164105|HIV1_C ---
+HIV1_F: 0.9472 
+HIV1_C: 0.8613 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.4202 
+HIV1_A: 0.9967 
+
+--- Classificação AF411966|HIV1_C ---
+HIV1_F: 0.7472 
+HIV1_C: 0.3887 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.4101 
+HIV1_A: 0.3575 
+
+--- Classificação AF443084|HIV1_C ---
+HIV1_F: 0.3861 
+HIV1_C: 0.9594 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.2787 
+HIV1_A: 0.3091 
+
+--- Classificação AF443107|HIV1_C ---
+HIV1_F: 0.4037 
+HIV1_C: 0.9956 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.5542 
+HIV1_A: 0.5188 
+
+--- Classificação AB485646|HIV1_C ---
+HIV1_F: 0.9993 
+HIV1_C: 0.7859 
+HIV1_D: 0.0002 
+HIV1_B: 0.0 
+HIV1_G: 0.836 
+HIV1_A: 0.9871 
+
+--- Classificação AF443098|HIV1_C ---
+HIV1_F: 0.9884 
+HIV1_C: 0.4324 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9761 
+HIV1_A: 0.9423 
+
+--- Classificação AF443110|HIV1_C ---
+HIV1_F: 0.3766 
+HIV1_C: 0.9321 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.5377 
+HIV1_A: 0.5147 
+
+--- Classificação AB254144|HIV1_C ---
+HIV1_F: 0.981 
+HIV1_C: 0.9961 
+HIV1_D: 0.0045 
+HIV1_B: 0.0 
+HIV1_G: 0.7297 
+HIV1_A: 0.9896 
+
+--- Classificação JF683770|HIV1_C ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.0003 
+HIV1_G: 0.0 
+HIV1_A: 0.0163 
+
+--- Classificação AF443090|HIV1_C ---
+HIV1_F: 0.8841 
+HIV1_C: 0.917 
+HIV1_D: 0.0003 
+HIV1_B: 0.0 
+HIV1_G: 0.9795 
+HIV1_A: 0.9526 
+
+--- Classificação AF067157|HIV1_C ---
+HIV1_F: 0.5962 
+HIV1_C: 0.979 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.3313 
+HIV1_A: 0.3912 
+
+--- Classificação AF321523|HIV1_C ---
+HIV1_F: 0.9615 
+HIV1_C: 0.9695 
+HIV1_D: 0.0007 
+HIV1_B: 0.0 
+HIV1_G: 0.8429 
+HIV1_A: 0.9899 
+
+--- Classificação AF286234|HIV1_C ---
+HIV1_F: 0.9108 
+HIV1_C: 0.8241 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.9595 
+HIV1_A: 0.9294 
+
+--- Classificação AF110974|HIV1_C ---
+HIV1_F: 0.993 
+HIV1_C: 0.8165 
+HIV1_D: 0.0007 
+HIV1_B: 0.0 
+HIV1_G: 0.9991 
+HIV1_A: 0.739 
+
+--- Classificação AB254148|HIV1_C ---
+HIV1_F: 0.6247 
+HIV1_C: 0.6419 
+HIV1_D: 0.0009 
+HIV1_B: 0.0 
+HIV1_G: 0.9204 
+HIV1_A: 0.9767 
+
+--- Classificação AF443101|HIV1_C ---
+HIV1_F: 0.3988 
+HIV1_C: 0.9941 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.4248 
+HIV1_A: 0.5008 
+
+--- Classificação AF443077|HIV1_C ---
+HIV1_F: 0.9006 
+HIV1_C: 0.5867 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.9979 
+HIV1_A: 0.755 
+
+--- Classificação AF443083|HIV1_C ---
+HIV1_F: 0.5842 
+HIV1_C: 0.3258 
+HIV1_D: 0.0023 
+HIV1_B: 0.0 
+HIV1_G: 0.5454 
+HIV1_A: 0.6096 
+
+--- Classificação AB485647|HIV1_C ---
+HIV1_F: 0.8774 
+HIV1_C: 0.7933 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9984 
+HIV1_A: 0.9564 
+
+--- Classificação AF286235|HIV1_C ---
+HIV1_F: 0.3257 
+HIV1_C: 0.9213 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.4858 
+HIV1_A: 0.5456 
+
+--- Classificação AF290028|HIV1_C ---
+HIV1_F: 0.9769 
+HIV1_C: 0.7617 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.8062 
+HIV1_A: 0.9185 
+
+--- Classificação AF443102|HIV1_C ---
+HIV1_F: 0.9581 
+HIV1_C: 0.9802 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.7406 
+HIV1_A: 0.5559 
+
+--- Classificação AF286225|HIV1_C ---
+HIV1_F: 0.9796 
+HIV1_C: 0.5472 
+HIV1_D: 0.002 
+HIV1_B: 0.0 
+HIV1_G: 0.8516 
+HIV1_A: 0.9939 
+
+--- Classificação AF110973|HIV1_C ---
+HIV1_F: 0.9697 
+HIV1_C: 0.7833 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.8871 
+HIV1_A: 0.6764 
+
+--- Classificação AF290030|HIV1_C ---
+HIV1_F: 0.9897 
+HIV1_C: 0.9864 
+HIV1_D: 0.0002 
+HIV1_B: 0.0 
+HIV1_G: 0.9999 
+HIV1_A: 0.9342 
+
+--- Classificação KF526209|HIV1_C ---
+HIV1_F: 0.5229 
+HIV1_C: 0.9588 
+HIV1_D: 0.0006 
+HIV1_B: 0.0 
+HIV1_G: 0.8818 
+HIV1_A: 0.6579 
+
+--- Classificação AY727524|HIV1_C ---
+HIV1_F: 0.6745 
+HIV1_C: 0.5219 
+HIV1_D: 0.0018 
+HIV1_B: 0.0 
+HIV1_G: 0.2445 
+HIV1_A: 0.9186 
+
+--- Classificação AY255824|HIV1_C ---
+HIV1_F: 0.9994 
+HIV1_C: 0.4806 
+HIV1_D: 0.0011 
+HIV1_B: 0.0 
+HIV1_G: 0.9888 
+HIV1_A: 0.4285 
+
+--- Classificação AF110977|HIV1_C ---
+HIV1_F: 0.9991 
+HIV1_C: 0.8943 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9999 
+HIV1_A: 0.8429 
+
+--- Classificação AB254145|HIV1_C ---
+HIV1_F: 0.9535 
+HIV1_C: 0.9961 
+HIV1_D: 0.0019 
+HIV1_B: 0.0 
+HIV1_G: 0.7728 
+HIV1_A: 0.9754 
+
+--- Classificação AF110966|HIV1_C ---
+HIV1_F: 0.7429 
+HIV1_C: 0.943 
+HIV1_D: 0.0239 
+HIV1_B: 0.0001 
+HIV1_G: 0.7093 
+HIV1_A: 0.9661 
+
+--- Classificação AF443082|HIV1_C ---
+HIV1_F: 0.4594 
+HIV1_C: 0.8891 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.8469 
+HIV1_A: 0.6306 
+
+--- Classificação AF110980|HIV1_C ---
+HIV1_F: 0.8008 
+HIV1_C: 0.9975 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.8388 
+HIV1_A: 0.4992 
+
+--- Classificação AF067158|HIV1_C ---
+HIV1_F: 0.7984 
+HIV1_C: 0.8354 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.7558 
+HIV1_A: 0.5994 
+
+--- Classificação AB254156|HIV1_C ---
+HIV1_F: 0.9914 
+HIV1_C: 0.9444 
+HIV1_D: 0.0011 
+HIV1_B: 0.0 
+HIV1_G: 0.7864 
+HIV1_A: 0.9905 
+
+--- Classificação AF443099|HIV1_C ---
+HIV1_F: 0.9592 
+HIV1_C: 0.9065 
+HIV1_D: 0.0005 
+HIV1_B: 0.0 
+HIV1_G: 0.7151 
+HIV1_A: 0.6152 
+
+--- Classificação AF110967|HIV1_C ---
+HIV1_F: 0.6562 
+HIV1_C: 0.9768 
+HIV1_D: 0.002 
+HIV1_B: 0.0 
+HIV1_G: 0.7407 
+HIV1_A: 0.9999 
+
+--- Classificação AF443103|HIV1_C ---
+HIV1_F: 0.9831 
+HIV1_C: 0.5044 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.8971 
+HIV1_A: 0.9637 
+
+--- Classificação AF443109|HIV1_C ---
+HIV1_F: 0.9978 
+HIV1_C: 0.8371 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.727 
+HIV1_A: 0.7202 
+
+--- Classificação AB254155|HIV1_C ---
+HIV1_F: 0.9959 
+HIV1_C: 0.9995 
+HIV1_D: 0.0007 
+HIV1_B: 0.0 
+HIV1_G: 0.884 
+HIV1_A: 0.935 
+
+--- Classificação AF067155|HIV1_C ---
+HIV1_F: 0.594 
+HIV1_C: 0.9335 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.3652 
+HIV1_A: 0.4486 
+
+--- Classificação AF443093|HIV1_C ---
+HIV1_F: 0.9731 
+HIV1_C: 0.4677 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.968 
+HIV1_A: 0.9043 
+
+--- Classificação KC156117|HIV1_C ---
+HIV1_F: 0.7914 
+HIV1_C: 0.3726 
+HIV1_D: 0.004 
+HIV1_B: 0.0 
+HIV1_G: 0.6325 
+HIV1_A: 0.9163 
+
+--- Classificação JF683755|HIV1_C ---
+HIV1_F: 0.3682 
+HIV1_C: 0.0168 
+HIV1_D: 0.2554 
+HIV1_B: 0.0118 
+HIV1_G: 0.2197 
+HIV1_A: 0.5797 
+
+--- Classificação AF361874|HIV1_C ---
+HIV1_F: 0.3491 
+HIV1_C: 0.9889 
+HIV1_D: 0.0593 
+HIV1_B: 0.0001 
+HIV1_G: 0.4049 
+HIV1_A: 0.4369 
+
+--- Classificação KC898995|HIV1_C ---
+HIV1_F: 0.7884 
+HIV1_C: 0.8057 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9409 
+HIV1_A: 0.9989 
+
+--- Classificação AF443091|HIV1_C ---
+HIV1_F: 0.2429 
+HIV1_C: 0.997 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.7215 
+HIV1_A: 0.2934 
+
+--- Classificação AB097871|HIV1_C ---
+HIV1_F: 0.3804 
+HIV1_C: 0.9942 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.2758 
+HIV1_A: 0.2893 
+
+--- Classificação AF443074|HIV1_C ---
+HIV1_F: 0.7222 
+HIV1_C: 0.3101 
+HIV1_D: 0.0009 
+HIV1_B: 0.0 
+HIV1_G: 0.5942 
+HIV1_A: 0.8498 
+
+--- Classificação AY713415|HIV1_C ---
+HIV1_F: 0.9729 
+HIV1_C: 0.9095 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.7656 
+HIV1_A: 0.8225 
+
+--- Classificação AF443104|HIV1_C ---
+HIV1_F: 0.8633 
+HIV1_C: 0.4843 
+HIV1_D: 0.0031 
+HIV1_B: 0.0 
+HIV1_G: 0.341 
+HIV1_A: 0.596 
+
+--- Classificação AB254154|HIV1_C ---
+HIV1_F: 0.9975 
+HIV1_C: 0.9941 
+HIV1_D: 0.0037 
+HIV1_B: 0.0 
+HIV1_G: 0.6566 
+HIV1_A: 0.9989 
+
+--- Classificação AF443111|HIV1_C ---
+HIV1_F: 0.9526 
+HIV1_C: 0.8349 
+HIV1_D: 0.0006 
+HIV1_B: 0.0 
+HIV1_G: 0.989 
+HIV1_A: 0.8571 
+
+--- Classificação AF443092|HIV1_C ---
+HIV1_F: 0.9813 
+HIV1_C: 0.7201 
+HIV1_D: 0.0026 
+HIV1_B: 0.0 
+HIV1_G: 0.801 
+HIV1_A: 0.9982 
+
+--- Classificação AF110976|HIV1_C ---
+HIV1_F: 0.747 
+HIV1_C: 0.7933 
+HIV1_D: 0.0004 
+HIV1_B: 0.0 
+HIV1_G: 0.8317 
+HIV1_A: 0.9997 
+
+--- Classificação AF443088|HIV1_C ---
+HIV1_F: 0.9445 
+HIV1_C: 0.8331 
+HIV1_D: 0.0008 
+HIV1_B: 0.0 
+HIV1_G: 0.9504 
+HIV1_A: 0.92 
+
+--- Classificação AF443096|HIV1_C ---
+HIV1_F: 0.9975 
+HIV1_C: 0.99 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.9996 
+HIV1_A: 0.9935 
+
+--- Classificação AF110978|HIV1_C ---
+HIV1_F: 0.9901 
 HIV1_C: 0.9989 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.773 
-HIV1_A: 0.5856 
-
---- Classificação AF286232|HIV1_C ---
-HIV1_F: 0.9267 
-HIV1_C: 0.6099 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9591 
-HIV1_A: 0.9995 
-
---- Classificação AF443091|HIV1_C ---
-HIV1_F: 0.9774 
-HIV1_C: 0.7071 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9913 
-HIV1_A: 0.9828 
-
---- Classificação AF110962|HIV1_C ---
-HIV1_F: 0.9267 
-HIV1_C: 0.6099 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9591 
-HIV1_A: 0.9995 
-
---- Classificação AB097871|HIV1_C ---
-HIV1_F: 0.6552 
-HIV1_C: 0.7497 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.75 
-HIV1_A: 0.9082 
-
---- Classificação AF110960|HIV1_C ---
-HIV1_F: 0.5637 
-HIV1_C: 0.825 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6714 
-HIV1_A: 0.8488 
-
---- Classificação FJ496187|HIV1_C ---
-HIV1_F: 0.0312 
-HIV1_C: 0.7179 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0744 
-HIV1_A: 0.1475 
-
---- Classificação AF443111|HIV1_C ---
-HIV1_F: 0.6998 
-HIV1_C: 0.9904 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7221 
-HIV1_A: 0.5318 
-
---- Classificação JX140662|HIV1_C ---
-HIV1_F: 0.4594 
-HIV1_C: 0.9003 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5767 
-HIV1_A: 0.7667 
-
---- Classificação AY255824|HIV1_C ---
-HIV1_F: 0.5178 
-HIV1_C: 0.9168 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5609 
-HIV1_A: 0.3797 
-
---- Classificação AB485645|HIV1_C ---
-HIV1_F: 0.0123 
-HIV1_C: 0.9405 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0795 
-HIV1_A: 0.0482 
-
---- Classificação AF290029|HIV1_C ---
-HIV1_F: 0.0001 
-HIV1_C: 0.3081 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0034 
-HIV1_A: 0.0017 
-
---- Classificação AF443104|HIV1_C ---
-HIV1_F: 0.5605 
-HIV1_C: 0.813 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6847 
-HIV1_A: 0.8346 
-
---- Classificação AF286227|HIV1_C ---
-HIV1_F: 0.9999 
-HIV1_C: 0.8109 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9989 
-HIV1_A: 0.9356 
-
---- Classificação AF286224|HIV1_C ---
-HIV1_F: 0.6095 
-HIV1_C: 0.7883 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7112 
-HIV1_A: 0.88 
-
---- Classificação AF110966|HIV1_C ---
-HIV1_F: 0.9993 
-HIV1_C: 0.7987 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9997 
-HIV1_A: 0.943 
-
---- Classificação DQ164105|HIV1_C ---
-HIV1_F: 0.17 
-HIV1_C: 0.9953 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.2843 
-HIV1_A: 0.4208 
-
---- Classificação AB254146|HIV1_C ---
-HIV1_F: 0.0017 
-HIV1_C: 0.675 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0206 
-HIV1_A: 0.0112 
+HIV1_G: 0.9866 
+HIV1_A: 0.9484 
 
 --- Classificação AF286223|HIV1_C ---
-HIV1_F: 0.3761 
-HIV1_C: 0.9502 
+HIV1_F: 0.3219 
+HIV1_C: 0.998 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.4965 
-HIV1_A: 0.6892 
+HIV1_G: 0.5935 
+HIV1_A: 0.954 
 
---- Classificação AF443109|HIV1_C ---
-HIV1_F: 0.3867 
-HIV1_C: 0.9353 
-HIV1_D: 0.0 
+--- Classificação AF290029|HIV1_C ---
+HIV1_F: 0.9836 
+HIV1_C: 0.9477 
+HIV1_D: 0.0001 
 HIV1_B: 0.0 
-HIV1_G: 0.5229 
-HIV1_A: 0.6854 
+HIV1_G: 0.9868 
+HIV1_A: 0.995 
 
---- Classificação AY713415|HIV1_C ---
-HIV1_F: 0.8752 
-HIV1_C: 0.54 
-HIV1_D: 0.0 
+--- Classificação AF110975|HIV1_C ---
+HIV1_F: 0.8901 
+HIV1_C: 0.9108 
+HIV1_D: 0.0024 
 HIV1_B: 0.0 
-HIV1_G: 0.9229 
-HIV1_A: 0.9967 
-
---- Classificação AF286231|HIV1_C ---
-HIV1_F: 0.4886 
-HIV1_C: 0.8805 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6038 
-HIV1_A: 0.7913 
-
---- Classificação AF067155|HIV1_C ---
-HIV1_F: 0.6248 
-HIV1_C: 0.7757 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7243 
-HIV1_A: 0.8897 
-
---- Classificação AB485646|HIV1_C ---
-HIV1_F: 0.0059 
-HIV1_C: 0.8559 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0472 
-HIV1_A: 0.0278 
-
---- Classificação AF110974|HIV1_C ---
-HIV1_F: 0.5942 
-HIV1_C: 0.8008 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.698 
-HIV1_A: 0.8699 
-
---- Classificação AY255825|HIV1_C ---
-HIV1_F: 0.9352 
-HIV1_C: 0.9559 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9296 
-HIV1_A: 0.7829 
-
---- Classificação AB254142|HIV1_C ---
-HIV1_F: 0.9957 
-HIV1_C: 0.7713 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9056 
-HIV1_A: 0.9811 
-
---- Classificação KF526212|HIV1_C ---
-HIV1_F: 0.8632 
-HIV1_C: 0.9905 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.865 
-HIV1_A: 0.6933 
-
---- Classificação AF411966|HIV1_C ---
-HIV1_F: 0.0163 
-HIV1_C: 0.9548 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.093 
-HIV1_A: 0.0607 
-
---- Classificação AF067159|HIV1_C ---
-HIV1_F: 0.9657 
-HIV1_C: 0.6797 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9845 
-HIV1_A: 0.99 
-
---- Classificação AB254152|HIV1_C ---
-HIV1_F: 0.0129 
-HIV1_C: 0.9514 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0818 
-HIV1_A: 0.0498 
-
---- Classificação AF110976|HIV1_C ---
-HIV1_F: 0.8637 
-HIV1_C: 0.5424 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9144 
-HIV1_A: 0.9946 
-
---- Classificação AB023804|HIV1_C ---
-HIV1_F: 0.0023 
-HIV1_C: 0.6943 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.024 
-HIV1_A: 0.0138 
-
---- Classificação AF443090|HIV1_C ---
-HIV1_F: 0.4594 
-HIV1_C: 0.9003 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5767 
-HIV1_A: 0.7667 
-
---- Classificação AF290028|HIV1_C ---
-HIV1_F: 0.0037 
-HIV1_C: 0.7689 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0339 
-HIV1_A: 0.0194 
-
---- Classificação AF443100|HIV1_C ---
-HIV1_F: 0.5789 
-HIV1_C: 0.813 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6847 
-HIV1_A: 0.8595 
-
---- Classificação AF443088|HIV1_C ---
-HIV1_F: 0.7444 
-HIV1_C: 0.6682 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8229 
-HIV1_A: 0.9546 
-
---- Classificação AF443087|HIV1_C ---
-HIV1_F: 0.917 
-HIV1_C: 0.9682 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9129 
-HIV1_A: 0.7581 
-
---- Classificação AF443083|HIV1_C ---
-HIV1_F: 0.7728 
-HIV1_C: 0.6404 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8454 
-HIV1_A: 0.9667 
-
---- Classificação AF067157|HIV1_C ---
-HIV1_F: 0.4309 
-HIV1_C: 0.9186 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5497 
-HIV1_A: 0.7414 
-
---- Classificação AF443079|HIV1_C ---
-HIV1_F: 0.1214 
-HIV1_C: 0.961 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.2107 
-HIV1_A: 0.3529 
-
---- Classificação AF443077|HIV1_C ---
-HIV1_F: 0.6248 
-HIV1_C: 0.7757 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7243 
-HIV1_A: 0.8897 
-
---- Classificação AB254151|HIV1_C ---
-HIV1_F: 0.0142 
-HIV1_C: 0.95 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0866 
-HIV1_A: 0.0573 
-
---- Classificação AF443099|HIV1_C ---
-HIV1_F: 0.9961 
-HIV1_C: 0.8573 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9908 
-HIV1_A: 0.902 
-
---- Classificação AF110964|HIV1_C ---
-HIV1_F: 0.7728 
-HIV1_C: 0.6404 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8454 
-HIV1_A: 0.9667 
-
---- Classificação AF443081|HIV1_C ---
-HIV1_F: 0.9718 
-HIV1_C: 0.6935 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9881 
-HIV1_A: 0.9867 
-
---- Classificação AB254148|HIV1_C ---
-HIV1_F: 0.0798 
-HIV1_C: 0.9882 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.2632 
-HIV1_A: 0.1839 
-
---- Classificação AF443078|HIV1_C ---
-HIV1_F: 0.6704 
-HIV1_C: 0.7364 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7627 
-HIV1_A: 0.9169 
-
---- Classificação AF110959|HIV1_C ---
-HIV1_F: 0.3895 
-HIV1_C: 0.943 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5096 
-HIV1_A: 0.7024 
-
---- Classificação AF443097|HIV1_C ---
-HIV1_F: 0.0879 
-HIV1_C: 0.9152 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.1647 
-HIV1_A: 0.2883 
-
---- Classificação AF443105|HIV1_C ---
-HIV1_F: 0.3895 
-HIV1_C: 0.943 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5096 
-HIV1_A: 0.7024 
+HIV1_G: 0.9979 
+HIV1_A: 0.8866 
 
 
 ########### HIV1_D ############
 --- Classificação AY713418|HIV1_D ---
-HIV1_F: 0.0119 
-HIV1_C: 0.0 
-HIV1_D: 0.8478 
-HIV1_B: 0.0282 
-HIV1_G: 0.008 
-HIV1_A: 0.0108 
+HIV1_F: 0.1635 
+HIV1_C: 0.0001 
+HIV1_D: 0.8516 
+HIV1_B: 0.0279 
+HIV1_G: 0.0165 
+HIV1_A: 0.0575 
 
---- Classificação MF109532|HIV1_D ---
+--- Classificação AY322189|HIV1_D ---
+HIV1_F: 0.7247 
+HIV1_C: 0.0009 
+HIV1_D: 0.9709 
+HIV1_B: 0.0442 
+HIV1_G: 0.0463 
+HIV1_A: 0.1236 
+
+--- Classificação U88822|HIV1_D ---
 HIV1_F: 0.0 
 HIV1_C: 0.0 
-HIV1_D: 0.9418 
-HIV1_B: 0.2179 
+HIV1_D: 0.3222 
+HIV1_B: 0.5022 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
---- Classificação AF484504|HIV1_D ---
-HIV1_F: 0.0 
+--- Classificação JX236679|HIV1_D ---
+HIV1_F: 0.0004 
 HIV1_C: 0.0 
-HIV1_D: 0.7608 
-HIV1_B: 0.2744 
+HIV1_D: 0.6023 
+HIV1_B: 0.1534 
 HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AY795907|HIV1_D ---
-HIV1_F: 0.0011 
-HIV1_C: 0.0 
-HIV1_D: 0.4247 
-HIV1_B: 0.0542 
-HIV1_G: 0.0009 
-HIV1_A: 0.0014 
-
---- Classificação EF633445|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.933 
-HIV1_B: 0.2214 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF484477|HIV1_D ---
-HIV1_F: 0.0003 
-HIV1_C: 0.0 
-HIV1_D: 0.4712 
-HIV1_B: 0.0717 
-HIV1_G: 0.0003 
-HIV1_A: 0.0005 
-
---- Classificação AJ320484|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.1859 
-HIV1_B: 0.1886 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação KU168271|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.8767 
-HIV1_B: 0.0309 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação M22639|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.098 
-HIV1_B: 0.5382 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF484483|HIV1_D ---
-HIV1_F: 0.0011 
-HIV1_C: 0.0 
-HIV1_D: 0.4247 
-HIV1_B: 0.0542 
-HIV1_G: 0.0009 
-HIV1_A: 0.0014 
-
---- Classificação KU168272|HIV1_D ---
-HIV1_F: 0.0013 
-HIV1_C: 0.0 
-HIV1_D: 0.5657 
-HIV1_B: 0.0183 
-HIV1_G: 0.0033 
-HIV1_A: 0.0007 
+HIV1_A: 0.0015 
 
 --- Classificação JX236670|HIV1_D ---
-HIV1_F: 0.0001 
+HIV1_F: 0.0053 
 HIV1_C: 0.0 
-HIV1_D: 0.9725 
-HIV1_B: 0.0553 
-HIV1_G: 0.0002 
-HIV1_A: 0.0 
-
---- Classificação AJ488926|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.9607 
-HIV1_B: 0.1449 
+HIV1_D: 0.9722 
+HIV1_B: 0.2653 
 HIV1_G: 0.0 
-HIV1_A: 0.0 
+HIV1_A: 0.0004 
 
---- Classificação AF484519|HIV1_D ---
-HIV1_F: 0.044 
-HIV1_C: 0.0 
-HIV1_D: 0.9971 
-HIV1_B: 0.0174 
-HIV1_G: 0.0275 
-HIV1_A: 0.0354 
+--- Classificação AB485651|HIV1_D ---
+HIV1_F: 0.0193 
+HIV1_C: 0.0005 
+HIV1_D: 0.7547 
+HIV1_B: 0.0816 
+HIV1_G: 0.0038 
+HIV1_A: 0.0184 
 
---- Classificação DQ054367|HIV1_D ---
-HIV1_F: 0.0 
+--- Classificação AF484494|HIV1_D ---
+HIV1_F: 0.0816 
 HIV1_C: 0.0 
-HIV1_D: 0.9775 
-HIV1_B: 0.1419 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
+HIV1_D: 0.6654 
+HIV1_B: 0.0396 
+HIV1_G: 0.0053 
+HIV1_A: 0.0541 
 
---- Classificação AF484511|HIV1_D ---
-HIV1_F: 0.005 
-HIV1_C: 0.0 
-HIV1_D: 0.689 
-HIV1_B: 0.0367 
-HIV1_G: 0.0036 
-HIV1_A: 0.005 
+--- Classificação KF716502|HIV1_D ---
+HIV1_F: 0.5328 
+HIV1_C: 0.0021 
+HIV1_D: 0.9995 
+HIV1_B: 0.0536 
+HIV1_G: 0.0541 
+HIV1_A: 0.0527 
 
---- Classificação AY371156|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.9236 
-HIV1_B: 0.225 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
+--- Classificação AF484495|HIV1_D ---
+HIV1_F: 0.3735 
+HIV1_C: 0.0001 
+HIV1_D: 0.3598 
+HIV1_B: 0.0718 
+HIV1_G: 0.0117 
+HIV1_A: 0.0772 
 
---- Classificação AY773341|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.9885 
-HIV1_B: 0.1584 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação MN153488|HIV1_D ---
-HIV1_F: 0.0008 
-HIV1_C: 0.0 
-HIV1_D: 0.3682 
-HIV1_B: 0.0591 
-HIV1_G: 0.0007 
-HIV1_A: 0.001 
-
---- Classificação AF484487|HIV1_D ---
-HIV1_F: 0.0054 
-HIV1_C: 0.0 
-HIV1_D: 0.7045 
-HIV1_B: 0.0359 
-HIV1_G: 0.0039 
-HIV1_A: 0.0054 
-
---- Classificação AB485649|HIV1_D ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.6381 
-HIV1_B: 0.021 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
+--- Classificação AF484498|HIV1_D ---
+HIV1_F: 0.1327 
+HIV1_C: 0.0007 
+HIV1_D: 0.996 
+HIV1_B: 0.0169 
+HIV1_G: 0.0345 
+HIV1_A: 0.0717 
 
 --- Classificação JX236673|HIV1_D ---
 HIV1_F: 0.0 
 HIV1_C: 0.0 
-HIV1_D: 0.9017 
-HIV1_B: 0.051 
+HIV1_D: 0.2108 
+HIV1_B: 0.365 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
---- Classificação AF484489|HIV1_D ---
-HIV1_F: 0.0002 
+--- Classificação AJ488926|HIV1_D ---
+HIV1_F: 0.082 
 HIV1_C: 0.0 
-HIV1_D: 0.5644 
-HIV1_B: 0.0812 
-HIV1_G: 0.0002 
-HIV1_A: 0.0003 
+HIV1_D: 0.8295 
+HIV1_B: 0.1387 
+HIV1_G: 0.0024 
+HIV1_A: 0.0262 
 
---- Classificação AF484495|HIV1_D ---
-HIV1_F: 0.0001 
+--- Classificação U88824|HIV1_D ---
+HIV1_F: 0.1387 
+HIV1_C: 0.0006 
+HIV1_D: 0.999 
+HIV1_B: 0.135 
+HIV1_G: 0.0076 
+HIV1_A: 0.0154 
+
+--- Classificação KJ787684|HIV1_D ---
+HIV1_F: 0.0033 
 HIV1_C: 0.0 
-HIV1_D: 0.6121 
-HIV1_B: 0.0864 
+HIV1_D: 0.5472 
+HIV1_B: 0.1345 
+HIV1_G: 0.0 
+HIV1_A: 0.0004 
+
+--- Classificação K03454|HIV1_D ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.1706 
+HIV1_B: 0.2874 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação A07108|HIV1_D ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.1706 
+HIV1_B: 0.2874 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação DQ054367|HIV1_D ---
+HIV1_F: 0.0059 
+HIV1_C: 0.0 
+HIV1_D: 0.8332 
+HIV1_B: 0.2856 
+HIV1_G: 0.0 
+HIV1_A: 0.0006 
+
+--- Classificação AY371156|HIV1_D ---
+HIV1_F: 0.0154 
+HIV1_C: 0.0 
+HIV1_D: 0.9895 
+HIV1_B: 0.1684 
 HIV1_G: 0.0001 
-HIV1_A: 0.0002 
+HIV1_A: 0.0034 
 
---- Classificação KF716476|HIV1_D ---
-HIV1_F: 0.011 
+--- Classificação AB485649|HIV1_D ---
+HIV1_F: 0.0 
 HIV1_C: 0.0 
-HIV1_D: 0.8348 
-HIV1_B: 0.0289 
-HIV1_G: 0.0075 
-HIV1_A: 0.0101 
+HIV1_D: 0.4005 
+HIV1_B: 0.1838 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
 
---- Classificação KF716480|HIV1_D ---
-HIV1_F: 0.4788 
-HIV1_C: 0.0031 
-HIV1_D: 0.4519 
-HIV1_B: 0.0041 
-HIV1_G: 0.3052 
-HIV1_A: 0.3515 
+--- Classificação AF484499|HIV1_D ---
+HIV1_F: 0.1212 
+HIV1_C: 0.0 
+HIV1_D: 0.3273 
+HIV1_B: 0.0573 
+HIV1_G: 0.0066 
+HIV1_A: 0.1083 
+
+--- Classificação MH705143|HIV1_D ---
+HIV1_F: 0.0004 
+HIV1_C: 0.0001 
+HIV1_D: 0.9465 
+HIV1_B: 0.1032 
+HIV1_G: 0.0 
+HIV1_A: 0.0012 
+
+--- Classificação AY795907|HIV1_D ---
+HIV1_F: 0.6933 
+HIV1_C: 0.0015 
+HIV1_D: 0.3683 
+HIV1_B: 0.0708 
+HIV1_G: 0.1439 
+HIV1_A: 0.4061 
+
+--- Classificação AY253311|HIV1_D ---
+HIV1_F: 0.0789 
+HIV1_C: 0.0 
+HIV1_D: 0.9413 
+HIV1_B: 0.0889 
+HIV1_G: 0.0008 
+HIV1_A: 0.0141 
+
+--- Classificação KU168272|HIV1_D ---
+HIV1_F: 0.0014 
+HIV1_C: 0.0 
+HIV1_D: 0.5636 
+HIV1_B: 0.1446 
+HIV1_G: 0.0002 
+HIV1_A: 0.0017 
+
+--- Classificação AF484487|HIV1_D ---
+HIV1_F: 0.1676 
+HIV1_C: 0.0003 
+HIV1_D: 0.9325 
+HIV1_B: 0.0352 
+HIV1_G: 0.0458 
+HIV1_A: 0.1233 
+
+--- Classificação AB485650|HIV1_D ---
+HIV1_F: 0.0289 
+HIV1_C: 0.0003 
+HIV1_D: 0.8187 
+HIV1_B: 0.1021 
+HIV1_G: 0.0051 
+HIV1_A: 0.0263 
 
 
 ########### HIV1_B ############
---- Classificação AB289588|HIV1_B ---
+--- Classificação AB480696|HIV1_B ---
 HIV1_F: 0.0 
 HIV1_C: 0.0 
 HIV1_D: 0.0 
-HIV1_B: 0.8622 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação A07867|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB287363|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.5576 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB604951|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8592 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF086817|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.6043 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB480693|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9187 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB485638|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9523 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB289589|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9949 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF042100|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.6861 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB604949|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.75 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB565498|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8496 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB731666|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8957 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF003887|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8539 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação KC473833|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8527 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB731665|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8715 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB565499|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7246 
+HIV1_B: 0.656 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
@@ -1107,391 +987,31 @@ HIV1_A: 0.0
 HIV1_F: 0.0 
 HIV1_C: 0.0 
 HIV1_D: 0.0 
-HIV1_B: 0.8614 
+HIV1_B: 0.9713 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
---- Classificação AB564744|HIV1_B ---
+--- Classificação AB604947|HIV1_B ---
 HIV1_F: 0.0 
 HIV1_C: 0.0 
 HIV1_D: 0.0 
-HIV1_B: 0.6644 
+HIV1_B: 0.8384 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
---- Classificação AF042104|HIV1_B ---
+--- Classificação AF146728|HIV1_B ---
 HIV1_F: 0.0 
 HIV1_C: 0.0 
 HIV1_D: 0.0 
-HIV1_B: 0.9354 
+HIV1_B: 0.9959 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
---- Classificação AB604950|HIV1_B ---
+--- Classificação AB428559|HIV1_B ---
 HIV1_F: 0.0 
 HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8276 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação KP411823|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9729 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB480697|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8012 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB289590|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9934 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB485640|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9758 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB565496|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7716 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB428555|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9019 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF069140|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.5971 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB221005|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8565 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB428560|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9093 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF042101|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.976 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB428561|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9934 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF256209|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8458 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB731668|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9027 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB480692|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.871 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AY945710|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8645 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB565495|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7562 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB078005|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.5822 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação KJ948657|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9466 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB289587|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9448 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF042106|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9385 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF256206|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8788 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação KP411824|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 1.0 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB221126|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9802 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB287370|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.6838 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB428552|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.5413 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação KP411822|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7612 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB604948|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7529 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB565478|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.5919 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB287372|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9305 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB565500|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7193 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF049494|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8503 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB428553|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9911 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB428551|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8111 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AY423383|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7389 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AY423382|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.847 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AY795904|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9453 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB641837|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9426 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB287369|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.731 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB565501|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8521 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB428558|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9953 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB564746|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7354 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB287365|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.9931 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB286955|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7056 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AF256207|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.8986 
-HIV1_G: 0.0 
-HIV1_A: 0.0 
-
---- Classificação AB287368|HIV1_B ---
-HIV1_F: 0.0 
-HIV1_C: 0.0 
-HIV1_D: 0.0 
-HIV1_B: 0.7409 
+HIV1_D: 0.0194 
+HIV1_B: 0.9841 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
@@ -1499,818 +1019,1298 @@ HIV1_A: 0.0
 HIV1_F: 0.0 
 HIV1_C: 0.0 
 HIV1_D: 0.0 
-HIV1_B: 0.9759 
+HIV1_B: 0.9787 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287365|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0001 
+HIV1_B: 0.8712 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF538302|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9223 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB253432|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9997 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB641837|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0022 
+HIV1_B: 0.9995 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB289587|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9047 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB485640|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9774 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287369|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9479 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287370|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8729 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB480698|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0001 
+HIV1_B: 0.8251 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB428562|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.503 
+HIV1_B: 0.7793 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB428552|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7234 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB565496|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7193 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287372|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8146 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB485642|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9493 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB078005|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8883 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB604946|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.6503 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF538304|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.6856 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB221125|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0005 
+HIV1_B: 0.9995 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação KP411823|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0001 
+HIV1_B: 0.9185 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB480697|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8045 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB480695|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.009 
+HIV1_B: 0.9962 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB731668|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0074 
+HIV1_B: 0.984 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB428555|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0001 
+HIV1_B: 0.947 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB565500|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7089 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AY945710|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9779 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF538303|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9841 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AY839827|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0002 
+HIV1_B: 0.9183 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB289590|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0003 
+HIV1_B: 0.8066 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação KP411822|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0009 
+HIV1_B: 0.9989 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB428551|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7925 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB564745|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8754 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB604948|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9372 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287368|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0038 
+HIV1_B: 0.9903 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB485639|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.995 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB428556|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8632 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF003887|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9927 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287366|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9171 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação KC473834|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0003 
+HIV1_B: 0.9884 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AY423382|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9857 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB485641|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9501 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287363|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7429 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF042100|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9486 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB604949|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7906 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287367|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9171 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF049494|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8784 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AY423381|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8493 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB428557|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7502 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF042106|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9647 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação KP109514|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0017 
+HIV1_B: 0.9247 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF003888|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9372 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AF086817|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.6882 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB428558|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0602 
+HIV1_B: 0.9623 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB480692|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9871 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB731669|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0022 
+HIV1_B: 0.9998 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB289588|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8803 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação KP109518|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0097 
+HIV1_B: 0.7857 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB485638|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9822 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB565499|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.7132 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação KP109515|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.9515 
+HIV1_G: 0.0 
+HIV1_A: 0.0 
+
+--- Classificação AB287371|HIV1_B ---
+HIV1_F: 0.0 
+HIV1_C: 0.0 
+HIV1_D: 0.0 
+HIV1_B: 0.8668 
 HIV1_G: 0.0 
 HIV1_A: 0.0 
 
 
 ########### HIV1_G ############
---- Classificação KF716477|HIV1_G ---
-HIV1_F: 0.7998 
-HIV1_C: 0.9997 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8093 
-HIV1_A: 0.6262 
-
---- Classificação AB287004|HIV1_G ---
-HIV1_F: 0.4269 
-HIV1_C: 0.5862 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7372 
-HIV1_A: 0.6291 
-
---- Classificação KX228801|HIV1_G ---
-HIV1_F: 0.886 
-HIV1_C: 0.9831 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8852 
-HIV1_A: 0.7196 
+--- Classificação KP718923|HIV1_G ---
+HIV1_F: 0.5723 
+HIV1_C: 0.9725 
+HIV1_D: 0.0126 
+HIV1_B: 0.0001 
+HIV1_G: 0.7495 
+HIV1_A: 0.9849 
 
 --- Classificação KP718915|HIV1_G ---
-HIV1_F: 0.8968 
-HIV1_C: 0.9786 
-HIV1_D: 0.0 
+HIV1_F: 0.6343 
+HIV1_C: 0.6557 
+HIV1_D: 0.0009 
 HIV1_B: 0.0 
-HIV1_G: 0.8948 
-HIV1_A: 0.7325 
+HIV1_G: 0.8029 
+HIV1_A: 0.9879 
 
---- Classificação JN248591|HIV1_G ---
-HIV1_F: 0.9822 
-HIV1_C: 0.8986 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9749 
-HIV1_A: 0.8627 
-
---- Classificação MH705134|HIV1_G ---
-HIV1_F: 0.806 
-HIV1_C: 0.3638 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9798 
-HIV1_A: 0.8781 
-
---- Classificação AY586549|HIV1_G ---
-HIV1_F: 0.7862 
-HIV1_C: 0.6118 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7647 
-HIV1_A: 0.8182 
-
---- Classificação KX389620|HIV1_G ---
-HIV1_F: 0.9323 
-HIV1_C: 0.1512 
-HIV1_D: 0.0144 
-HIV1_B: 0.0005 
-HIV1_G: 0.9914 
-HIV1_A: 0.9992 
-
---- Classificação MN153484|HIV1_G ---
-HIV1_F: 0.9352 
-HIV1_C: 0.9559 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9296 
-HIV1_A: 0.7829 
-
---- Classificação KX389646|HIV1_G ---
-HIV1_F: 0.9925 
-HIV1_C: 0.0939 
-HIV1_D: 0.0299 
-HIV1_B: 0.0007 
-HIV1_G: 0.9389 
-HIV1_A: 0.966 
-
---- Classificação MH705145|HIV1_G ---
-HIV1_F: 0.3992 
-HIV1_C: 0.3772 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.707 
-HIV1_A: 0.5827 
-
---- Classificação AF061640|HIV1_G ---
-HIV1_F: 0.998 
-HIV1_C: 0.8462 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9936 
-HIV1_A: 0.911 
-
---- Classificação AY371121|HIV1_G ---
-HIV1_F: 0.7054 
-HIV1_C: 0.0094 
-HIV1_D: 0.2548 
-HIV1_B: 0.0026 
-HIV1_G: 0.4838 
-HIV1_A: 0.5393 
-
---- Classificação KU168302|HIV1_G ---
-HIV1_F: 0.4094 
-HIV1_C: 0.023 
-HIV1_D: 0.0 
+--- Classificação JX140674|HIV1_G ---
+HIV1_F: 0.7422 
+HIV1_C: 0.8286 
+HIV1_D: 0.0032 
 HIV1_B: 0.0001 
-HIV1_G: 0.4114 
-HIV1_A: 0.2172 
-
---- Classificação KX389615|HIV1_G ---
-HIV1_F: 0.5479 
-HIV1_C: 0.9336 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5879 
-HIV1_A: 0.4037 
-
---- Classificação KX389635|HIV1_G ---
-HIV1_F: 0.2851 
-HIV1_C: 0.7067 
-HIV1_D: 0.0002 
-HIV1_B: 0.0001 
-HIV1_G: 0.6417 
-HIV1_A: 0.5873 
-
---- Classificação KX389636|HIV1_G ---
-HIV1_F: 0.8932 
-HIV1_C: 0.1802 
-HIV1_D: 0.0106 
-HIV1_B: 0.0004 
-HIV1_G: 0.9991 
-HIV1_A: 0.9988 
-
---- Classificação KP718923|HIV1_G ---
-HIV1_F: 0.6648 
-HIV1_C: 0.3455 
-HIV1_D: 0.0025 
-HIV1_B: 0.0002 
-HIV1_G: 0.9445 
-HIV1_A: 0.9121 
-
---- Classificação MH431770|HIV1_G ---
-HIV1_F: 0.9993 
-HIV1_C: 0.8347 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9958 
-HIV1_A: 0.9196 
+HIV1_G: 0.1642 
+HIV1_A: 0.7444 
 
 --- Classificação KX389642|HIV1_G ---
-HIV1_F: 0.9904 
-HIV1_C: 0.8787 
+HIV1_F: 0.4993 
+HIV1_C: 0.7829 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.9838 
-HIV1_A: 0.883 
+HIV1_G: 0.9491 
+HIV1_A: 0.9825 
 
---- Classificação U88826|HIV1_G ---
-HIV1_F: 0.8512 
-HIV1_C: 0.9934 
-HIV1_D: 0.0 
+--- Classificação FJ670530|HIV1_G ---
+HIV1_F: 0.8257 
+HIV1_C: 0.692 
+HIV1_D: 0.0023 
 HIV1_B: 0.0 
-HIV1_G: 0.8544 
-HIV1_A: 0.68 
+HIV1_G: 0.9817 
+HIV1_A: 0.4768 
 
---- Classificação DQ168575|HIV1_G ---
-HIV1_F: 0.2889 
-HIV1_C: 0.7202 
-HIV1_D: 0.0001 
+--- Classificação DQ168576|HIV1_G ---
+HIV1_F: 0.3143 
+HIV1_C: 0.8138 
+HIV1_D: 0.0345 
 HIV1_B: 0.0001 
-HIV1_G: 0.6282 
-HIV1_A: 0.5738 
+HIV1_G: 0.6815 
+HIV1_A: 0.2202 
 
---- Classificação AF084936|HIV1_G ---
-HIV1_F: 0.4698 
-HIV1_C: 0.6078 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7712 
-HIV1_A: 0.6503 
+--- Classificação MH705162|HIV1_G ---
+HIV1_F: 0.9819 
+HIV1_C: 0.8496 
+HIV1_D: 0.0948 
+HIV1_B: 0.0003 
+HIV1_G: 0.4889 
+HIV1_A: 0.9592 
 
---- Classificação FJ389367|HIV1_G ---
-HIV1_F: 0.5209 
-HIV1_C: 0.8969 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5287 
-HIV1_A: 0.421 
+--- Classificação FJ389364|HIV1_G ---
+HIV1_F: 0.9657 
+HIV1_C: 0.0569 
+HIV1_D: 0.5154 
+HIV1_B: 0.0048 
+HIV1_G: 0.455 
+HIV1_A: 0.4008 
 
---- Classificação KX389631|HIV1_G ---
-HIV1_F: 0.558 
-HIV1_C: 0.4318 
-HIV1_D: 0.0013 
-HIV1_B: 0.0002 
-HIV1_G: 0.8849 
-HIV1_A: 0.8426 
-
---- Classificação KX389641|HIV1_G ---
-HIV1_F: 0.5783 
-HIV1_C: 0.9488 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.615 
-HIV1_A: 0.4282 
-
---- Classificação KX389645|HIV1_G ---
-HIV1_F: 0.3756 
-HIV1_C: 0.8105 
-HIV1_D: 0.0001 
+--- Classificação MH705145|HIV1_G ---
+HIV1_F: 0.3019 
+HIV1_C: 0.1812 
+HIV1_D: 0.0081 
 HIV1_B: 0.0001 
-HIV1_G: 0.5336 
-HIV1_A: 0.4808 
+HIV1_G: 0.1753 
+HIV1_A: 0.234 
 
---- Classificação DQ168573|HIV1_G ---
-HIV1_F: 0.8347 
-HIV1_C: 0.2217 
-HIV1_D: 0.007 
-HIV1_B: 0.0004 
-HIV1_G: 0.9976 
+--- Classificação KU168302|HIV1_G ---
+HIV1_F: 0.9065 
+HIV1_C: 0.3488 
+HIV1_D: 0.2724 
+HIV1_B: 0.0007 
+HIV1_G: 0.8492 
+HIV1_A: 0.7262 
+
+--- Classificação KP718925|HIV1_G ---
+HIV1_F: 0.8513 
+HIV1_C: 0.8843 
+HIV1_D: 0.0017 
+HIV1_B: 0.0001 
+HIV1_G: 0.9948 
+HIV1_A: 0.895 
+
+--- Classificação FR846408|HIV1_G ---
+HIV1_F: 0.4732 
+HIV1_C: 0.7797 
+HIV1_D: 0.4604 
+HIV1_B: 0.0005 
+HIV1_G: 0.4507 
+HIV1_A: 0.8185 
+
+--- Classificação KX389635|HIV1_G ---
+HIV1_F: 0.8455 
+HIV1_C: 0.8251 
+HIV1_D: 0.0314 
+HIV1_B: 0.0001 
+HIV1_G: 0.5705 
+HIV1_A: 0.7369 
+
+--- Classificação MH746255|HIV1_G ---
+HIV1_F: 0.9717 
+HIV1_C: 0.6654 
+HIV1_D: 0.0079 
+HIV1_B: 0.0 
+HIV1_G: 0.7896 
+HIV1_A: 0.7351 
+
+--- Classificação MF109568|HIV1_G ---
+HIV1_F: 0.2544 
+HIV1_C: 0.0056 
+HIV1_D: 0.3272 
+HIV1_B: 0.0041 
+HIV1_G: 0.2603 
+HIV1_A: 0.7825 
+
+--- Classificação KT022379|HIV1_G ---
+HIV1_F: 0.4115 
+HIV1_C: 0.9158 
+HIV1_D: 0.0082 
+HIV1_B: 0.0 
+HIV1_G: 0.4876 
+HIV1_A: 0.2968 
+
+--- Classificação AF450098|HIV1_G ---
+HIV1_F: 0.9014 
+HIV1_C: 0.5666 
+HIV1_D: 0.0734 
+HIV1_B: 0.0003 
+HIV1_G: 0.9689 
+HIV1_A: 0.3884 
+
+--- Classificação KF716477|HIV1_G ---
+HIV1_F: 0.9771 
+HIV1_C: 0.7102 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.8744 
+HIV1_A: 0.9261 
+
+--- Classificação KX389636|HIV1_G ---
+HIV1_F: 0.6747 
+HIV1_C: 0.326 
+HIV1_D: 0.6467 
+HIV1_B: 0.0008 
+HIV1_G: 0.8053 
+HIV1_A: 0.4562 
+
+--- Classificação KX389625|HIV1_G ---
+HIV1_F: 0.3519 
+HIV1_C: 0.0061 
+HIV1_D: 0.0016 
+HIV1_B: 0.0 
+HIV1_G: 0.1862 
 HIV1_A: 0.9871 
 
---- Classificação KY953200|HIV1_G ---
-HIV1_F: 0.6547 
-HIV1_C: 0.9785 
+--- Classificação MN153484|HIV1_G ---
+HIV1_F: 0.3798 
+HIV1_C: 0.2666 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.6825 
-HIV1_A: 0.4922 
+HIV1_G: 0.1072 
+HIV1_A: 0.1714 
 
---- Classificação AF061642|HIV1_G ---
-HIV1_F: 0.398 
-HIV1_C: 0.5813 
-HIV1_D: 0.0004 
+--- Classificação KX389619|HIV1_G ---
+HIV1_F: 0.3277 
+HIV1_C: 0.9557 
+HIV1_D: 0.0152 
 HIV1_B: 0.0001 
-HIV1_G: 0.7601 
-HIV1_A: 0.7082 
+HIV1_G: 0.4707 
+HIV1_A: 0.4752 
 
---- Classificação JN248582|HIV1_G ---
-HIV1_F: 0.3582 
-HIV1_C: 0.6234 
-HIV1_D: 0.0003 
+--- Classificação AY586549|HIV1_G ---
+HIV1_F: 0.7675 
+HIV1_C: 0.3505 
+HIV1_D: 0.0589 
+HIV1_B: 0.0031 
+HIV1_G: 0.6481 
+HIV1_A: 0.3075 
+
+--- Classificação AB485663|HIV1_G ---
+HIV1_F: 0.4967 
+HIV1_C: 0.6413 
+HIV1_D: 0.0089 
 HIV1_B: 0.0001 
-HIV1_G: 0.7216 
-HIV1_A: 0.6683 
+HIV1_G: 0.9629 
+HIV1_A: 0.5948 
+
+--- Classificação KX389618|HIV1_G ---
+HIV1_F: 0.6264 
+HIV1_C: 0.0328 
+HIV1_D: 0.0015 
+HIV1_B: 0.0 
+HIV1_G: 0.5249 
+HIV1_A: 0.9475 
+
+--- Classificação JX140676|HIV1_G ---
+HIV1_F: 0.7618 
+HIV1_C: 0.9474 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.9449 
+HIV1_A: 0.8414 
+
+--- Classificação KX389615|HIV1_G ---
+HIV1_F: 0.6228 
+HIV1_C: 0.9281 
+HIV1_D: 0.0122 
+HIV1_B: 0.0 
+HIV1_G: 0.3975 
+HIV1_A: 0.2216 
+
+--- Classificação MH705155|HIV1_G ---
+HIV1_F: 0.6591 
+HIV1_C: 0.2324 
+HIV1_D: 0.2025 
+HIV1_B: 0.0008 
+HIV1_G: 0.4294 
+HIV1_A: 0.4532 
+
+--- Classificação KU168277|HIV1_G ---
+HIV1_F: 0.8098 
+HIV1_C: 0.3766 
+HIV1_D: 0.2163 
+HIV1_B: 0.0016 
+HIV1_G: 0.5156 
+HIV1_A: 0.5793 
+
+--- Classificação HM067749|HIV1_G ---
+HIV1_F: 0.3659 
+HIV1_C: 0.2077 
+HIV1_D: 0.0051 
+HIV1_B: 0.0001 
+HIV1_G: 0.118 
+HIV1_A: 0.6366 
+
+--- Classificação FJ389367|HIV1_G ---
+HIV1_F: 0.4221 
+HIV1_C: 0.5259 
+HIV1_D: 0.0994 
+HIV1_B: 0.0011 
+HIV1_G: 0.9574 
+HIV1_A: 0.9843 
 
 
 ########### HIV1_A ############
---- Classificação AB287379|HIV1_A ---
-HIV1_F: 0.4189 
-HIV1_C: 0.9195 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6982 
-HIV1_A: 0.5952 
-
---- Classificação AF457066|HIV1_A ---
-HIV1_F: 0.7152 
-HIV1_C: 0.6958 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7995 
-HIV1_A: 0.9408 
-
---- Classificação FJ388893|HIV1_A ---
-HIV1_F: 0.5993 
-HIV1_C: 0.0057 
-HIV1_D: 0.3393 
-HIV1_B: 0.0032 
-HIV1_G: 0.3957 
-HIV1_A: 0.4479 
-
---- Classificação AF361872|HIV1_A ---
-HIV1_F: 0.4734 
-HIV1_C: 0.8885 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5207 
-HIV1_A: 0.3931 
-
---- Classificação AF457077|HIV1_A ---
-HIV1_F: 0.5783 
-HIV1_C: 0.9488 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.615 
-HIV1_A: 0.4282 
-
---- Classificação GU201516|HIV1_A ---
-HIV1_F: 0.9037 
-HIV1_C: 0.1726 
-HIV1_D: 0.0114 
-HIV1_B: 0.0005 
-HIV1_G: 0.9979 
-HIV1_A: 0.9996 
-
---- Classificação FJ670519|HIV1_A ---
-HIV1_F: 0.3205 
-HIV1_C: 0.6653 
-HIV1_D: 0.0002 
-HIV1_B: 0.0001 
-HIV1_G: 0.682 
-HIV1_A: 0.6279 
-
---- Classificação AF286237|HIV1_A ---
-HIV1_F: 0.4026 
-HIV1_C: 0.8343 
+--- Classificação JX140651|HIV1_A ---
+HIV1_F: 0.7717 
+HIV1_C: 0.7032 
 HIV1_D: 0.0001 
-HIV1_B: 0.0001 
-HIV1_G: 0.507 
-HIV1_A: 0.455 
-
---- Classificação AM000053|HIV1_A ---
-HIV1_F: 0.3709 
-HIV1_C: 0.9861 
-HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.6453 
-HIV1_A: 0.5641 
-
---- Classificação AB287376|HIV1_A ---
-HIV1_F: 0.1704 
-HIV1_C: 0.9733 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.4358 
-HIV1_A: 0.3231 
-
---- Classificação FJ623488|HIV1_A ---
-HIV1_F: 0.3582 
-HIV1_C: 0.6234 
-HIV1_D: 0.0003 
-HIV1_B: 0.0001 
-HIV1_G: 0.7216 
-HIV1_A: 0.6683 
-
---- Classificação AB098332|HIV1_A ---
-HIV1_F: 0.3763 
-HIV1_C: 0.9226 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6731 
-HIV1_A: 0.5709 
-
---- Classificação AY322193|HIV1_A ---
-HIV1_F: 0.8266 
-HIV1_C: 0.5843 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8868 
-HIV1_A: 0.9855 
-
---- Classificação EU110085|HIV1_A ---
-HIV1_F: 0.363 
-HIV1_C: 0.957 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.4834 
-HIV1_A: 0.6759 
-
---- Classificação JF683783|HIV1_A ---
-HIV1_F: 0.9892 
-HIV1_C: 0.0987 
-HIV1_D: 0.0278 
-HIV1_B: 0.0007 
-HIV1_G: 0.9461 
-HIV1_A: 0.9715 
-
---- Classificação EU110092|HIV1_A ---
-HIV1_F: 0.886 
-HIV1_C: 0.9831 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8852 
-HIV1_A: 0.7196 
-
---- Classificação JQ292891|HIV1_A ---
-HIV1_F: 0.9852 
-HIV1_C: 0.1037 
-HIV1_D: 0.026 
-HIV1_B: 0.0007 
-HIV1_G: 0.9529 
-HIV1_A: 0.9764 
-
---- Classificação AF069671|HIV1_A ---
-HIV1_F: 0.5034 
-HIV1_C: 0.87 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6173 
-HIV1_A: 0.8032 
-
---- Classificação DQ676873|HIV1_A ---
-HIV1_F: 0.9852 
-HIV1_C: 0.1037 
-HIV1_D: 0.026 
-HIV1_B: 0.0007 
-HIV1_G: 0.9529 
-HIV1_A: 0.9764 
-
---- Classificação AF457089|HIV1_A ---
-HIV1_F: 0.2851 
-HIV1_C: 0.7067 
-HIV1_D: 0.0002 
-HIV1_B: 0.0001 
-HIV1_G: 0.6417 
-HIV1_A: 0.5873 
-
---- Classificação FJ864679|HIV1_A ---
-HIV1_F: 0.5359 
-HIV1_C: 0.9242 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5421 
-HIV1_A: 0.4071 
-
---- Classificação KC596070|HIV1_A ---
-HIV1_F: 0.9993 
-HIV1_C: 0.8347 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9958 
-HIV1_A: 0.9196 
-
---- Classificação EU110095|HIV1_A ---
-HIV1_F: 0.5936 
-HIV1_C: 0.9557 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6286 
-HIV1_A: 0.4408 
-
---- Classificação AF457084|HIV1_A ---
-HIV1_F: 0.998 
-HIV1_C: 0.7861 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 1.0 
-HIV1_A: 0.95 
-
---- Classificação EU110097|HIV1_A ---
-HIV1_F: 0.6547 
-HIV1_C: 0.9785 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6825 
-HIV1_A: 0.4922 
-
---- Classificação AF069669|HIV1_A ---
-HIV1_F: 0.6998 
-HIV1_C: 0.9904 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7221 
-HIV1_A: 0.5318 
-
---- Classificação FJ623477|HIV1_A ---
-HIV1_F: 0.9263 
-HIV1_C: 0.9623 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9215 
-HIV1_A: 0.7706 
-
---- Classificação JF683761|HIV1_A ---
-HIV1_F: 0.9806 
-HIV1_C: 0.1089 
-HIV1_D: 0.0242 
-HIV1_B: 0.0007 
-HIV1_G: 0.9593 
-HIV1_A: 0.981 
-
---- Classificação EU110087|HIV1_A ---
-HIV1_F: 0.4445 
-HIV1_C: 0.8678 
-HIV1_D: 0.0 
-HIV1_B: 0.0001 
-HIV1_G: 0.4942 
-HIV1_A: 0.4174 
-
---- Classificação FJ623482|HIV1_A ---
-HIV1_F: 0.2966 
-HIV1_C: 0.693 
-HIV1_D: 0.0002 
-HIV1_B: 0.0001 
-HIV1_G: 0.6552 
-HIV1_A: 0.6009 
-
---- Classificação AY253305|HIV1_A ---
-HIV1_F: 0.7862 
-HIV1_C: 1.0 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7974 
-HIV1_A: 0.6127 
-
---- Classificação KP223779|HIV1_A ---
-HIV1_F: 0.9935 
-HIV1_C: 0.8682 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9875 
-HIV1_A: 0.8927 
-
---- Classificação KP109490|HIV1_A ---
-HIV1_F: 0.9867 
-HIV1_C: 0.7341 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9962 
-HIV1_A: 0.9737 
-
---- Classificação AB253421|HIV1_A ---
-HIV1_F: 0.0097 
-HIV1_C: 0.9091 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0619 
-HIV1_A: 0.0403 
-
---- Classificação AF457075|HIV1_A ---
-HIV1_F: 0.4589 
-HIV1_C: 0.8783 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5074 
-HIV1_A: 0.4052 
+HIV1_G: 0.9713 
+HIV1_A: 0.8642 
 
 --- Classificação FJ623481|HIV1_A ---
-HIV1_F: 0.5128 
-HIV1_C: 0.4713 
-HIV1_D: 0.001 
-HIV1_B: 0.0002 
-HIV1_G: 0.854 
-HIV1_A: 0.8084 
+HIV1_F: 0.871 
+HIV1_C: 0.4361 
+HIV1_D: 0.0073 
+HIV1_B: 0.0 
+HIV1_G: 0.9621 
+HIV1_A: 0.7349 
 
---- Classificação FJ388943|HIV1_A ---
-HIV1_F: 0.394 
-HIV1_C: 0.0019 
-HIV1_D: 0.5442 
-HIV1_B: 0.005 
-HIV1_G: 0.246 
-HIV1_A: 0.287 
+--- Classificação AF457083|HIV1_A ---
+HIV1_F: 0.6773 
+HIV1_C: 0.2454 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.7419 
+HIV1_A: 0.981 
 
---- Classificação JF683760|HIV1_A ---
-HIV1_F: 0.9974 
-HIV1_C: 0.0848 
-HIV1_D: 0.0343 
-HIV1_B: 0.0008 
-HIV1_G: 0.9231 
-HIV1_A: 0.9538 
+--- Classificação JX236671|HIV1_A ---
+HIV1_F: 0.6641 
+HIV1_C: 0.9981 
+HIV1_D: 0.0084 
+HIV1_B: 0.0 
+HIV1_G: 0.9979 
+HIV1_A: 0.7311 
 
---- Classificação FJ388932|HIV1_A ---
-HIV1_F: 0.1585 
-HIV1_C: 0.0003 
-HIV1_D: 0.8706 
-HIV1_B: 0.0094 
-HIV1_G: 0.0956 
-HIV1_A: 0.1171 
+--- Classificação AB098330|HIV1_A ---
+HIV1_F: 0.9531 
+HIV1_C: 0.912 
+HIV1_D: 0.0033 
+HIV1_B: 0.0 
+HIV1_G: 0.8357 
+HIV1_A: 0.9947 
 
---- Classificação AB098333|HIV1_A ---
-HIV1_F: 0.3163 
-HIV1_C: 0.942 
+--- Classificação AF484508|HIV1_A ---
+HIV1_F: 0.1454 
+HIV1_C: 0.142 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.6148 
-HIV1_A: 0.5258 
+HIV1_G: 0.451 
+HIV1_A: 1.0 
 
 --- Classificação AF457068|HIV1_A ---
-HIV1_F: 0.6095 
-HIV1_C: 0.7883 
+HIV1_F: 0.41 
+HIV1_C: 0.3347 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.7112 
-HIV1_A: 0.88 
+HIV1_G: 0.628 
+HIV1_A: 0.8636 
 
---- Classificação JX236678|HIV1_A ---
-HIV1_F: 0.0966 
-HIV1_C: 0.9966 
-HIV1_D: 0.0 
+--- Classificação KF716478|HIV1_A ---
+HIV1_F: 0.7578 
+HIV1_C: 0.9147 
+HIV1_D: 0.0034 
 HIV1_B: 0.0 
-HIV1_G: 0.3032 
-HIV1_A: 0.2152 
+HIV1_G: 0.5968 
+HIV1_A: 0.7851 
 
---- Classificação AF457070|HIV1_A ---
-HIV1_F: 0.9517 
-HIV1_C: 0.6519 
+--- Classificação AB098332|HIV1_A ---
+HIV1_F: 0.3205 
+HIV1_C: 0.9681 
+HIV1_D: 0.0005 
+HIV1_B: 0.0 
+HIV1_G: 0.8543 
+HIV1_A: 0.7694 
+
+--- Classificação AF361872|HIV1_A ---
+HIV1_F: 0.7591 
+HIV1_C: 0.6903 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.9757 
-HIV1_A: 0.9953 
+HIV1_G: 0.9882 
+HIV1_A: 0.4936 
 
 --- Classificação AB287378|HIV1_A ---
-HIV1_F: 0.3613 
-HIV1_C: 0.9797 
+HIV1_F: 0.211 
+HIV1_C: 0.6607 
+HIV1_D: 0.0019 
+HIV1_B: 0.0 
+HIV1_G: 0.6895 
+HIV1_A: 0.6524 
+
+--- Classificação AB253429|HIV1_A ---
+HIV1_F: 0.6185 
+HIV1_C: 0.9992 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.6633 
-HIV1_A: 0.5743 
+HIV1_G: 0.8707 
+HIV1_A: 0.66 
 
---- Classificação AF457080|HIV1_A ---
-HIV1_F: 0.8752 
-HIV1_C: 0.54 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9229 
-HIV1_A: 0.9967 
-
---- Classificação EU110094|HIV1_A ---
-HIV1_F: 0.389 
-HIV1_C: 0.8225 
-HIV1_D: 0.0001 
-HIV1_B: 0.0001 
-HIV1_G: 0.5202 
-HIV1_A: 0.4679 
-
---- Classificação KP223780|HIV1_A ---
-HIV1_F: 0.9999 
-HIV1_C: 0.8229 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9976 
-HIV1_A: 0.9278 
-
---- Classificação AF069673|HIV1_A ---
-HIV1_F: 0.8131 
-HIV1_C: 0.9989 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.821 
-HIV1_A: 0.6397 
-
---- Classificação EU110088|HIV1_A ---
-HIV1_F: 0.2889 
-HIV1_C: 0.7202 
-HIV1_D: 0.0001 
-HIV1_B: 0.0001 
-HIV1_G: 0.6282 
-HIV1_A: 0.5738 
-
---- Classificação AF457081|HIV1_A ---
-HIV1_F: 0.4832 
-HIV1_C: 0.4983 
-HIV1_D: 0.0008 
-HIV1_B: 0.0002 
-HIV1_G: 0.832 
-HIV1_A: 0.7844 
-
---- Classificação FJ388925|HIV1_A ---
-HIV1_F: 0.9466 
-HIV1_C: 0.0348 
-HIV1_D: 0.0933 
-HIV1_B: 0.0014 
-HIV1_G: 0.7504 
-HIV1_A: 0.8017 
-
---- Classificação FJ388909|HIV1_A ---
-HIV1_F: 0.2287 
-HIV1_C: 0.0006 
-HIV1_D: 0.7627 
-HIV1_B: 0.0075 
-HIV1_G: 0.1386 
-HIV1_A: 0.1668 
-
---- Classificação JX236677|HIV1_A ---
-HIV1_F: 0.3787 
-HIV1_C: 0.9886 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.6532 
-HIV1_A: 0.5724 
-
---- Classificação AF361873|HIV1_A ---
-HIV1_F: 0.64 
-HIV1_C: 0.7628 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.7372 
-HIV1_A: 0.8992 
-
---- Classificação AF107771|HIV1_A ---
-HIV1_F: 0.4117 
-HIV1_C: 0.5673 
-HIV1_D: 0.0005 
-HIV1_B: 0.0001 
-HIV1_G: 0.7726 
-HIV1_A: 0.7212 
-
---- Classificação FJ623478|HIV1_A ---
-HIV1_F: 0.3582 
-HIV1_C: 0.6234 
+--- Classificação FJ623476|HIV1_A ---
+HIV1_F: 0.9989 
+HIV1_C: 0.1746 
 HIV1_D: 0.0003 
-HIV1_B: 0.0001 
-HIV1_G: 0.7216 
-HIV1_A: 0.6683 
+HIV1_B: 0.0 
+HIV1_G: 0.8993 
+HIV1_A: 0.7364 
+
+--- Classificação FJ388943|HIV1_A ---
+HIV1_F: 0.9827 
+HIV1_C: 0.0418 
+HIV1_D: 0.8798 
+HIV1_B: 0.0064 
+HIV1_G: 0.3112 
+HIV1_A: 0.999 
+
+--- Classificação FJ623488|HIV1_A ---
+HIV1_F: 0.9878 
+HIV1_C: 0.3421 
+HIV1_D: 0.0059 
+HIV1_B: 0.0 
+HIV1_G: 0.9868 
+HIV1_A: 0.7878 
 
 --- Classificação AB253428|HIV1_A ---
-HIV1_F: 0.1054 
-HIV1_C: 0.9413 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.3001 
-HIV1_A: 0.2383 
-
---- Classificação FJ623475|HIV1_A ---
-HIV1_F: 0.5783 
-HIV1_C: 0.9488 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.615 
-HIV1_A: 0.4282 
-
---- Classificação KF716474|HIV1_A ---
-HIV1_F: 0.5029 
-HIV1_C: 0.9077 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.5474 
-HIV1_A: 0.3695 
-
---- Classificação AB098331|HIV1_A ---
-HIV1_F: 0.0235 
-HIV1_C: 0.9887 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.1225 
-HIV1_A: 0.0774 
-
---- Classificação AF457086|HIV1_A ---
-HIV1_F: 0.998 
-HIV1_C: 0.7861 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 1.0 
-HIV1_A: 0.95 
-
---- Classificação AF457079|HIV1_A ---
-HIV1_F: 0.3369 
-HIV1_C: 0.773 
+HIV1_F: 0.6584 
+HIV1_C: 0.9997 
 HIV1_D: 0.0001 
-HIV1_B: 0.0001 
-HIV1_G: 0.574 
-HIV1_A: 0.5202 
-
---- Classificação M62320|HIV1_A ---
-HIV1_F: 0.9837 
-HIV1_C: 0.8892 
-HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 1.0 
-HIV1_A: 0.9876 
-
---- Classificação AF193275|HIV1_A ---
-HIV1_F: 0.0039 
-HIV1_C: 0.0 
-HIV1_D: 0.6418 
-HIV1_B: 0.0394 
-HIV1_G: 0.0029 
-HIV1_A: 0.004 
-
---- Classificação KF716472|HIV1_A ---
-HIV1_F: 0.7728 
-HIV1_C: 0.6404 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.8454 
-HIV1_A: 0.9667 
-
---- Classificação KP223777|HIV1_A ---
-HIV1_F: 0.9904 
-HIV1_C: 0.8787 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9838 
-HIV1_A: 0.883 
-
---- Classificação AB253422|HIV1_A ---
-HIV1_F: 0.0117 
-HIV1_C: 0.9281 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.0738 
-HIV1_A: 0.0461 
-
---- Classificação AY322185|HIV1_A ---
-HIV1_F: 0.9075 
-HIV1_C: 0.5818 
-HIV1_D: 0.0 
-HIV1_B: 0.0 
-HIV1_G: 0.9459 
-HIV1_A: 0.9999 
+HIV1_G: 0.9394 
+HIV1_A: 0.8014 
 
 --- Classificação AY253314|HIV1_A ---
-HIV1_F: 0.9514 
-HIV1_C: 0.9417 
+HIV1_F: 0.9796 
+HIV1_C: 0.8042 
+HIV1_D: 0.0008 
+HIV1_B: 0.0 
+HIV1_G: 0.8245 
+HIV1_A: 0.2202 
+
+--- Classificação FJ388925|HIV1_A ---
+HIV1_F: 0.0423 
+HIV1_C: 0.0002 
+HIV1_D: 0.0105 
+HIV1_B: 0.0005 
+HIV1_G: 0.0116 
+HIV1_A: 0.7627 
+
+--- Classificação FJ623477|HIV1_A ---
+HIV1_F: 0.9841 
+HIV1_C: 0.9199 
 HIV1_D: 0.0 
 HIV1_B: 0.0 
-HIV1_G: 0.9447 
-HIV1_A: 0.8069 
+HIV1_G: 0.9861 
+HIV1_A: 0.4736 
 
---- Classificação JX140650|HIV1_A ---
-HIV1_F: 0.4164 
-HIV1_C: 0.8458 
+--- Classificação AF069670|HIV1_A ---
+HIV1_F: 0.9993 
+HIV1_C: 0.2858 
+HIV1_D: 0.0062 
+HIV1_B: 0.0 
+HIV1_G: 0.9997 
+HIV1_A: 0.3402 
+
+--- Classificação KF716472|HIV1_A ---
+HIV1_F: 0.8983 
+HIV1_C: 0.9973 
 HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.8487 
+HIV1_A: 0.998 
+
+--- Classificação AB287377|HIV1_A ---
+HIV1_F: 0.4476 
+HIV1_C: 0.888 
+HIV1_D: 0.0014 
 HIV1_B: 0.0001 
-HIV1_G: 0.4938 
-HIV1_A: 0.4424 
+HIV1_G: 0.8365 
+HIV1_A: 0.7312 
+
+--- Classificação KP223778|HIV1_A ---
+HIV1_F: 0.4013 
+HIV1_C: 0.8859 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.8077 
+HIV1_A: 0.9333 
+
+--- Classificação KP223780|HIV1_A ---
+HIV1_F: 0.2845 
+HIV1_C: 0.9483 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.8388 
+HIV1_A: 1.0 
+
+--- Classificação FJ623478|HIV1_A ---
+HIV1_F: 0.9318 
+HIV1_C: 0.4071 
+HIV1_D: 0.001 
+HIV1_B: 0.0 
+HIV1_G: 1.0 
+HIV1_A: 0.6722 
+
+--- Classificação FJ388932|HIV1_A ---
+HIV1_F: 0.0509 
+HIV1_C: 0.0006 
+HIV1_D: 0.0457 
+HIV1_B: 0.0093 
+HIV1_G: 0.0009 
+HIV1_A: 0.2398 
+
+--- Classificação AF457055|HIV1_A ---
+HIV1_F: 0.9702 
+HIV1_C: 0.4622 
+HIV1_D: 0.0051 
+HIV1_B: 0.0 
+HIV1_G: 0.922 
+HIV1_A: 0.7344 
+
+--- Classificação KF716475|HIV1_A ---
+HIV1_F: 0.589 
+HIV1_C: 0.9451 
+HIV1_D: 0.0028 
+HIV1_B: 0.0001 
+HIV1_G: 0.798 
+HIV1_A: 0.8585 
+
+--- Classificação FJ623483|HIV1_A ---
+HIV1_F: 0.991 
+HIV1_C: 0.7051 
+HIV1_D: 0.0011 
+HIV1_B: 0.0 
+HIV1_G: 0.923 
+HIV1_A: 0.4169 
+
+--- Classificação AB287379|HIV1_A ---
+HIV1_F: 0.2715 
+HIV1_C: 0.7569 
+HIV1_D: 0.003 
+HIV1_B: 0.0 
+HIV1_G: 0.7748 
+HIV1_A: 0.7452 
+
+--- Classificação AF069671|HIV1_A ---
+HIV1_F: 0.3551 
+HIV1_C: 0.2508 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.7347 
+HIV1_A: 0.9792 
+
+--- Classificação AF457069|HIV1_A ---
+HIV1_F: 0.9508 
+HIV1_C: 0.7469 
+HIV1_D: 0.0012 
+HIV1_B: 0.0 
+HIV1_G: 0.9773 
+HIV1_A: 0.216 
+
+--- Classificação FJ623482|HIV1_A ---
+HIV1_F: 0.9954 
+HIV1_C: 0.2824 
+HIV1_D: 0.003 
+HIV1_B: 0.0 
+HIV1_G: 0.9289 
+HIV1_A: 0.7084 
+
+--- Classificação KP223777|HIV1_A ---
+HIV1_F: 0.4093 
+HIV1_C: 0.9707 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.8194 
+HIV1_A: 0.9922 
+
+--- Classificação KF716499|HIV1_A ---
+HIV1_F: 0.9115 
+HIV1_C: 0.9589 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.9274 
+HIV1_A: 0.942 
+
+--- Classificação JX236669|HIV1_A ---
+HIV1_F: 0.9642 
+HIV1_C: 0.9258 
+HIV1_D: 0.0118 
+HIV1_B: 0.0001 
+HIV1_G: 0.662 
+HIV1_A: 0.9301 
+
+--- Classificação AF457075|HIV1_A ---
+HIV1_F: 0.2935 
+HIV1_C: 0.244 
+HIV1_D: 0.0003 
+HIV1_B: 0.0 
+HIV1_G: 0.7538 
+HIV1_A: 0.9594 
+
+--- Classificação KJ948658|HIV1_A ---
+HIV1_F: 0.0009 
+HIV1_C: 0.0 
+HIV1_D: 0.0312 
+HIV1_B: 0.0039 
+HIV1_G: 0.0001 
+HIV1_A: 0.4086 
+
+--- Classificação AF484493|HIV1_A ---
+HIV1_F: 0.8127 
+HIV1_C: 0.2846 
+HIV1_D: 0.0092 
+HIV1_B: 0.0 
+HIV1_G: 0.9534 
+HIV1_A: 0.2584 
+
+--- Classificação FJ670519|HIV1_A ---
+HIV1_F: 0.4698 
+HIV1_C: 0.9622 
+HIV1_D: 0.1439 
+HIV1_B: 0.0003 
+HIV1_G: 0.84 
+HIV1_A: 0.5905 
+
+--- Classificação AF457089|HIV1_A ---
+HIV1_F: 0.9974 
+HIV1_C: 0.194 
+HIV1_D: 0.0365 
+HIV1_B: 0.0001 
+HIV1_G: 0.9998 
+HIV1_A: 0.3523 
+
+--- Classificação AB253422|HIV1_A ---
+HIV1_F: 0.7187 
+HIV1_C: 0.9924 
+HIV1_D: 0.0049 
+HIV1_B: 0.0 
+HIV1_G: 0.9836 
+HIV1_A: 0.9803 
+
+--- Classificação AF286237|HIV1_A ---
+HIV1_F: 0.1579 
+HIV1_C: 0.976 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.5116 
+HIV1_A: 0.4853 
+
+--- Classificação AF457079|HIV1_A ---
+HIV1_F: 0.9573 
+HIV1_C: 0.2726 
+HIV1_D: 0.0005 
+HIV1_B: 0.0 
+HIV1_G: 0.9881 
+HIV1_A: 0.336 
+
+--- Classificação AM000053|HIV1_A ---
+HIV1_F: 0.9679 
+HIV1_C: 0.9823 
+HIV1_D: 0.0019 
+HIV1_B: 0.0 
+HIV1_G: 0.9007 
+HIV1_A: 0.9888 
+
+--- Classificação AY322193|HIV1_A ---
+HIV1_F: 0.9999 
+HIV1_C: 0.999 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.8948 
+HIV1_A: 0.9958 
+
+--- Classificação FJ388942|HIV1_A ---
+HIV1_F: 0.1848 
+HIV1_C: 0.0026 
+HIV1_D: 0.0622 
+HIV1_B: 0.005 
+HIV1_G: 0.0417 
+HIV1_A: 0.9692 
+
+--- Classificação AF484512|HIV1_A ---
+HIV1_F: 0.9952 
+HIV1_C: 0.6474 
+HIV1_D: 0.0011 
+HIV1_B: 0.0 
+HIV1_G: 0.9956 
+HIV1_A: 0.2912 
+
+--- Classificação AY322185|HIV1_A ---
+HIV1_F: 0.9926 
+HIV1_C: 0.9232 
+HIV1_D: 0.0005 
+HIV1_B: 0.0 
+HIV1_G: 0.9768 
+HIV1_A: 0.9997 
+
+--- Classificação JF683767|HIV1_A ---
+HIV1_F: 0.5962 
+HIV1_C: 0.0201 
+HIV1_D: 0.1284 
+HIV1_B: 0.0008 
+HIV1_G: 0.1857 
+HIV1_A: 0.9984 
+
+--- Classificação JX236676|HIV1_A ---
+HIV1_F: 0.7094 
+HIV1_C: 0.9883 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9801 
+HIV1_A: 0.9434 
+
+--- Classificação FJ623480|HIV1_A ---
+HIV1_F: 0.7495 
+HIV1_C: 0.7003 
+HIV1_D: 0.01 
+HIV1_B: 0.0 
+HIV1_G: 0.9989 
+HIV1_A: 0.2215 
+
+--- Classificação AF069669|HIV1_A ---
+HIV1_F: 0.9339 
+HIV1_C: 0.6928 
+HIV1_D: 0.0033 
+HIV1_B: 0.0 
+HIV1_G: 0.9994 
+HIV1_A: 0.708 
+
+--- Classificação KC596070|HIV1_A ---
+HIV1_F: 0.0187 
+HIV1_C: 0.147 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.0369 
+HIV1_A: 0.1226 
+
+--- Classificação AF457053|HIV1_A ---
+HIV1_F: 0.8463 
+HIV1_C: 0.4166 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.9405 
+HIV1_A: 0.6668 
+
+--- Classificação FJ388903|HIV1_A ---
+HIV1_F: 0.1151 
+HIV1_C: 0.0052 
+HIV1_D: 0.0553 
+HIV1_B: 0.0013 
+HIV1_G: 0.0623 
+HIV1_A: 0.9895 
+
+--- Classificação AB485632|HIV1_A ---
+HIV1_F: 0.3238 
+HIV1_C: 0.7664 
+HIV1_D: 0.0 
+HIV1_B: 0.0 
+HIV1_G: 0.8942 
+HIV1_A: 0.6596 
+
+--- Classificação EU110097|HIV1_A ---
+HIV1_F: 0.4813 
+HIV1_C: 0.4272 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.7163 
+HIV1_A: 0.9117 
+
+--- Classificação KP223844|HIV1_A ---
+HIV1_F: 0.994 
+HIV1_C: 0.9998 
+HIV1_D: 0.0003 
+HIV1_B: 0.0 
+HIV1_G: 0.7337 
+HIV1_A: 0.8294 
+
+--- Classificação AF457084|HIV1_A ---
+HIV1_F: 0.8243 
+HIV1_C: 0.3149 
+HIV1_D: 0.0002 
+HIV1_B: 0.0 
+HIV1_G: 0.5209 
+HIV1_A: 0.8159 
+
+--- Classificação EU110088|HIV1_A ---
+HIV1_F: 0.9012 
+HIV1_C: 0.9901 
+HIV1_D: 0.0142 
+HIV1_B: 0.0001 
+HIV1_G: 0.9707 
+HIV1_A: 0.8041 
+
+--- Classificação EU110095|HIV1_A ---
+HIV1_F: 0.9496 
+HIV1_C: 0.8299 
+HIV1_D: 0.0014 
+HIV1_B: 0.0001 
+HIV1_G: 0.9966 
+HIV1_A: 0.9267 
+
+--- Classificação AF069673|HIV1_A ---
+HIV1_F: 0.4944 
+HIV1_C: 0.1831 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.8437 
+HIV1_A: 0.9522 
+
+--- Classificação JF683789|HIV1_A ---
+HIV1_F: 0.0045 
+HIV1_C: 0.0 
+HIV1_D: 0.0125 
+HIV1_B: 0.004 
+HIV1_G: 0.0002 
+HIV1_A: 0.1998 
+
+--- Classificação M62320|HIV1_A ---
+HIV1_F: 0.9106 
+HIV1_C: 0.7187 
+HIV1_D: 0.008 
+HIV1_B: 0.0001 
+HIV1_G: 0.8823 
+HIV1_A: 0.9416 
+
+--- Classificação JF683783|HIV1_A ---
+HIV1_F: 0.0902 
+HIV1_C: 0.0001 
+HIV1_D: 0.0203 
+HIV1_B: 0.0006 
+HIV1_G: 0.0016 
+HIV1_A: 0.6043 
+
+--- Classificação AF107771|HIV1_A ---
+HIV1_F: 0.8796 
+HIV1_C: 0.9989 
+HIV1_D: 0.0026 
+HIV1_B: 0.0001 
+HIV1_G: 0.775 
+HIV1_A: 0.9746 
+
+--- Classificação EU110094|HIV1_A ---
+HIV1_F: 0.9948 
+HIV1_C: 0.9994 
+HIV1_D: 0.0011 
+HIV1_B: 0.0 
+HIV1_G: 0.9892 
+HIV1_A: 0.9819 
+
+--- Classificação FJ388938|HIV1_A ---
+HIV1_F: 0.0407 
+HIV1_C: 0.0005 
+HIV1_D: 0.0082 
+HIV1_B: 0.0006 
+HIV1_G: 0.0174 
+HIV1_A: 0.8014 
+
+--- Classificação KP109490|HIV1_A ---
+HIV1_F: 0.9266 
+HIV1_C: 0.9428 
+HIV1_D: 0.0001 
+HIV1_B: 0.0 
+HIV1_G: 0.9397 
+HIV1_A: 0.7936 
